@@ -2,13 +2,19 @@ require('dotenv').config();
 
 const express = require('express');
 const { Telegraf } = require('telegraf');
+const mongoose = require('mongoose');
 
 const app = express();
 
 // ✅ Railway port fix
 const PORT = process.env.PORT || 8080;
 
-// ✅ Bot token
+// ===== MONGODB CONNECTION =====
+mongoose.connect(process.env.MONGO_URL)
+.then(() => console.log("MongoDB connected ✅"))
+.catch(err => console.log("MongoDB error ❌", err));
+
+// ===== BOT SETUP =====
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
 // ===== BOT COMMANDS =====
