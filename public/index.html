@@ -7,104 +7,231 @@
   <style>
     body {
       margin: 0;
-      font-family: Arial;
-      background: #0f172a;
+      font-family: 'Segoe UI', sans-serif;
+      background: radial-gradient(circle at top, #0f172a, #020617);
       color: white;
       text-align: center;
+      overflow-x: hidden;
     }
 
+    /* HEADER */
     .header {
       padding: 20px;
-      font-size: 22px;
+      font-size: 26px;
       font-weight: bold;
-      background: linear-gradient(135deg, #6366f1, #9333ea);
+      background: linear-gradient(90deg, #00f5ff, #7c3aed);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: fadeDown 0.8s ease;
     }
 
+    /* CARDS */
     .card {
-      background: #1e293b;
-      margin: 20px;
-      padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      margin: 15px;
+      padding: 18px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 0 25px rgba(0,255,255,0.08);
+      animation: fadeUp 0.8s ease;
     }
 
     .balance {
-      font-size: 28px;
+      font-size: 34px;
       font-weight: bold;
       margin-top: 10px;
+      color: #00f5ff;
+      transition: 0.3s;
     }
 
+    /* BUTTONS */
     .btn {
       display: block;
-      width: 80%;
-      margin: 15px auto;
+      width: 85%;
+      margin: 12px auto;
       padding: 15px;
-      border-radius: 10px;
+      border-radius: 12px;
       border: none;
       font-size: 16px;
       font-weight: bold;
       cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn:hover {
+      transform: scale(1.06);
+      box-shadow: 0 0 20px rgba(0,255,255,0.6);
+    }
+
+    .btn:active::after {
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: rgba(255,255,255,0.2);
+      left: 0;
+      top: 0;
+      animation: ripple 0.5s;
     }
 
     .earn {
-      background: #22c55e;
-      color: white;
+      background: linear-gradient(135deg, #00f5ff, #6366f1);
+      color: black;
     }
 
     .withdraw {
-      background: #ef4444;
-      color: white;
+      background: linear-gradient(135deg, #ff4d4d, #ef4444);
     }
 
     .referral {
-      background: #3b82f6;
-      color: white;
+      background: linear-gradient(135deg, #7c3aed, #9333ea);
     }
 
+    /* TASKS */
+    .task {
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+      animation: fadeUp 0.6s ease;
+    }
+
+    .task button {
+      margin-top: 8px;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .task button:hover {
+      box-shadow: 0 0 12px #22c55e;
+    }
+
+    /* SKELETON LOADING */
+    .skeleton {
+      height: 20px;
+      margin: 10px;
+      border-radius: 8px;
+      background: linear-gradient(90deg, #1e293b, #334155, #1e293b);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    @keyframes ripple {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
   </style>
 </head>
 
 <body>
 
-  <div class="header">
-    💰 AdWallet
+<div class="header">💰 AdWallet</div>
+
+<!-- WALLET -->
+<div class="card">
+  <div>Wallet Balance</div>
+  <div class="balance" id="balance">
+    <div class="skeleton"></div>
   </div>
+</div>
 
-  <div class="card">
-    <div>Wallet Balance</div>
-    <div class="balance" id="balance">₹0</div>
+<!-- BUTTONS -->
+<button class="btn earn" onclick="earn()">⚡ Earn Money</button>
+<button class="btn withdraw" onclick="withdraw()">💸 Withdraw</button>
+<button class="btn referral" onclick="ref()">👥 Referral</button>
+
+<!-- TASKS -->
+<div class="card">
+  <h3>🎯 Live Tasks</h3>
+  <div id="tasks">
+    <div class="skeleton"></div>
+    <div class="skeleton"></div>
   </div>
+</div>
 
-  <button class="btn earn" onclick="earn()">🎯 Earn Money</button>
-  <button class="btn withdraw" onclick="withdraw()">💸 Withdraw</button>
-  <button class="btn referral" onclick="ref()">👥 Referral</button>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-  <script>
-    async function loadUser() {
-      try {
-        const res = await fetch('/users');
-        const data = await res.json();
-        document.getElementById("balance").innerText =
-          "₹" + (data[0]?.balance || 0);
-      } catch (err) {
-        console.log(err);
-      }
-    }
+<script>
+  const tg = window.Telegram.WebApp;
+  tg.expand();
 
-    function earn() {
-      alert("Complete task from bot to earn 💰");
-    }
+  const userId = tg.initDataUnsafe?.user?.id;
 
-    function withdraw() {
-      alert("Withdrawal feature coming soon 💸");
-    }
+  async function loadUser() {
+    const res = await fetch(`/user/${userId}`);
+    const data = await res.json();
 
-    function ref() {
-      alert("Referral system coming soon 👥");
-    }
+    document.getElementById("balance").innerText = "₹" + data.balance;
+  }
 
-    loadUser();
-  </script>
+  async function loadTasks() {
+    const res = await fetch('/tasks');
+    const tasks = await res.json();
+
+    const container = document.getElementById("tasks");
+    container.innerHTML = "";
+
+    tasks.forEach(task => {
+      const div = document.createElement("div");
+      div.className = "task";
+
+      div.innerHTML = `
+        <b>${task.title}</b><br>
+        <button onclick="openTask('${task.link}')">
+          Earn ₹${task.reward}
+        </button>
+      `;
+
+      container.appendChild(div);
+    });
+  }
+
+  function openTask(link) {
+    const finalLink = link.replace("{user_id}", userId);
+    window.open(finalLink, "_blank");
+  }
+
+  function earn() {
+    alert("⚡ Complete tasks below to earn");
+  }
+
+  function withdraw() {
+    alert("💸 Use /withdraw in bot");
+  }
+
+  function ref() {
+    const link = `https://t.me/AdzwalletBot?start=${userId}`;
+    navigator.clipboard.writeText(link);
+    alert("👥 Referral link copied 🚀");
+  }
+
+  loadUser();
+  loadTasks();
+</script>
 
 </body>
 </html>
