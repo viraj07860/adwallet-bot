@@ -1,28 +1,18 @@
-<!DOCTYPE html>
+ww<!DOCTYPE html>
 <html>
 <head>
   <title>AdWallet</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- CONFETTI -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
   <style>
     body {
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: radial-gradient(circle at top, #0f172a, #020617);
+      font-family: 'Segoe UI';
+      background: #020617;
       color: white;
       text-align: center;
-    }
-
-    .header {
-      padding: 20px;
-      font-size: 26px;
-      font-weight: bold;
-      background: linear-gradient(90deg, #00f5ff, #7c3aed);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
     }
 
     .card {
@@ -30,216 +20,191 @@
       padding: 18px;
       border-radius: 20px;
       background: rgba(255,255,255,0.05);
-      backdrop-filter: blur(12px);
-      box-shadow: 0 0 25px rgba(0,255,255,0.08);
-      animation: fadeUp 0.6s ease;
-    }
-
-    .balance {
-      font-size: 34px;
-      color: #00f5ff;
+      box-shadow: 0 0 20px rgba(0,255,255,0.1);
     }
 
     .btn {
-      display: block;
       width: 85%;
-      margin: 12px auto;
-      padding: 15px;
-      border-radius: 12px;
+      padding: 14px;
+      margin: 10px;
+      border-radius: 10px;
       border: none;
-      font-size: 16px;
       font-weight: bold;
       cursor: pointer;
-      transition: 0.3s;
     }
 
-    .btn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 20px #00f5ff;
-    }
+    .earn { background: #00f5ff; color:black; }
+    .withdraw { background: red; }
+    .ref { background: purple; }
 
-    .earn { background: linear-gradient(135deg, #00f5ff, #6366f1); color:black; }
-    .withdraw { background: linear-gradient(135deg, #ff4d4d, #ef4444); }
-    .referral { background: linear-gradient(135deg, #7c3aed, #9333ea); }
-
-    .task {
-      padding: 12px;
-      margin: 10px 0;
-      border-radius: 12px;
-      background: rgba(255,255,255,0.03);
-    }
-
-    #progress-bar {
-      height: 6px;
-      width: 0%;
-      background: linear-gradient(90deg,#00f5ff,#6366f1);
-      transition: 0.4s;
-    }
-
-    @keyframes fadeUp {
-      from { opacity:0; transform:translateY(20px); }
-      to { opacity:1; transform:translateY(0); }
+    #progress {
+      height:6px;
+      background:#00f5ff;
+      width:0%;
+      transition:0.4s;
     }
   </style>
 </head>
 
 <body>
 
-<div class="header">💰 AdWallet</div>
-
-<!-- PROGRESS -->
-<div style="width:90%;margin:10px auto;background:#1e293b;border-radius:10px;">
-  <div id="progress-bar"></div>
+<!-- 🔥 LOADER -->
+<div id="loader" style="
+position:fixed;
+width:100%;
+height:100%;
+background:#020617;
+display:flex;
+align-items:center;
+justify-content:center;
+flex-direction:column;
+z-index:9999;
+">
+  <img src="/logo.png" width="100">
+  <h2>AdWallet</h2>
+  <p>Loading...</p>
 </div>
 
-<!-- WALLET -->
+<!-- 🔥 HEADER -->
 <div class="card">
-  <div>Wallet Balance</div>
-  <div class="balance" id="balance">₹0</div>
+  <img src="/logo.png" width="70" style="border-radius:50%;">
+  <h2>AdWallet</h2>
+</div>
+
+<!-- PROGRESS -->
+<div style="width:90%;margin:auto;background:#111;border-radius:10px;">
+  <div id="progress"></div>
+</div>
+
+<!-- BALANCE -->
+<div class="card">
+  <h2 id="balance">₹0</h2>
+  <p>Wallet Balance</p>
 </div>
 
 <!-- STREAK -->
 <div class="card">
-  <h3>🔥 Daily Streak</h3>
-  <p id="streak">Loading...</p>
+  <h3 id="streak">🔥 0 days</h3>
 </div>
 
 <!-- BUTTONS -->
 <button class="btn earn" onclick="earn()">⚡ Earn</button>
 <button class="btn withdraw" onclick="withdraw()">💸 Withdraw</button>
-<button class="btn referral" onclick="ref()">👥 Referral</button>
+<button class="btn ref" onclick="ref()">👥 Referral</button>
 
 <!-- TASKS -->
 <div class="card">
-  <h3>🎯 Tasks</h3>
+  <h3>Tasks</h3>
   <div id="tasks">Loading...</div>
 </div>
 
-<!-- REWARD POPUP -->
-<div id="reward-popup" style="
-  position:fixed;
-  top:40%;
-  left:50%;
-  transform:translate(-50%,-50%) scale(0);
-  background:#0f172a;
-  padding:20px;
-  border-radius:15px;
-  box-shadow:0 0 20px #00f5ff;
-  transition:0.3s;
+<!-- REWARD -->
+<div id="popup" style="
+position:fixed;
+top:40%;
+left:50%;
+transform:translate(-50%,-50%) scale(0);
+background:#111;
+padding:20px;
+border-radius:10px;
+transition:0.3s;
 ">
-  <h2>🎉 Reward Earned!</h2>
-  <p id="reward-text">+₹10</p>
+  <h2>🎉 Reward</h2>
+  <p id="reward">+₹10</p>
 </div>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <script>
-  const tg = window.Telegram.WebApp;
-  tg.expand();
+const tg = window.Telegram.WebApp;
+tg.expand();
 
-  const userId = tg.initDataUnsafe?.user?.id;
+const userId = tg.initDataUnsafe?.user?.id;
 
-  const clickSound = new Audio("https://www.soundjay.com/buttons/sounds/button-16.mp3");
-  const successSound = new Audio("https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3");
+// 🔥 Loader
+window.onload = () => {
+  setTimeout(() => {
+    document.getElementById("loader").style.display = "none";
+  }, 1500);
+};
 
-  function playClick(){ clickSound.play(); }
-  function playSuccess(){ successSound.play(); }
+// 🔥 Progress
+function progress(p){
+  document.getElementById("progress").style.width = p+"%";
+}
 
-  function vibrate(type="light"){
-    try { tg.HapticFeedback.impactOccurred(type); } catch {}
+// 🔥 Confetti
+function boom(){
+  confetti({particleCount:100,spread:70});
+}
+
+// 🔥 Reward
+function reward(val){
+  const p = document.getElementById("popup");
+  document.getElementById("reward").innerText = "+₹"+val;
+  p.style.transform="translate(-50%,-50%) scale(1)";
+  setTimeout(()=>p.style.transform="scale(0)",1500);
+}
+
+// 🔥 Streak
+function streak(){
+  let s = localStorage.getItem("s") || 0;
+  let last = localStorage.getItem("d");
+  let today = new Date().toDateString();
+
+  if(last !== today){
+    s++;
+    localStorage.setItem("s", s);
+    localStorage.setItem("d", today);
   }
 
-  async function loadUser(){
-    const res = await fetch(`/user/${userId}`);
-    const data = await res.json();
-    document.getElementById("balance").innerText = "₹" + data.balance;
-  }
+  document.getElementById("streak").innerText = "🔥 "+s+" days";
+}
 
-  async function loadTasks(){
-    const res = await fetch('/tasks');
-    const tasks = await res.json();
+// 🔥 Tasks
+function loadTasks(){
+  const t = [
+    {title:"Join Channel", reward:10, link:"https://t.me/AdWalletCommunity"},
+    {title:"Visit Website", reward:20, link:"https://google.com"}
+  ];
 
-    const container = document.getElementById("tasks");
-    container.innerHTML = "";
+  const c = document.getElementById("tasks");
 
-    tasks.forEach(task => {
-      const div = document.createElement("div");
-      div.className = "task";
+  t.forEach(task=>{
+    const d = document.createElement("div");
+    d.innerHTML = `
+      <p>${task.title} (+₹${task.reward})</p>
+      <button onclick="start('${task.link}',${task.reward})">START</button>
+    `;
+    c.appendChild(d);
+  });
+}
 
-      div.innerHTML = `
-        <b>${task.title}</b><br>
-        <button onclick="startTask('${task.link}')">
-          Earn ₹${task.reward}
-        </button>
-      `;
+// 🔥 Start task
+function start(link, amount){
+  progress(50);
+  window.open(link);
 
-      container.appendChild(div);
-    });
-  }
+  setTimeout(()=>{
+    progress(100);
+    boom();
+    reward(amount);
+    setTimeout(()=>progress(0),1000);
+  },1000);
+}
 
-  function updateProgress(p){
-    document.getElementById("progress-bar").style.width = p+"%";
-  }
+// Buttons
+function earn(){ alert("Complete tasks"); }
+function withdraw(){ alert("Use /withdraw"); }
+function ref(){
+  const link = `https://t.me/AdzwalletBot?start=${userId}`;
+  navigator.clipboard.writeText(link);
+  alert("Copied 🚀");
+}
 
-  function fireConfetti(){
-    confetti({ particleCount:120, spread:80, origin:{y:0.6}});
-  }
-
-  function showReward(amount){
-    const popup = document.getElementById("reward-popup");
-    document.getElementById("reward-text").innerText = "+₹"+amount;
-
-    popup.style.transform = "translate(-50%,-50%) scale(1)";
-    setTimeout(()=>popup.style.transform="translate(-50%,-50%) scale(0)",1500);
-  }
-
-  function startTask(link){
-    playClick();
-    vibrate("medium");
-
-    updateProgress(40);
-
-    const finalLink = link.replace("{user_id}", userId);
-    window.open(finalLink,"_blank");
-
-    setTimeout(()=>{
-      updateProgress(100);
-      fireConfetti();
-      playSuccess();
-      vibrate("heavy");
-      showReward(20);
-
-      setTimeout(()=>updateProgress(0),1500);
-    },1000);
-  }
-
-  function earn(){ playClick(); vibrate(); }
-  function withdraw(){ alert("Use /withdraw in bot"); }
-
-  function ref(){
-    const link = `https://t.me/AdzwalletBot?start=${userId}`;
-    navigator.clipboard.writeText(link);
-    playSuccess();
-    alert("Referral copied 🚀");
-  }
-
-  function updateStreak(){
-    let streak = localStorage.getItem("streak") || 0;
-    let last = localStorage.getItem("lastLogin");
-    let today = new Date().toDateString();
-
-    if(last !== today){
-      streak++;
-      localStorage.setItem("streak", streak);
-      localStorage.setItem("lastLogin", today);
-    }
-
-    document.getElementById("streak").innerText = "🔥 " + streak + " days";
-  }
-
-  loadUser();
-  loadTasks();
-  updateStreak();
+// INIT
+streak();
+loadTasks();
 </script>
 
 </body>
