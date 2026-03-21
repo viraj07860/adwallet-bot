@@ -1,43 +1,54 @@
 require('dotenv').config();
-
 const express = require('express');
 const { Telegraf } = require('telegraf');
 const mongoose = require('mongoose');
 
 const app = express();
-
-// ✅ Railway port fix
 const PORT = process.env.PORT || 8080;
 
-// ===== MONGODB CONNECTION =====
+// ===== DATABASE =====
 mongoose.connect(process.env.MONGO_URL)
-.then(() => console.log("MongoDB connected ✅"))
-.catch(err => console.log("MongoDB error ❌", err));
+  .then(() => console.log("MongoDB connected ✅"))
+  .catch(err => console.log(err));
 
-// ===== BOT SETUP =====
+// ===== USER MODEL =====
+const userSchema = new mongoose.Schema({
+  userId: Number,
+  balance: { type: Number, default: 0 },
+});
+
+const User = mongoose.model('User', userSchema);
+
+// ===== BOT =====
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
-// ===== BOT COMMANDS =====
-bot.start((ctx) => {
-  ctx.reply('🚀 AdWallet Bot is Live!');
-});
+bot.start(async (ctx) => {
+  const userId = ctx.from.id;
 
-// ===== START BOT =====
-(async () => {
-  try {
-    console.log("Starting bot...");
-    await bot.launch();
-    console.log("Bot started ✅");
-  } catch (err) {
-    console.error("Startup error:", err);
+  let user = await User.findOne({ userId });
+
+  if (!user) {
+    user = new User({ userId });
+    await user.save();
   }
-})();
 
-// ===== WEB SERVER =====
+  ctx.reply("🚀 Welcome to AdWallet!\n💰 Balance: ₹" + user.balance);
+});
+
+// ===== WEBSITE =====
 app.get('/', (req, res) => {
-  res.send('🔥 AdWallet Bot is Running Successfully!');
+  res.send("Dashboard running ✅");
 });
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
+// ===== ADMIN DASHBOARD API =====
+app.get('/users', async (req, res) => {
+  const users = await User.find();
+  res.json(users);
 });
+
+// ===== START =====
+app.listen(PORT, '0.0.0.0', () => {
+  console.log("Server running on port " + PORT);
+});
+
+bot.launch();
