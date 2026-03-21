@@ -4,6 +4,9 @@
   <title>AdWallet</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- CONFETTI -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
   <style>
     body {
       margin: 0;
@@ -11,10 +14,8 @@
       background: radial-gradient(circle at top, #0f172a, #020617);
       color: white;
       text-align: center;
-      overflow-x: hidden;
     }
 
-    /* HEADER */
     .header {
       padding: 20px;
       font-size: 26px;
@@ -22,10 +23,8 @@
       background: linear-gradient(90deg, #00f5ff, #7c3aed);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      animation: fadeDown 0.8s ease;
     }
 
-    /* CARDS */
     .card {
       margin: 15px;
       padding: 18px;
@@ -33,18 +32,14 @@
       background: rgba(255,255,255,0.05);
       backdrop-filter: blur(12px);
       box-shadow: 0 0 25px rgba(0,255,255,0.08);
-      animation: fadeUp 0.8s ease;
+      animation: fadeUp 0.6s ease;
     }
 
     .balance {
       font-size: 34px;
-      font-weight: bold;
-      margin-top: 10px;
       color: #00f5ff;
-      transition: 0.3s;
     }
 
-    /* BUTTONS */
     .btn {
       display: block;
       width: 85%;
@@ -55,94 +50,35 @@
       font-size: 16px;
       font-weight: bold;
       cursor: pointer;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
+      transition: 0.3s;
     }
 
     .btn:hover {
-      transform: scale(1.06);
-      box-shadow: 0 0 20px rgba(0,255,255,0.6);
+      transform: scale(1.05);
+      box-shadow: 0 0 20px #00f5ff;
     }
 
-    .btn:active::after {
-      content: "";
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background: rgba(255,255,255,0.2);
-      left: 0;
-      top: 0;
-      animation: ripple 0.5s;
-    }
+    .earn { background: linear-gradient(135deg, #00f5ff, #6366f1); color:black; }
+    .withdraw { background: linear-gradient(135deg, #ff4d4d, #ef4444); }
+    .referral { background: linear-gradient(135deg, #7c3aed, #9333ea); }
 
-    .earn {
-      background: linear-gradient(135deg, #00f5ff, #6366f1);
-      color: black;
-    }
-
-    .withdraw {
-      background: linear-gradient(135deg, #ff4d4d, #ef4444);
-    }
-
-    .referral {
-      background: linear-gradient(135deg, #7c3aed, #9333ea);
-    }
-
-    /* TASKS */
     .task {
       padding: 12px;
       margin: 10px 0;
       border-radius: 12px;
       background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.1);
-      animation: fadeUp 0.6s ease;
     }
 
-    .task button {
-      margin-top: 8px;
-      padding: 10px;
-      border-radius: 8px;
-      border: none;
-      background: linear-gradient(135deg, #22c55e, #16a34a);
-      color: white;
-      cursor: pointer;
-      transition: 0.3s;
+    #progress-bar {
+      height: 6px;
+      width: 0%;
+      background: linear-gradient(90deg,#00f5ff,#6366f1);
+      transition: 0.4s;
     }
 
-    .task button:hover {
-      box-shadow: 0 0 12px #22c55e;
-    }
-
-    /* SKELETON LOADING */
-    .skeleton {
-      height: 20px;
-      margin: 10px;
-      border-radius: 8px;
-      background: linear-gradient(90deg, #1e293b, #334155, #1e293b);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite;
-    }
-
-    /* ANIMATIONS */
     @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes fadeDown {
-      from { opacity: 0; transform: translateY(-20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes shimmer {
-      0% { background-position: -200% 0; }
-      100% { background-position: 200% 0; }
-    }
-
-    @keyframes ripple {
-      from { opacity: 1; }
-      to { opacity: 0; }
+      from { opacity:0; transform:translateY(20px); }
+      to { opacity:1; transform:translateY(0); }
     }
   </style>
 </head>
@@ -151,26 +87,48 @@
 
 <div class="header">💰 AdWallet</div>
 
+<!-- PROGRESS -->
+<div style="width:90%;margin:10px auto;background:#1e293b;border-radius:10px;">
+  <div id="progress-bar"></div>
+</div>
+
 <!-- WALLET -->
 <div class="card">
   <div>Wallet Balance</div>
-  <div class="balance" id="balance">
-    <div class="skeleton"></div>
-  </div>
+  <div class="balance" id="balance">₹0</div>
+</div>
+
+<!-- STREAK -->
+<div class="card">
+  <h3>🔥 Daily Streak</h3>
+  <p id="streak">Loading...</p>
 </div>
 
 <!-- BUTTONS -->
-<button class="btn earn" onclick="earn()">⚡ Earn Money</button>
+<button class="btn earn" onclick="earn()">⚡ Earn</button>
 <button class="btn withdraw" onclick="withdraw()">💸 Withdraw</button>
 <button class="btn referral" onclick="ref()">👥 Referral</button>
 
 <!-- TASKS -->
 <div class="card">
-  <h3>🎯 Live Tasks</h3>
-  <div id="tasks">
-    <div class="skeleton"></div>
-    <div class="skeleton"></div>
-  </div>
+  <h3>🎯 Tasks</h3>
+  <div id="tasks">Loading...</div>
+</div>
+
+<!-- REWARD POPUP -->
+<div id="reward-popup" style="
+  position:fixed;
+  top:40%;
+  left:50%;
+  transform:translate(-50%,-50%) scale(0);
+  background:#0f172a;
+  padding:20px;
+  border-radius:15px;
+  box-shadow:0 0 20px #00f5ff;
+  transition:0.3s;
+">
+  <h2>🎉 Reward Earned!</h2>
+  <p id="reward-text">+₹10</p>
 </div>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -181,14 +139,23 @@
 
   const userId = tg.initDataUnsafe?.user?.id;
 
-  async function loadUser() {
+  const clickSound = new Audio("https://www.soundjay.com/buttons/sounds/button-16.mp3");
+  const successSound = new Audio("https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3");
+
+  function playClick(){ clickSound.play(); }
+  function playSuccess(){ successSound.play(); }
+
+  function vibrate(type="light"){
+    try { tg.HapticFeedback.impactOccurred(type); } catch {}
+  }
+
+  async function loadUser(){
     const res = await fetch(`/user/${userId}`);
     const data = await res.json();
-
     document.getElementById("balance").innerText = "₹" + data.balance;
   }
 
-  async function loadTasks() {
+  async function loadTasks(){
     const res = await fetch('/tasks');
     const tasks = await res.json();
 
@@ -201,7 +168,7 @@
 
       div.innerHTML = `
         <b>${task.title}</b><br>
-        <button onclick="openTask('${task.link}')">
+        <button onclick="startTask('${task.link}')">
           Earn ₹${task.reward}
         </button>
       `;
@@ -210,27 +177,69 @@
     });
   }
 
-  function openTask(link) {
+  function updateProgress(p){
+    document.getElementById("progress-bar").style.width = p+"%";
+  }
+
+  function fireConfetti(){
+    confetti({ particleCount:120, spread:80, origin:{y:0.6}});
+  }
+
+  function showReward(amount){
+    const popup = document.getElementById("reward-popup");
+    document.getElementById("reward-text").innerText = "+₹"+amount;
+
+    popup.style.transform = "translate(-50%,-50%) scale(1)";
+    setTimeout(()=>popup.style.transform="translate(-50%,-50%) scale(0)",1500);
+  }
+
+  function startTask(link){
+    playClick();
+    vibrate("medium");
+
+    updateProgress(40);
+
     const finalLink = link.replace("{user_id}", userId);
-    window.open(finalLink, "_blank");
+    window.open(finalLink,"_blank");
+
+    setTimeout(()=>{
+      updateProgress(100);
+      fireConfetti();
+      playSuccess();
+      vibrate("heavy");
+      showReward(20);
+
+      setTimeout(()=>updateProgress(0),1500);
+    },1000);
   }
 
-  function earn() {
-    alert("⚡ Complete tasks below to earn");
-  }
+  function earn(){ playClick(); vibrate(); }
+  function withdraw(){ alert("Use /withdraw in bot"); }
 
-  function withdraw() {
-    alert("💸 Use /withdraw in bot");
-  }
-
-  function ref() {
+  function ref(){
     const link = `https://t.me/AdzwalletBot?start=${userId}`;
     navigator.clipboard.writeText(link);
-    alert("👥 Referral link copied 🚀");
+    playSuccess();
+    alert("Referral copied 🚀");
+  }
+
+  function updateStreak(){
+    let streak = localStorage.getItem("streak") || 0;
+    let last = localStorage.getItem("lastLogin");
+    let today = new Date().toDateString();
+
+    if(last !== today){
+      streak++;
+      localStorage.setItem("streak", streak);
+      localStorage.setItem("lastLogin", today);
+    }
+
+    document.getElementById("streak").innerText = "🔥 " + streak + " days";
   }
 
   loadUser();
   loadTasks();
+  updateStreak();
 </script>
 
 </body>
