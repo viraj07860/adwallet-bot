@@ -3,36 +3,108 @@
 <head>
   <title>AdWallet</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial;
+      background: #0f172a;
+      color: white;
+      text-align: center;
+    }
+
+    .header {
+      padding: 20px;
+      font-size: 22px;
+      font-weight: bold;
+      background: linear-gradient(135deg, #6366f1, #9333ea);
+    }
+
+    .card {
+      background: #1e293b;
+      margin: 20px;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+
+    .balance {
+      font-size: 28px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .btn {
+      display: block;
+      width: 80%;
+      margin: 15px auto;
+      padding: 15px;
+      border-radius: 10px;
+      border: none;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .earn {
+      background: #22c55e;
+      color: white;
+    }
+
+    .withdraw {
+      background: #ef4444;
+      color: white;
+    }
+
+    .referral {
+      background: #3b82f6;
+      color: white;
+    }
+
+  </style>
 </head>
 
-<body style="font-family:sans-serif; text-align:center;">
+<body>
 
-<h2>💰 AdWallet</h2>
+  <div class="header">
+    💰 AdWallet
+  </div>
 
-<p id="balance">Loading...</p>
+  <div class="card">
+    <div>Wallet Balance</div>
+    <div class="balance" id="balance">₹0</div>
+  </div>
 
-<button onclick="earn()">🎯 Earn ₹20</button>
-<br><br>
-<button onclick="withdraw()">💸 Withdraw</button>
+  <button class="btn earn" onclick="earn()">🎯 Earn Money</button>
+  <button class="btn withdraw" onclick="withdraw()">💸 Withdraw</button>
+  <button class="btn referral" onclick="ref()">👥 Referral</button>
 
-<script>
-async function loadUser() {
-  const res = await fetch('/users');
-  const data = await res.json();
-  document.getElementById("balance").innerText =
-    "Balance: ₹" + (data[0]?.balance || 0);
-}
+  <script>
+    async function loadUser() {
+      try {
+        const res = await fetch('/users');
+        const data = await res.json();
+        document.getElementById("balance").innerText =
+          "₹" + (data[0]?.balance || 0);
+      } catch (err) {
+        console.log(err);
+      }
+    }
 
-function earn() {
-  alert("Go to bot to complete task");
-}
+    function earn() {
+      alert("Complete task from bot to earn 💰");
+    }
 
-function withdraw() {
-  alert("Withdrawal requested");
-}
+    function withdraw() {
+      alert("Withdrawal feature coming soon 💸");
+    }
 
-loadUser();
-</script>
+    function ref() {
+      alert("Referral system coming soon 👥");
+    }
+
+    loadUser();
+  </script>
 
 </body>
 </html>
