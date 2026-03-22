@@ -1,209 +1,185 @@
-ww<!DOCTYPE html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <title>AdWallet</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AdWallet</title>
 
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI';
-      background: #020617;
-      color: white;
-      text-align: center;
-    }
+<style>
+:root {
+  --bg-color: var(--tg-theme-bg-color, #0f172a);
+  --text-color: var(--tg-theme-text-color, #ffffff);
+  --hint-color: var(--tg-theme-hint-color, #9ca3af);
+  --button-color: var(--tg-theme-button-color, #00f5ff);
+  --secondary-bg-color: var(--tg-theme-secondary-bg-color, #1e293b);
+}
 
-    .card {
-      margin: 15px;
-      padding: 18px;
-      border-radius: 20px;
-      background: rgba(255,255,255,0.05);
-      box-shadow: 0 0 20px rgba(0,255,255,0.1);
-    }
+body {
+  background: var(--bg-color);
+  color: var(--text-color);
+  margin: 0;
+  font-family: sans-serif;
+}
 
-    .btn {
-      width: 85%;
-      padding: 14px;
-      margin: 10px;
-      border-radius: 10px;
-      border: none;
-      font-weight: bold;
-      cursor: pointer;
-    }
+/* HEADER */
+header {
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+}
 
-    .earn { background: #00f5ff; color:black; }
-    .withdraw { background: red; }
-    .ref { background: purple; }
+.logo {
+  width: 40px;
+  border-radius: 50%;
+}
 
-    #progress {
-      height:6px;
-      background:#00f5ff;
-      width:0%;
-      transition:0.4s;
-    }
-  </style>
+/* STATS */
+.stats {
+  display: flex;
+  gap: 10px;
+  padding: 0 20px;
+}
+
+.card {
+  flex: 1;
+  background: var(--secondary-bg-color);
+  padding: 15px;
+  border-radius: 15px;
+  text-align: center;
+}
+
+.card h2 {
+  margin: 0;
+  color: var(--button-color);
+}
+
+/* TASKS */
+.tasks {
+  padding: 20px;
+}
+
+.task {
+  background: var(--secondary-bg-color);
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+button {
+  background: var(--button-color);
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  color: black;
+  font-weight: bold;
+}
+
+/* NAV */
+.nav {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  background: var(--secondary-bg-color);
+  padding: 10px;
+}
+</style>
 </head>
 
 <body>
 
-<!-- 🔥 LOADER -->
-<div id="loader" style="
-position:fixed;
-width:100%;
-height:100%;
-background:#020617;
-display:flex;
-align-items:center;
-justify-content:center;
-flex-direction:column;
-z-index:9999;
-">
-  <img src="/logo.png" width="100">
-  <h2>AdWallet</h2>
-  <p>Loading...</p>
+<header>
+  <div>
+    <h2 id="name">Hello</h2>
+    <small>Earn money daily 💰</small>
+  </div>
+  <img src="/logo.png" class="logo">
+</header>
+
+<div class="stats">
+  <div class="card">
+    <h2 id="balance">₹0</h2>
+    <p>Balance</p>
+  </div>
+  <div class="card">
+    <h2 id="tasksDone">0</h2>
+    <p>Tasks</p>
+  </div>
 </div>
 
-<!-- 🔥 HEADER -->
-<div class="card">
-  <img src="/logo.png" width="70" style="border-radius:50%;">
-  <h2>AdWallet</h2>
+<div class="tasks" id="tasks"></div>
+
+<div class="nav">
+  <div>🏠</div>
+  <div>📋</div>
+  <div>👤</div>
 </div>
-
-<!-- PROGRESS -->
-<div style="width:90%;margin:auto;background:#111;border-radius:10px;">
-  <div id="progress"></div>
-</div>
-
-<!-- BALANCE -->
-<div class="card">
-  <h2 id="balance">₹0</h2>
-  <p>Wallet Balance</p>
-</div>
-
-<!-- STREAK -->
-<div class="card">
-  <h3 id="streak">🔥 0 days</h3>
-</div>
-
-<!-- BUTTONS -->
-<button class="btn earn" onclick="earn()">⚡ Earn</button>
-<button class="btn withdraw" onclick="withdraw()">💸 Withdraw</button>
-<button class="btn ref" onclick="ref()">👥 Referral</button>
-
-<!-- TASKS -->
-<div class="card">
-  <h3>Tasks</h3>
-  <div id="tasks">Loading...</div>
-</div>
-
-<!-- REWARD -->
-<div id="popup" style="
-position:fixed;
-top:40%;
-left:50%;
-transform:translate(-50%,-50%) scale(0);
-background:#111;
-padding:20px;
-border-radius:10px;
-transition:0.3s;
-">
-  <h2>🎉 Reward</h2>
-  <p id="reward">+₹10</p>
-</div>
-
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <script>
 const tg = window.Telegram.WebApp;
 tg.expand();
+tg.ready();
 
-const userId = tg.initDataUnsafe?.user?.id;
+const user = tg.initDataUnsafe?.user;
 
-// 🔥 Loader
-window.onload = () => {
-  setTimeout(() => {
-    document.getElementById("loader").style.display = "none";
-  }, 1500);
-};
-
-// 🔥 Progress
-function progress(p){
-  document.getElementById("progress").style.width = p+"%";
+// USER NAME
+if(user){
+  document.getElementById("name").innerText = "Hi, " + user.first_name;
 }
 
-// 🔥 Confetti
-function boom(){
-  confetti({particleCount:100,spread:70});
+// LOAD USER DATA
+async function loadUser(){
+  const res = await fetch(`/user/${user.id}`);
+  const data = await res.json();
+
+  document.getElementById("balance").innerText = "₹" + data.balance;
 }
 
-// 🔥 Reward
-function reward(val){
-  const p = document.getElementById("popup");
-  document.getElementById("reward").innerText = "+₹"+val;
-  p.style.transform="translate(-50%,-50%) scale(1)";
-  setTimeout(()=>p.style.transform="scale(0)",1500);
-}
+// TASKS
+async function loadTasks(){
+  const res = await fetch('/tasks');
+  const tasks = await res.json();
 
-// 🔥 Streak
-function streak(){
-  let s = localStorage.getItem("s") || 0;
-  let last = localStorage.getItem("d");
-  let today = new Date().toDateString();
+  const container = document.getElementById("tasks");
 
-  if(last !== today){
-    s++;
-    localStorage.setItem("s", s);
-    localStorage.setItem("d", today);
-  }
+  tasks.forEach(t=>{
+    const div = document.createElement("div");
+    div.className = "task";
 
-  document.getElementById("streak").innerText = "🔥 "+s+" days";
-}
-
-// 🔥 Tasks
-function loadTasks(){
-  const t = [
-    {title:"Join Channel", reward:10, link:"https://t.me/AdWalletCommunity"},
-    {title:"Visit Website", reward:20, link:"https://google.com"}
-  ];
-
-  const c = document.getElementById("tasks");
-
-  t.forEach(task=>{
-    const d = document.createElement("div");
-    d.innerHTML = `
-      <p>${task.title} (+₹${task.reward})</p>
-      <button onclick="start('${task.link}',${task.reward})">START</button>
+    div.innerHTML = `
+      <div>
+        <b>${t.title}</b><br>
+        💰 ₹${t.reward}
+      </div>
+      <button onclick="startTask('${t.link}',${t.reward})">START</button>
     `;
-    c.appendChild(d);
+
+    container.appendChild(div);
   });
 }
 
-// 🔥 Start task
-function start(link, amount){
-  progress(50);
-  window.open(link);
+// TASK ACTION
+function startTask(link, reward){
+  tg.HapticFeedback.impactOccurred("medium");
+
+  const final = link.replace("{user_id}", user.id);
+  window.open(final);
 
   setTimeout(()=>{
-    progress(100);
-    boom();
-    reward(amount);
-    setTimeout(()=>progress(0),1000);
+    tg.showPopup({
+      title:"🎉 Reward",
+      message:`You earned ₹${reward}`,
+      buttons:[{type:"ok"}]
+    });
   },1000);
 }
 
-// Buttons
-function earn(){ alert("Complete tasks"); }
-function withdraw(){ alert("Use /withdraw"); }
-function ref(){
-  const link = `https://t.me/AdzwalletBot?start=${userId}`;
-  navigator.clipboard.writeText(link);
-  alert("Copied 🚀");
-}
-
-// INIT
-streak();
+loadUser();
 loadTasks();
 </script>
 
