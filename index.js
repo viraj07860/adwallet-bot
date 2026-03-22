@@ -7,21 +7,21 @@ const path = require('path');
 const app = express();
 app.use(express.json());
 
-// ✅ FIX: Proper static folder
+// ✅ FIX 1: correct static path
 app.use(express.static(path.join(__dirname, 'public')));
 
 const PORT = process.env.PORT || 8080;
 
-// ===== CHECK ENV =====
+// ===== CHECK TOKEN =====
 if (!process.env.BOT_TOKEN) {
-  console.error("❌ BOT_TOKEN missing in .env");
+  console.error("❌ BOT_TOKEN missing");
   process.exit(1);
 }
 
 // ===== BOT =====
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
-// ===== IN-MEMORY DATA =====
+// ===== DATA =====
 const users = {};
 const lastAdWatch = {};
 const dailyLimit = {};
@@ -50,18 +50,14 @@ bot.start((ctx) => {
   });
 });
 
-// ===== LAUNCH BOT =====
-(async () => {
-  try {
-    console.log("Starting bot...");
-    await bot.launch();
-    console.log("Bot started ✅");
-  } catch (err) {
-    console.error("Bot error:", err);
-  }
-})();
+// ===== LAUNCH BOT (SAFE) =====
+bot.launch().then(() => {
+  console.log("Bot started ✅");
+}).catch(err => {
+  console.log("Bot error:", err.message);
+});
 
-// ===== API: GET USER =====
+// ===== API =====
 app.get('/user/:id', (req, res) => {
   const id = req.params.id;
 
@@ -72,7 +68,6 @@ app.get('/user/:id', (req, res) => {
   res.json(users[id]);
 });
 
-// ===== API: TASK LIST =====
 app.get('/tasks', (req, res) => {
   res.json([
     { title: "Watch Ad", reward: 20, type: "adsgram" },
@@ -80,7 +75,6 @@ app.get('/tasks', (req, res) => {
   ]);
 });
 
-// ===== API: ADSGRAM REWARD =====
 app.get('/api/adsgram-reward', (req, res) => {
   const { userId } = req.query;
 
@@ -94,12 +88,12 @@ app.get('/api/adsgram-reward', (req, res) => {
     users[userId] = { balance: 0, tasks: 0 };
   }
 
-  // ⏳ Cooldown
+  // cooldown
   if (lastAdWatch[userId] && now - lastAdWatch[userId] < 30000) {
     return res.status(429).json({ error: "⏳ Wait 30 seconds" });
   }
 
-  // 📅 Daily limit
+  // daily limit
   const today = new Date().toDateString();
 
   if (!dailyLimit[userId]) {
@@ -114,7 +108,7 @@ app.get('/api/adsgram-reward', (req, res) => {
     return res.status(403).json({ error: "🚫 Daily limit reached" });
   }
 
-  // 💰 Reward
+  // reward
   const reward = 20;
   users[userId].balance += reward;
   users[userId].tasks += 1;
@@ -129,7 +123,7 @@ app.get('/api/adsgram-reward', (req, res) => {
   });
 });
 
-// ===== ROOT FIX (IMPORTANT) =====
+// ===== FIX 2: proper root =====
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
