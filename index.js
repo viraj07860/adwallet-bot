@@ -209,3 +209,11 @@ app.listen(PORT, '0.0.0.0', () => {
 bot.launch()
   .then(() => console.log("Bot started ✅"))
   .catch(err => console.log("Bot error ❌", err));
+
+// Start server first so Railway is happy
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server is live on port ${PORT}`);
+    
+    // Now launch the bot
+    bot.launch().then(() => console.log("Bot is live ✅"));
+});
