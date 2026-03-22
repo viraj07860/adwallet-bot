@@ -6,35 +6,85 @@ const path = require('path');
 
 const app = express();
 app.use(express.json());
-
-// ✅ FIX 1: correct static path
 app.use(express.static(path.join(__dirname, 'public')));
 
 const PORT = process.env.PORT || 8080;
 
-// ===== CHECK TOKEN =====
-if (!process.env.BOT_TOKEN) {
-  console.error("❌ BOT_TOKEN missing");
-  process.exit(1);
-}
+// 🔥 CHANGE THIS TO YOUR CHANNEL
+const CHANNEL = "@AdWalletCommunity";
 
 // ===== BOT =====
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
-// ===== DATA =====
+// ===== DATA (TEMP STORAGE) =====
 const users = {};
 const lastAdWatch = {};
 const dailyLimit = {};
 
-// ===== BOT START =====
-bot.start((ctx) => {
+// ===== START COMMAND (FORCE SUBSCRIBE) =====
+bot.start(async (ctx) => {
   const userId = ctx.from.id;
 
   if (!users[userId]) {
     users[userId] = { balance: 0, tasks: 0 };
   }
 
-  ctx.reply('🚀 AdWallet is Live!', {
+  try {
+    const member = await ctx.telegram.getChatMember(CHANNEL, userId);
+
+    if (["member", "administrator", "creator"].includes(member.status)) {
+      return sendApp(ctx);
+    }
+
+  } catch (e) {
+    console.log(e);
+  }
+
+  // ❌ Not subscribed
+  ctx.reply("⭐ Please join our channel to continue", {
+    reply_markup: {
+      inline_keyboard: [
+        [
+          {
+            text: "📢 Join Channel",
+            url: "https://t.me/AdWalletCommunity"
+          }
+        ],
+        [
+          {
+            text: "✅ I Subscribed",
+            callback_data: "check_sub"
+          }
+        ]
+      ]
+    }
+  });
+});
+
+// ===== CHECK SUBSCRIBE BUTTON =====
+bot.action("check_sub", async (ctx) => {
+  const userId = ctx.from.id;
+
+  try {
+    const member = await ctx.telegram.getChatMember(CHANNEL, userId);
+
+    if (["member", "administrator", "creator"].includes(member.status)) {
+
+      await ctx.answerCbQuery("✅ Verified!");
+      return sendApp(ctx);
+
+    } else {
+      ctx.answerCbQuery("❌ Join channel first!", { show_alert: true });
+    }
+
+  } catch (err) {
+    ctx.answerCbQuery("⚠️ Error checking", { show_alert: true });
+  }
+});
+
+// ===== OPEN APP =====
+function sendApp(ctx) {
+  return ctx.reply("🚀 Access granted!", {
     reply_markup: {
       inline_keyboard: [
         [
@@ -48,16 +98,14 @@ bot.start((ctx) => {
       ]
     }
   });
-});
+}
 
-// ===== LAUNCH BOT (SAFE) =====
-bot.launch().then(() => {
-  console.log("Bot started ✅");
-}).catch(err => {
-  console.log("Bot error:", err.message);
-});
+// ===== SAFE BOT START =====
+bot.launch()
+  .then(() => console.log("Bot started ✅"))
+  .catch(err => console.log("Bot error:", err.message));
 
-// ===== API =====
+// ===== API: GET USER =====
 app.get('/user/:id', (req, res) => {
   const id = req.params.id;
 
@@ -68,13 +116,15 @@ app.get('/user/:id', (req, res) => {
   res.json(users[id]);
 });
 
+// ===== API: TASK LIST =====
 app.get('/tasks', (req, res) => {
   res.json([
-    { title: "Watch Ad", reward: 20, type: "adsgram" },
-    { title: "Join Channel", reward: 10, link: "https://t.me/AdWalletCommunity" }
+    { title: "Watch Ad", reward: 20 },
+    { title: "Join Channel", reward: 10 }
   ]);
 });
 
+// ===== API: ADS REWARD =====
 app.get('/api/adsgram-reward', (req, res) => {
   const { userId } = req.query;
 
@@ -88,12 +138,12 @@ app.get('/api/adsgram-reward', (req, res) => {
     users[userId] = { balance: 0, tasks: 0 };
   }
 
-  // cooldown
+  // ⏳ Cooldown
   if (lastAdWatch[userId] && now - lastAdWatch[userId] < 30000) {
     return res.status(429).json({ error: "⏳ Wait 30 seconds" });
   }
 
-  // daily limit
+  // 📅 Daily limit
   const today = new Date().toDateString();
 
   if (!dailyLimit[userId]) {
@@ -108,7 +158,7 @@ app.get('/api/adsgram-reward', (req, res) => {
     return res.status(403).json({ error: "🚫 Daily limit reached" });
   }
 
-  // reward
+  // 💰 Reward
   const reward = 20;
   users[userId].balance += reward;
   users[userId].tasks += 1;
@@ -123,7 +173,7 @@ app.get('/api/adsgram-reward', (req, res) => {
   });
 });
 
-// ===== FIX 2: proper root =====
+// ===== ROOT =====
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
