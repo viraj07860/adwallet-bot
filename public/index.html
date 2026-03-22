@@ -1,150 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AdWallet</title>
-
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #0f172a, #020617);
-      color: white;
-    }
-
-    .container {
-      padding: 20px;
-    }
-
-    h1 {
-      text-align: center;
-      color: #38bdf8;
-      margin-bottom: 10px;
-    }
-
-    .card {
-      background: #1e293b;
-      padding: 15px;
-      border-radius: 12px;
-      margin-bottom: 15px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    }
-
-    .balance {
-      font-size: 26px;
-      text-align: center;
-      margin: 10px 0;
-      font-weight: bold;
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      border: none;
-      border-radius: 10px;
-      background: #38bdf8;
-      color: black;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-
-    button:active {
-      transform: scale(0.97);
-    }
-
-    .task {
-      margin-top: 10px;
-    }
-
-    .footer {
-      text-align: center;
-      font-size: 12px;
-      margin-top: 20px;
-      opacity: 0.6;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://app.adsgram.ai/js/adsgram-ad-sdk.js"></script>
+    <style>
+        /* Cyberpunk Glassmorphism Styles */
+        body {
+            background: radial-gradient(circle at top right, #1a1a2e, #0f0f1a, #000000);
+            color: #e0e0e0;
+            font-family: 'Inter', sans-serif;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+        }
+        .neon-border {
+            border: 1px solid #00f2ff;
+            box-shadow: 0 0 10px #00f2ff, inset 0 0 5px #00f2ff;
+        }
+        .neon-text {
+            text-shadow: 0 0 8px #00f2ff;
+            color: #00f2ff;
+        }
+        .earn-btn {
+            background: linear-gradient(90deg, #00f2ff, #7000ff);
+            transition: 0.3s;
+        }
+        .earn-btn:hover {
+            box-shadow: 0 0 20px #7000ff;
+            transform: translateY(-2px);
+        }
+    </style>
 </head>
+<body class="flex flex-col items-center p-6 min-h-screen">
 
-<body>
-
-<div class="container">
-
-  <h1 id="welcome">💰 AdWallet</h1>
-
-  <div class="card">
-    <div class="balance">
-      Balance: <span id="balance">0</span> coins
-    </div>
-  </div>
-
-  <div class="card">
-    <h3>📋 Tasks</h3>
-
-    <div class="task">
-      🎥 Watch Ad (+20)
-      <button onclick="watchAd(this)">Start</button>
+    <div class="w-full flex justify-between items-center mb-8">
+        <h1 class="text-xl font-black italic tracking-widest neon-text">ADWALLET v2.0</h1>
+        <div class="px-3 py-1 rounded-full text-xs font-bold border border-green-500 text-green-500">SYSTEM: ONLINE</div>
     </div>
 
-    <div class="task">
-      📢 Join Channel (+10)
-      <button onclick="joinChannel()">Join</button>
+    <div class="glass-card w-full rounded-3xl p-8 mb-6 relative overflow-hidden text-center">
+        <div class="absolute -top-10 -left-10 w-24 h-24 bg-cyan-500 opacity-10 blur-3xl"></div>
+        <p class="text-gray-400 text-xs uppercase tracking-widest mb-2 font-bold">Current Credits</p>
+        <div class="text-5xl font-black tracking-tighter neon-text">₹<span id="balance">0.00</span></div>
     </div>
 
-  </div>
+    <div class="grid grid-cols-2 gap-4 w-full mb-8">
+        <div class="glass-card rounded-2xl p-4 border-b-2 border-cyan-500">
+            <p class="text-[10px] text-gray-500 font-bold uppercase">Uptime</p>
+            <p class="text-md font-mono" id="tasks">0 Ads</p>
+        </div>
+        <div class="glass-card rounded-2xl p-4 border-b-2 border-purple-500">
+            <p class="text-[10px] text-gray-500 font-bold uppercase">Tier</p>
+            <p class="text-md font-mono text-purple-400">Bronze</p>
+        </div>
+    </div>
 
-  <div class="footer">
-    Powered by AdWallet 🚀
-  </div>
+    <div class="w-full space-y-4 mt-auto">
+        <button onclick="showAd()" class="earn-btn w-full py-5 rounded-2xl text-black font-black uppercase tracking-tighter text-lg">
+            ⚡ Initialize Reward Ad
+        </button>
+        
+        <button onclick="window.Telegram.WebApp.close()" class="w-full py-3 text-gray-500 text-xs font-bold uppercase hover:text-white transition">
+            Terminate Session [X]
+        </button>
+    </div>
 
-</div>
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.headerColor = '#0f0f1a';
 
-<script>
-  const tg = window.Telegram.WebApp;
-  tg.expand();
+        const AdController = window.Adsgram.init({ blockId: "25642", debug: true });
 
-  const user = tg.initDataUnsafe?.user;
-  const userId = user?.id || Math.floor(Math.random() * 100000);
-
-  // Show name
-  const name = user?.first_name || "User";
-  document.getElementById("welcome").innerText = `💰 Welcome ${name}`;
-
-  async function loadUser() {
-    const res = await fetch(`/user/${userId}`);
-    const data = await res.json();
-    document.getElementById("balance").innerText = data.balance;
-  }
-
-  async function watchAd(btn) {
-    btn.innerText = "⏳ Watching...";
-    btn.disabled = true;
-
-    setTimeout(async () => {
-      const res = await fetch(`/api/adsgram-reward?userId=${userId}`);
-      const data = await res.json();
-
-      if (data.error) {
-        alert(data.error);
-      } else {
-        alert("✅ Earned " + data.reward);
-        loadUser();
-      }
-
-      btn.innerText = "Start";
-      btn.disabled = false;
-    }, 3000);
-  }
-
-  function joinChannel() {
-    window.open("https://t.me/AdWalletCommunity", "_blank");
-  }
-
-  loadUser();
-</script>
-
+        async function showAd() {
+            try {
+                const result = await AdController.show();
+                // Call your API to reward
+                fetch(`/api/adsgram-reward?userId=${tg.initDataUnsafe.user.id}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        document.getElementById('balance').innerText = data.balance;
+                    });
+            } catch (e) {
+                console.log("Ad skipped or failed");
+            }
+        }
+    </script>
 </body>
 </html>
+
