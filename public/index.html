@@ -3,248 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Crypto Exec Mini App</title>
+    <title>Elite AdWallet Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://adsgram.ai/sdk.js"></script>
     <style>
-        :root {
-            --bg: #050505;
-            --card-bg: rgba(255, 255, 255, 0.05);
-            --accent: #00ff88; /* Success Green */
-            --accent-blue: #007AFF;
-            --text-main: #ffffff;
-            --text-dim: #888888;
-            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+        :root { 
+            --bg: #050505; 
+            --accent: #00ff88; 
+            --text-dim: #888; 
+            --glass: rgba(255,255,255,0.05);
+            --border: 1px solid rgba(255,255,255,0.1);
         }
+        body { background: var(--bg); color: #fff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; padding: 0; }
+        
+        /* Navigation & Pages */
+        .page { display: none; padding: 20px; padding-bottom: 100px; }
+        .active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        body {
-            background-color: var(--bg);
-            color: var(--text-main);
-            font-family: 'Inter', -apple-system, sans-serif;
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-        }
+        /* UI Components */
+        .balance-card { text-align: center; padding: 40px 20px; }
+        .amount { font-size: 48px; font-weight: 800; color: var(--accent); letter-spacing: -1px; }
+        
+        .hero-box { background: var(--glass); border: var(--border); border-radius: 24px; padding: 30px; text-align: center; backdrop-filter: blur(10px); }
+        .btn { background: var(--accent); color: #000; border: none; width: 100%; padding: 18px; border-radius: 15px; font-weight: 800; cursor: pointer; margin-top: 15px; text-transform: uppercase; }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-        /* Ambient Glows */
-        .glow-top {
-            position: fixed;
-            top: -150px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(0, 255, 136, 0.1) 0%, transparent 70%);
-            z-index: -1;
-        }
-
-        /* Header / Balance Section */
-        header {
-            padding: 40px 20px 20px;
-            text-align: center;
-        }
-
-        .balance-label {
-            color: var(--text-dim);
-            font-size: 14px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        .balance-amount {
-            font-size: 42px;
-            font-weight: 800;
-            margin: 10px 0;
-            background: linear-gradient(to right, #fff, #888);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .balance-change {
-            display: inline-block;
-            background: rgba(0, 255, 136, 0.15);
-            color: var(--accent);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        /* Action Buttons */
-        .action-row {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            padding: 20px;
-        }
-
-        .action-btn {
-            background: var(--card-bg);
-            border: var(--glass-border);
-            border-radius: 16px;
-            padding: 15px;
-            text-align: center;
-            backdrop-filter: blur(10px);
-            transition: 0.2s;
-        }
-
-        .action-btn:active { transform: scale(0.95); background: rgba(255,255,255,0.1); }
-
-        .action-icon { font-size: 20px; margin-bottom: 5px; display: block; }
-        .action-label { font-size: 12px; font-weight: 500; }
-
-        /* Market Section */
-        .section-title {
-            padding: 0 20px;
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 15px;
-        }
-
-        .asset-list {
-            padding: 0 20px 100px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .asset-card {
-            background: var(--card-bg);
-            border: var(--glass-border);
-            padding: 16px;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .asset-info { display: flex; align-items: center; gap: 12px; }
-        .asset-logo {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            background: #222;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-
-        .asset-details h4 { margin: 0; font-size: 16px; }
-        .asset-details p { margin: 0; font-size: 12px; color: var(--text-dim); }
-
-        .asset-market { text-align: right; }
-        .price { font-weight: 600; display: block; }
-        .change { font-size: 12px; }
-        .change.up { color: var(--accent); }
-
-        /* Bottom Nav - Crypto Floating Style */
-        .nav-bar {
-            position: fixed;
-            bottom: 25px;
-            left: 20px;
-            right: 20px;
-            background: rgba(15, 15, 15, 0.8);
-            backdrop-filter: blur(20px);
-            border: var(--glass-border);
-            height: 70px;
-            border-radius: 25px;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-
-        .nav-item { font-size: 22px; opacity: 0.5; transition: 0.3s; cursor: pointer; }
-        .nav-item.active { opacity: 1; color: var(--accent-blue); filter: drop-shadow(0 0 8px var(--accent-blue)); }
-
+        /* Navigation Bar */
+        .nav { position: fixed; bottom: 20px; left: 15px; right: 15px; background: rgba(15,15,15,0.9); backdrop-filter: blur(20px); border-radius: 25px; height: 75px; display: flex; justify-content: space-around; align-items: center; border: var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .nav-item { color: var(--text-dim); text-align: center; font-size: 10px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .nav-item.active { color: var(--accent); transform: translateY(-5px); }
+        .nav-icon { font-size: 22px; margin-bottom: 4px; }
+        
+        /* Lists & Inputs */
+        input { width: 100%; padding: 16px; background: var(--glass); border: var(--border); color: #fff; border-radius: 14px; margin: 10px 0; box-sizing: border-box; font-size: 16px; }
+        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: var(--glass); border-radius: 16px; margin-bottom: 10px; border: var(--border); }
+        .rank-1 { border-color: #ffd700; background: rgba(255, 215, 0, 0.05); }
     </style>
 </head>
 <body>
-    <div class="glow-top"></div>
 
-    <header>
-        <span class="balance-label">Net Worth</span>
-        <div class="balance-amount">$142,580.00</div>
-        <div class="balance-change">+$1,240.50 (0.88%) ↑</div>
-    </header>
-
-    <div class="action-row">
-        <div class="action-btn" onclick="haptic()">
-            <span class="action-icon">➕</span>
-            <span class="action-label">Buy</span>
+    <div id="home" class="page active">
+        <div class="balance-card">
+            <div style="font-size: 12px; color: var(--text-dim); letter-spacing: 2px;">SECURE BALANCE</div>
+            <div class="amount" id="balance">0.00 <span style="font-size: 20px;">USDT</span></div>
         </div>
-        <div class="action-btn" onclick="haptic()">
-            <span class="action-icon">📤</span>
-            <span class="action-label">Send</span>
-        </div>
-        <div class="action-btn" onclick="haptic()">
-            <span class="action-icon">💎</span>
-            <span class="action-label">Stake</span>
+        <div class="hero-box">
+            <div style="font-size: 44px; margin-bottom: 10px;">⚡</div>
+            <h3>Revenue Stream</h3>
+            <p style="color: var(--text-dim); font-size: 14px; line-height: 1.5;">Watch premium content to credit 0.05 USDT to your vault immediately.</p>
+            <button class="btn" id="adBtn" onclick="runAd()">Watch & Earn</button>
         </div>
     </div>
 
-    <h3 class="section-title">Your Assets</h3>
-
-    <div class="asset-list">
-        <div class="asset-card">
-            <div class="asset-info">
-                <div class="asset-logo" style="color: #F7931A;">₿</div>
-                <div class="asset-details">
-                    <h4>Bitcoin</h4>
-                    <p>0.42 BTC</p>
-                </div>
-            </div>
-            <div class="asset-market">
-                <span class="price">$64,210</span>
-                <span class="change up">+2.4%</span>
-            </div>
-        </div>
-
-        <div class="asset-card">
-            <div class="asset-info">
-                <div class="asset-logo" style="color: #627EEA;">Ξ</div>
-                <div class="asset-details">
-                    <h4>Ethereum</h4>
-                    <p>12.5 ETH</p>
-                </div>
-            </div>
-            <div class="asset-market">
-                <span class="price">$3,450</span>
-                <span class="change up">+1.8%</span>
-            </div>
-        </div>
-
-        <div class="asset-card">
-            <div class="asset-info">
-                <div class="asset-logo" style="color: #00ff88;">₮</div>
-                <div class="asset-details">
-                    <h4>Tether</h4>
-                    <p>5,000 USDT</p>
-                </div>
-            </div>
-            <div class="asset-market">
-                <span class="price">$1.00</span>
-                <span class="change">0.0%</span>
-            </div>
+    <div id="rank" class="page">
+        <h3 style="text-align: center;">Global Leaderboard</h3>
+        <p style="text-align: center; color: var(--text-dim); font-size: 13px; margin-bottom: 25px;">The Elite earners of the last 24h</p>
+        <div id="leaderboard-list">
+            <div class="item-row rank-1"><span>🥇 @TopHustler</span><span style="color:#ffd700">Loading...</span></div>
         </div>
     </div>
 
-    <nav class="nav-bar">
-        <div class="nav-item active">👛</div>
-        <div class="nav-item">📊</div>
-        <div class="nav-item">🔄</div>
-        <div class="nav-item">👤</div>
+    <div id="vault" class="page">
+        <h3>Withdrawal Vault</h3>
+        <div class="hero-box">
+            <p style="font-size: 14px; color: var(--text-dim);">Minimum payout: 10.00 USDT</p>
+            <input type="text" id="wallet" placeholder="Paste TON Address (UQ...)">
+            <button class="btn" onclick="requestPayout()">Initiate Settlement</button>
+        </div>
+        <h4 style="color: var(--text-dim); font-size: 12px; margin-top: 30px;">LEDGER HISTORY</h4>
+        <div id="ledger">
+            <div class="item-row"><span>System Sync</span><span style="color:var(--accent)">ONLINE</span></div>
+        </div>
+    </div>
+
+    <nav class="nav">
+        <div class="nav-item active" onclick="nav('home')"><div class="nav-icon">🏠</div>HOME</div>
+        <div class="nav-item" onclick="nav('rank')"><div class="nav-icon">🏆</div>RANK</div>
+        <div class="nav-item" onclick="nav('vault')"><div class="nav-icon">💰</div>VAULT</div>
     </nav>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-        tg.headerColor = '#050505';
-        tg.backgroundColor = '#050505';
+        
+        // --- CONFIGURATION ---
+        const BLOCK_ID = "YOUR_ADSGRAM_BLOCK_ID"; // Replace this!
+        const API_BASE = "https://adwallet-bot-production.up.railway.app/api";
+        const USER_ID = tg.initDataUnsafe?.user?.id || 12345;
+        const USERNAME = tg.initDataUnsafe?.user?.username || "Guest";
 
-        function haptic() {
-            tg.HapticFeedback.impactOccurred('medium');
+        const AdController = window.Adsgram ? window.Adsgram.init({ blockId: BLOCK_ID }) : null;
+
+        // --- NAVIGATION LOGIC ---
+        function nav(id) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            event.currentTarget.classList.add('active');
+            if(id === 'rank') fetchLeaderboard();
         }
+
+        // --- AD LOGIC ---
+        async function runAd() {
+            tg.HapticFeedback.impactOccurred('medium');
+            const btn = document.getElementById('adBtn');
+            if(!AdController) return tg.showPopup({message: "Ads not ready."});
+
+            btn.disabled = true;
+            btn.innerText = "LOADING SESSION...";
+
+            AdController.show().then(async (result) => {
+                if (result.done) {
+                    tg.HapticFeedback.notificationOccurred('success');
+                    // Wait 2 seconds for server to process the Webhook we set in Adsgram
+                    setTimeout(syncData, 2000); 
+                    tg.showPopup({ message: "0.05 USDT credited to your vault!" });
+                }
+                btn.disabled = false;
+                btn.innerText = "WATCH & EARN";
+            }).catch(() => {
+                btn.disabled = false;
+                btn.innerText = "WATCH & EARN";
+                tg.showPopup({ message: "No sessions available. Try again in 60s." });
+            });
+        }
+
+        // --- DATA SYNCING ---
+        async function syncData() {
+            try {
+                const res = await fetch(`${API_BASE}/user/${USER_ID}`);
+                const data = await res.json();
+                document.getElementById('balance').innerHTML = `${parseFloat(data.balance).toFixed(2)} <span style="font-size: 20px;">USDT</span>`;
+            } catch (e) { console.error("Sync error"); }
+        }
+
+        async function fetchLeaderboard() {
+            const list = document.getElementById('leaderboard-list');
+            list.innerHTML = "Loading rankings...";
+            try {
+                const res = await fetch(`${API_BASE}/leaderboard`);
+                const data = await res.json();
+                list.innerHTML = data.map((u, i) => `
+                    <div class="item-row ${i === 0 ? 'rank-1' : ''}">
+                        <span>${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i+1)+'.'} @${u.username}</span>
+                        <span style="font-weight:bold">${parseFloat(u.balance).toFixed(2)} USDT</span>
+                    </div>
+                `).join('');
+            } catch (e) { list.innerHTML = "Error loading leaderboard."; }
+        }
+
+        function requestPayout() {
+            tg.showPopup({ title: "Settlement", message: "Withdrawal request submitted for review. Payouts are processed within 24 hours." });
+        }
+
+        // Initial Load
+        syncData();
     </script>
 </body>
 </html>
