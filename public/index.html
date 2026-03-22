@@ -3,184 +3,191 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AdWallet</title>
+<title>AdWallet Premium</title>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 <style>
-:root {
-  --bg-color: var(--tg-theme-bg-color, #0f172a);
-  --text-color: var(--tg-theme-text-color, #ffffff);
-  --hint-color: var(--tg-theme-hint-color, #9ca3af);
-  --button-color: var(--tg-theme-button-color, #00f5ff);
-  --secondary-bg-color: var(--tg-theme-secondary-bg-color, #1e293b);
-}
-
 body {
-  background: var(--bg-color);
-  color: var(--text-color);
-  margin: 0;
+  background: radial-gradient(circle at top right, #1e1b4b, #0f172a);
+  color: white;
   font-family: sans-serif;
 }
 
-/* HEADER */
-header {
-  padding: 20px;
-  display: flex;
-  justify-content: space-between;
+.glass {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.1);
 }
 
-.logo {
-  width: 40px;
-  border-radius: 50%;
-}
-
-/* STATS */
-.stats {
-  display: flex;
-  gap: 10px;
-  padding: 0 20px;
-}
-
-.card {
-  flex: 1;
-  background: var(--secondary-bg-color);
-  padding: 15px;
-  border-radius: 15px;
-  text-align: center;
-}
-
-.card h2 {
-  margin: 0;
-  color: var(--button-color);
-}
-
-/* TASKS */
-.tasks {
-  padding: 20px;
-}
-
-.task {
-  background: var(--secondary-bg-color);
-  padding: 15px;
-  border-radius: 12px;
-  margin-bottom: 10px;
-  display: flex;
-  justify-content: space-between;
-}
-
-button {
-  background: var(--button-color);
-  border: none;
-  padding: 10px;
-  border-radius: 8px;
-  color: black;
-  font-weight: bold;
-}
-
-/* NAV */
-.nav {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  display: flex;
-  justify-content: space-around;
-  background: var(--secondary-bg-color);
-  padding: 10px;
-}
+.nav-active { color:#38bdf8; }
 </style>
 </head>
 
-<body>
+<body class="pb-24">
 
-<header>
+<!-- HEADER -->
+<div class="flex justify-between p-5">
   <div>
-    <h2 id="name">Hello</h2>
-    <small>Earn money daily 💰</small>
+    <h2 id="name">Hi</h2>
+    <p class="text-xs text-gray-400">Earn daily 💰</p>
   </div>
-  <img src="/logo.png" class="logo">
-</header>
-
-<div class="stats">
-  <div class="card">
-    <h2 id="balance">₹0</h2>
-    <p>Balance</p>
-  </div>
-  <div class="card">
-    <h2 id="tasksDone">0</h2>
-    <p>Tasks</p>
-  </div>
+  <img src="/logo.png" class="w-10 h-10 rounded-full">
 </div>
 
-<div class="tasks" id="tasks"></div>
+<!-- BALANCE -->
+<div class="glass mx-5 p-6 rounded-3xl mb-5">
+  <p class="text-xs text-gray-400">Balance</p>
+  <h1 id="balance" class="text-3xl font-bold">₹0</h1>
+</div>
 
-<div class="nav">
-  <div>🏠</div>
-  <div>📋</div>
-  <div>👤</div>
+<!-- STREAK -->
+<div class="glass mx-5 p-4 rounded-2xl mb-5 flex justify-between">
+  <span>🔥 Streak</span>
+  <span id="streak">0</span>
+</div>
+
+<!-- TASKS -->
+<div class="px-5 space-y-3" id="tasks"></div>
+
+<!-- REWARD POPUP -->
+<div id="rewardBox" style="
+position:fixed;
+top:40%;
+left:50%;
+transform:translate(-50%,-50%) scale(0);
+background:#111;
+padding:20px;
+border-radius:15px;
+transition:0.3s;
+">
+🎉 Reward
+</div>
+
+<!-- NAV -->
+<div class="fixed bottom-0 w-full flex justify-around p-4 glass">
+  <div onclick="nav('home')" class="nav-active">🏠</div>
+  <div onclick="nav('spin')">🎡</div>
+  <div onclick="nav('wallet')">💰</div>
 </div>
 
 <script>
-const tg = window.Telegram.WebApp;
+const tg = window.Telegram?.WebApp || {
+  HapticFeedback:{impactOccurred:()=>{}}
+};
+
 tg.expand();
 tg.ready();
 
 const user = tg.initDataUnsafe?.user;
 
-// USER NAME
+// USER
 if(user){
   document.getElementById("name").innerText = "Hi, " + user.first_name;
 }
 
-// LOAD USER DATA
-async function loadUser(){
-  const res = await fetch(`/user/${user.id}`);
-  const data = await res.json();
+// SOUND
+const clickSound = new Audio("https://www.soundjay.com/buttons/sounds/button-16.mp3");
+function playClick(){ clickSound.play(); }
 
-  document.getElementById("balance").innerText = "₹" + data.balance;
+// BALANCE LOAD
+async function loadBalance(){
+  if(!user) return;
+  try{
+    const res = await fetch(`/user/${user.id}`);
+    const data = await res.json();
+    document.getElementById("balance").innerText = "₹"+data.balance;
+  }catch{
+    document.getElementById("balance").innerText = "₹0";
+  }
 }
 
 // TASKS
-async function loadTasks(){
-  const res = await fetch('/tasks');
-  const tasks = await res.json();
+function loadTasks(){
+  const tasks = [
+    {title:"Join Channel", reward:10, link:"https://t.me/AdWalletCommunity"},
+    {title:"Visit Site", reward:20, link:"https://google.com"}
+  ];
 
-  const container = document.getElementById("tasks");
+  const box = document.getElementById("tasks");
 
   tasks.forEach(t=>{
     const div = document.createElement("div");
-    div.className = "task";
+    div.className="glass p-4 rounded-xl flex justify-between";
 
-    div.innerHTML = `
+    div.innerHTML=`
       <div>
         <b>${t.title}</b><br>
-        💰 ₹${t.reward}
+        <small>+₹${t.reward}</small>
       </div>
-      <button onclick="startTask('${t.link}',${t.reward})">START</button>
+      <button onclick="start('${t.link}',${t.reward})">Start</button>
     `;
 
-    container.appendChild(div);
+    box.appendChild(div);
   });
 }
 
-// TASK ACTION
-function startTask(link, reward){
+// START TASK
+function start(link, amount){
+  playClick();
   tg.HapticFeedback.impactOccurred("medium");
 
-  const final = link.replace("{user_id}", user.id);
-  window.open(final);
+  window.open(link);
 
   setTimeout(()=>{
-    tg.showPopup({
-      title:"🎉 Reward",
-      message:`You earned ₹${reward}`,
-      buttons:[{type:"ok"}]
-    });
+    confetti({particleCount:100,spread:70});
+    showReward(amount);
   },1000);
 }
 
-loadUser();
+// REWARD
+function showReward(val){
+  const box=document.getElementById("rewardBox");
+  box.innerText="🎉 +₹"+val;
+  box.style.transform="translate(-50%,-50%) scale(1)";
+  setTimeout(()=>box.style.transform="scale(0)",1500);
+}
+
+// STREAK
+function streak(){
+  let s=localStorage.getItem("s")||0;
+  let last=localStorage.getItem("d");
+  let today=new Date().toDateString();
+
+  if(last!==today){
+    s++;
+    localStorage.setItem("s",s);
+    localStorage.setItem("d",today);
+  }
+
+  document.getElementById("streak").innerText=s+" days";
+}
+
+// NAV
+function nav(x){
+  playClick();
+}
+
+// DAILY BONUS
+function bonus(){
+  let last=localStorage.getItem("bonus");
+  let today=new Date().toDateString();
+
+  if(last!==today){
+    localStorage.setItem("bonus",today);
+    showReward(20);
+  }
+}
+
+// INIT
+loadBalance();
 loadTasks();
+streak();
+bonus();
+
 </script>
 
 </body>
