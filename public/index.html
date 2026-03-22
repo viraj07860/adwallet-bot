@@ -6,8 +6,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://app.adsgram.ai/js/adsgram-ad-sdk.js"></script>
+
     <style>
-        /* Cyberpunk Glassmorphism Styles */
         body {
             background: radial-gradient(circle at top right, #1a1a2e, #0f0f1a, #000000);
             color: #e0e0e0;
@@ -17,7 +17,7 @@
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.8);
         }
         .neon-border {
             border: 1px solid #00f2ff;
@@ -37,23 +37,30 @@
         }
     </style>
 </head>
+
 <body class="flex flex-col items-center p-6 min-h-screen">
 
-    <div class="w-full flex justify-between items-center mb-8">
-        <h1 class="text-xl font-black italic tracking-widest neon-text">ADWALLET v2.0</h1>
-        <div class="px-3 py-1 rounded-full text-xs font-bold border border-green-500 text-green-500">SYSTEM: ONLINE</div>
+    <!-- HEADER -->
+    <div class="w-full flex justify-between items-center mb-6">
+        <h1 id="username" class="text-lg font-black neon-text">ADWALLET</h1>
+        <div class="px-3 py-1 rounded-full text-xs font-bold border border-green-500 text-green-500">
+            ONLINE
+        </div>
     </div>
 
-    <div class="glass-card w-full rounded-3xl p-8 mb-6 relative overflow-hidden text-center">
-        <div class="absolute -top-10 -left-10 w-24 h-24 bg-cyan-500 opacity-10 blur-3xl"></div>
-        <p class="text-gray-400 text-xs uppercase tracking-widest mb-2 font-bold">Current Credits</p>
-        <div class="text-5xl font-black tracking-tighter neon-text">₹<span id="balance">0.00</span></div>
+    <!-- BALANCE -->
+    <div class="glass-card w-full rounded-3xl p-8 mb-6 text-center">
+        <p class="text-gray-400 text-xs uppercase mb-2 font-bold">Current Credits</p>
+        <div class="text-5xl font-black neon-text">
+            ₹<span id="balance">0.00</span>
+        </div>
     </div>
 
+    <!-- STATS -->
     <div class="grid grid-cols-2 gap-4 w-full mb-8">
         <div class="glass-card rounded-2xl p-4 border-b-2 border-cyan-500">
-            <p class="text-[10px] text-gray-500 font-bold uppercase">Uptime</p>
-            <p class="text-md font-mono" id="tasks">0 Ads</p>
+            <p class="text-[10px] text-gray-500 font-bold uppercase">Ads Watched</p>
+            <p class="text-md font-mono" id="tasks">0</p>
         </div>
         <div class="glass-card rounded-2xl p-4 border-b-2 border-purple-500">
             <p class="text-[10px] text-gray-500 font-bold uppercase">Tier</p>
@@ -61,37 +68,77 @@
         </div>
     </div>
 
+    <!-- BUTTON -->
     <div class="w-full space-y-4 mt-auto">
-        <button onclick="showAd()" class="earn-btn w-full py-5 rounded-2xl text-black font-black uppercase tracking-tighter text-lg">
-            ⚡ Initialize Reward Ad
+        <button id="adBtn" onclick="showAd()" class="earn-btn w-full py-5 rounded-2xl text-black font-black text-lg">
+            ⚡ Watch & Earn
         </button>
-        
-        <button onclick="window.Telegram.WebApp.close()" class="w-full py-3 text-gray-500 text-xs font-bold uppercase hover:text-white transition">
-            Terminate Session [X]
+
+        <button onclick="tg.close()" class="w-full py-3 text-gray-500 text-xs font-bold hover:text-white">
+            Exit
         </button>
     </div>
 
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-        tg.headerColor = '#0f0f1a';
+<script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+    tg.headerColor = '#0f0f1a';
 
-        const AdController = window.Adsgram.init({ blockId: "25642", debug: true });
+    const user = tg.initDataUnsafe?.user;
+    const userId = user?.id || Math.floor(Math.random()*100000);
 
-        async function showAd() {
-            try {
-                const result = await AdController.show();
-                // Call your API to reward
-                fetch(`/api/adsgram-reward?userId=${tg.initDataUnsafe.user.id}`)
-                    .then(r => r.json())
-                    .then(data => {
-                        document.getElementById('balance').innerText = data.balance;
-                    });
-            } catch (e) {
-                console.log("Ad skipped or failed");
-            }
+    // Show username
+    document.getElementById("username").innerText =
+        "👤 " + (user?.first_name || "User");
+
+    // AdsGram init
+    const AdController = window.Adsgram.init({
+        blockId: "25642",
+        debug: true
+    });
+
+    // Load user data
+    async function loadUser() {
+        try {
+            const res = await fetch(`/user/${userId}`);
+            const data = await res.json();
+
+            document.getElementById("balance").innerText = data.balance;
+            document.getElementById("tasks").innerText = data.tasks;
+        } catch (e) {
+            console.log("Load error");
         }
-    </script>
+    }
+
+    // Show Ad
+    async function showAd() {
+        const btn = document.getElementById("adBtn");
+        btn.innerText = "⏳ Loading...";
+        btn.disabled = true;
+
+        try {
+            await AdController.show();
+
+            const res = await fetch(`/api/adsgram-reward?userId=${userId}`);
+            const data = await res.json();
+
+            if (data.error) {
+                alert(data.error);
+            } else {
+                alert("✅ Earned ₹" + data.reward);
+                loadUser();
+            }
+
+        } catch (e) {
+            alert("❌ Ad not completed");
+        }
+
+        btn.innerText = "⚡ Watch & Earn";
+        btn.disabled = false;
+    }
+
+    loadUser();
+</script>
+
 </body>
 </html>
-
