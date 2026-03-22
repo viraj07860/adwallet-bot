@@ -22,19 +22,24 @@ bot.start((ctx) => {
   const userId = ctx.from.id;
 
   if (!users[userId]) {
-    users[userId] = { balance: 0, tasks: 0 };
+    users[userId] = {
+      balance: 0,
+      tasks: 0
+    };
   }
 
   ctx.reply('🚀 AdWallet is Live!', {
     reply_markup: {
-      inline_keyboard: [[
-        {
-          text: "💰 Open App",
-          web_app: {
-            url: "https://adwallet-bot-production.up.railway.app/"
+      inline_keyboard: [
+        [
+          {
+            text: "💰 Open App",
+            web_app: {
+              url: "https://adwallet-bot-production.up.railway.app/"
+            }
           }
-        }
-      ]]
+        ]
+      ]
     }
   });
 });
@@ -64,8 +69,16 @@ app.get('/user/:id', (req, res) => {
 // ===== API: TASK LIST =====
 app.get('/tasks', (req, res) => {
   res.json([
-    { title: "Watch Ad", reward: 20, type: "adsgram" },
-    { title: "Join Channel", reward: 10, link: "https://t.me/AdWalletCommunity" }
+    {
+      title: "Watch Ad",
+      reward: 20,
+      type: "adsgram"
+    },
+    {
+      title: "Join Channel",
+      reward: 10,
+      link: "https://t.me/AdWalletCommunity"
+    }
   ]);
 });
 
@@ -86,10 +99,12 @@ app.get('/api/adsgram-reward', (req, res) => {
 
   // Cooldown (30 sec)
   if (lastAdWatch[userId] && now - lastAdWatch[userId] < 30000) {
-    return res.status(429).json({ error: "⏳ Wait 30 seconds before next ad" });
+    return res.status(429).json({
+      error: "⏳ Wait 30 seconds before next ad"
+    });
   }
 
-  // Daily limit logic
+  // Daily limit
   const today = new Date().toDateString();
 
   if (!dailyLimit[userId]) {
@@ -101,11 +116,14 @@ app.get('/api/adsgram-reward', (req, res) => {
   }
 
   if (dailyLimit[userId].count >= 10) {
-    return res.status(403).json({ error: "🚫 Daily limit reached" });
+    return res.status(403).json({
+      error: "🚫 Daily limit reached"
+    });
   }
 
   // Reward
   const reward = 20;
+
   users[userId].balance += reward;
   users[userId].tasks += 1;
 
