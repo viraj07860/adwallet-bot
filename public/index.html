@@ -1,149 +1,140 @@
-require('dotenv').config();
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AdWallet</title>
 
-const express = require('express');
-const { Telegraf } = require('telegraf');
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-const app = express();
-app.use(express.json());
-app.use(express.static('public'));
-
-const PORT = process.env.PORT || 8080;
-
-// ===== BOT =====
-const bot = new Telegraf(process.env.BOT_TOKEN);
-
-// ===== IN-MEMORY DATA =====
-const users = {};
-const lastAdWatch = {};
-const dailyLimit = {};
-
-// ===== BOT START =====
-bot.start((ctx) => {
-  const userId = ctx.from.id;
-
-  if (!users[userId]) {
-    users[userId] = {
-      balance: 0,
-      tasks: 0
-    };
-  }
-
-  ctx.reply('🚀 AdWallet is Live!', {
-    reply_markup: {
-      inline_keyboard: [
-        [
-          {
-            text: "💰 Open App",
-            web_app: {
-              url: "https://adwallet-bot-production.up.railway.app/"
-            }
-          }
-        ]
-      ]
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: white;
     }
-  });
-});
 
-// ===== LAUNCH BOT =====
-(async () => {
-  try {
-    console.log("Starting bot...");
-    await bot.launch();
-    console.log("Bot started ✅");
-  } catch (err) {
-    console.error("Bot error:", err);
-  }
-})();
-
-// ===== API: GET USER =====
-app.get('/user/:id', (req, res) => {
-  const id = req.params.id;
-
-  if (!users[id]) {
-    users[id] = { balance: 0, tasks: 0 };
-  }
-
-  res.json(users[id]);
-});
-
-// ===== API: TASK LIST =====
-app.get('/tasks', (req, res) => {
-  res.json([
-    {
-      title: "Watch Ad",
-      reward: 20,
-      type: "adsgram"
-    },
-    {
-      title: "Join Channel",
-      reward: 10,
-      link: "https://t.me/AdWalletCommunity"
+    .container {
+      padding: 20px;
     }
-  ]);
-});
 
-// ===== API: ADSGRAM REWARD (SECURE) =====
-app.get('/api/adsgram-reward', (req, res) => {
-  const { userId } = req.query;
+    h1 {
+      text-align: center;
+      color: #38bdf8;
+    }
 
-  if (!userId) {
-    return res.status(400).json({ error: "Missing userId" });
+    .card {
+      background: #1e293b;
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    .balance {
+      font-size: 24px;
+      text-align: center;
+      margin: 10px 0;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: #38bdf8;
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .task {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 12px;
+      margin-top: 20px;
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <h1>💰 AdWallet</h1>
+
+  <div class="card">
+    <div class="balance">
+      Balance: <span id="balance">0</span> coins
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📋 Tasks</h3>
+
+    <div class="task">
+      <span>🎥 Watch Ad (+20)</span>
+      <button onclick="watchAd()">Start</button>
+    </div>
+
+    <div class="task" style="margin-top:10px;">
+      <span>📢 Join Channel (+10)</span>
+      <button onclick="joinChannel()">Join</button>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    Powered by AdWallet 🚀
+  </div>
+
+</div>
+
+<script>
+  const tg = window.Telegram.WebApp;
+  tg.expand();
+
+  const userId = tg.initDataUnsafe?.user?.id || Math.floor(Math.random() * 100000);
+
+  async function loadUser() {
+    const res = await fetch(`/user/${userId}`);
+    const data = await res.json();
+    document.getElementById("balance").innerText = data.balance;
   }
 
-  const now = Date.now();
+  async function watchAd() {
+    try {
+      const res = await fetch(`/api/adsgram-reward?userId=${userId}`);
+      const data = await res.json();
 
-  // Create user if not exists
-  if (!users[userId]) {
-    users[userId] = { balance: 0, tasks: 0 };
+      if (data.error) {
+        alert(data.error);
+      } else {
+        alert("✅ Earned " + data.reward);
+        loadUser();
+      }
+    } catch (e) {
+      alert("Error");
+    }
   }
 
-  // Cooldown (30 sec)
-  if (lastAdWatch[userId] && now - lastAdWatch[userId] < 30000) {
-    return res.status(429).json({
-      error: "⏳ Wait 30 seconds before next ad"
-    });
+  function joinChannel() {
+    window.open("https://t.me/AdWalletCommunity", "_blank");
   }
 
-  // Daily limit
-  const today = new Date().toDateString();
+  loadUser();
+</script>
 
-  if (!dailyLimit[userId]) {
-    dailyLimit[userId] = { count: 0, date: today };
-  }
-
-  if (dailyLimit[userId].date !== today) {
-    dailyLimit[userId] = { count: 0, date: today };
-  }
-
-  if (dailyLimit[userId].count >= 10) {
-    return res.status(403).json({
-      error: "🚫 Daily limit reached"
-    });
-  }
-
-  // Reward
-  const reward = 20;
-
-  users[userId].balance += reward;
-  users[userId].tasks += 1;
-
-  // Save tracking
-  lastAdWatch[userId] = now;
-  dailyLimit[userId].count++;
-
-  res.json({
-    success: true,
-    reward,
-    balance: users[userId].balance
-  });
-});
-
-// ===== ROOT =====
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/public/index.html');
-});
-
-// ===== START SERVER =====
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
-});
+</body>
+</html>
