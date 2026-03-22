@@ -1,194 +1,338 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AdWallet Premium</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AdWallet Premium | Web3 Earning</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --tg-theme-bg-color: #0f172a;
+            --neon-blue: #38bdf8;
+            --neon-purple: #818cf8;
+            --glass: rgba(255, 255, 255, 0.04);
+        }
 
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://unpkg.com/lucide@latest"></script>
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at top right, #1e1b4b, #0f172a);
+            background-attachment: fixed;
+            color: white;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+            min-height: 100vh;
+        }
 
-<style>
-body {
-  background: radial-gradient(circle at top right, #1e1b4b, #0f172a);
-  color: white;
-  font-family: sans-serif;
-}
+        /* Glassmorphism Classes */
+        .glass-card {
+            background: var(--glass);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
 
-.glass {
-  background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.1);
-}
+        .neon-glow { box-shadow: 0 0 20px rgba(56, 189, 248, 0.3); }
+        
+        .shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite linear;
+        }
 
-.nav-active { color:#38bdf8; }
-</style>
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        /* Active Navigation States */
+        .nav-active {
+            color: var(--neon-blue);
+            filter: drop-shadow(0 0 10px var(--neon-blue));
+        }
+
+        .btn-press:active { transform: scale(0.95); transition: 0.1s ease; }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease-out; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Hide Scrollbar */
+        ::-webkit-scrollbar { display: none; }
+
+        /* Custom Shapes */
+        .clip-triangle { clip-path: polygon(100% 0, 0 0, 50% 100%); }
+    </style>
 </head>
+<body class="pb-28">
 
-<body class="pb-24">
+    <div id="skeleton" class="fixed inset-0 z-[100] bg-[#0f172a] p-6 space-y-6">
+        <div class="flex justify-between items-center">
+            <div class="h-10 w-32 bg-slate-800 rounded-full shimmer"></div>
+            <div class="h-10 w-10 bg-slate-800 rounded-full shimmer"></div>
+        </div>
+        <div class="h-44 w-full bg-slate-800 rounded-[2.5rem] shimmer"></div>
+        <div class="h-20 w-full bg-slate-800 rounded-2xl shimmer"></div>
+        <div class="h-6 w-32 bg-slate-800 rounded shimmer"></div>
+        <div class="space-y-4">
+            <div class="h-20 w-full bg-slate-800 rounded-2xl shimmer"></div>
+            <div class="h-20 w-full bg-slate-800 rounded-2xl shimmer"></div>
+        </div>
+    </div>
 
-<!-- HEADER -->
-<div class="flex justify-between p-5">
-  <div>
-    <h2 id="name">Hi</h2>
-    <p class="text-xs text-gray-400">Earn daily 💰</p>
-  </div>
-  <img src="/logo.png" class="w-10 h-10 rounded-full">
-</div>
+    <div id="toast-container" class="fixed top-8 left-1/2 -translate-x-1/2 z-[100] w-full px-6 pointer-events-none"></div>
 
-<!-- BALANCE -->
-<div class="glass mx-5 p-6 rounded-3xl mb-5">
-  <p class="text-xs text-gray-400">Balance</p>
-  <h1 id="balance" class="text-3xl font-bold">₹0</h1>
-</div>
+    <main id="app-content">
+        
+        <section id="home" class="tab-content active px-5 pt-6">
+            <div class="flex justify-between items-center mb-8">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-bold border border-white/20">JD</div>
+                    <div>
+                        <p class="text-[10px] text-slate-400 uppercase tracking-tighter">Current Level</p>
+                        <p class="text-sm font-bold">John Doe <span class="text-cyan-400 ml-1">Lv. 4</span></p>
+                    </div>
+                </div>
+                <button onclick="toggleInvite()" class="w-10 h-10 glass-card rounded-full flex items-center justify-center btn-press">
+                    <i data-lucide="user-plus" class="w-5 h-5"></i>
+                </button>
+            </div>
 
-<!-- STREAK -->
-<div class="glass mx-5 p-4 rounded-2xl mb-5 flex justify-between">
-  <span>🔥 Streak</span>
-  <span id="streak">0</span>
-</div>
+            <div class="glass-card rounded-[2.5rem] p-7 mb-8 relative overflow-hidden">
+                <div class="absolute -top-10 -right-10 w-32 h-32 bg-blue-500/20 blur-3xl"></div>
+                <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Total Balance</p>
+                <h1 class="text-4xl font-bold mb-6">₹4,250.00</h1>
+                <div class="flex gap-3">
+                    <button onclick="switchTab('withdraw')" class="flex-1 bg-white text-black font-bold py-3.5 rounded-2xl text-sm btn-press shadow-xl">Withdraw</button>
+                    <button onclick="switchTab('wallet-connect')" class="flex-1 glass-card font-bold py-3.5 rounded-2xl text-sm border-white/10 btn-press">TON Wallet</button>
+                </div>
+            </div>
 
-<!-- TASKS -->
-<div class="px-5 space-y-3" id="tasks"></div>
+            <div class="glass-card rounded-2xl p-4 mb-8 flex items-center justify-between border-l-4 border-l-cyan-500">
+                <div class="flex items-center gap-4">
+                    <div class="bg-cyan-500/10 p-2 rounded-lg"><i data-lucide="flame" class="w-5 h-5 text-cyan-400"></i></div>
+                    <div><p class="text-sm font-bold">5 Day Streak</p><p class="text-[10px] text-slate-400">Don't lose your progress!</p></div>
+                </div>
+                <div class="w-12 h-12 rounded-full border-2 border-slate-700 flex items-center justify-center text-xs font-bold text-cyan-400">80%</div>
+            </div>
 
-<!-- REWARD POPUP -->
-<div id="rewardBox" style="
-position:fixed;
-top:40%;
-left:50%;
-transform:translate(-50%,-50%) scale(0);
-background:#111;
-padding:20px;
-border-radius:15px;
-transition:0.3s;
-">
-🎉 Reward
-</div>
+            <h3 class="text-lg font-bold mb-4 px-1">Earning Tasks</h3>
+            <div class="space-y-4">
+                <div onclick="completeTask(this, 10)" class="glass-card p-4 rounded-2xl flex items-center justify-between btn-press">
+                    <div class="flex items-center gap-4 text-left">
+                        <div class="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center border border-indigo-500/20"><i data-lucide="play-circle" class="w-6 h-6 text-indigo-400"></i></div>
+                        <div><p class="text-sm font-semibold">Video Reward</p><p class="text-[10px] text-slate-500 font-medium">+ ₹10.00</p></div>
+                    </div>
+                    <i data-lucide="chevron-right" class="w-5 h-5 text-slate-600"></i>
+                </div>
+            </div>
+        </section>
 
-<!-- NAV -->
-<div class="fixed bottom-0 w-full flex justify-around p-4 glass">
-  <div onclick="nav('home')" class="nav-active">🏠</div>
-  <div onclick="nav('spin')">🎡</div>
-  <div onclick="nav('wallet')">💰</div>
-</div>
+        <section id="withdraw" class="tab-content px-5 pt-6">
+            <h2 class="text-2xl font-bold mb-6 text-center">Withdraw Funds</h2>
+            <div class="glass-card rounded-3xl p-6 mb-8 text-center">
+                <p class="text-xs text-slate-400 uppercase font-bold mb-2">Available to Cashout</p>
+                <p class="text-4xl font-bold">₹4,250</p>
+            </div>
+            <div class="space-y-4 mb-8">
+                <div class="glass-card p-4 rounded-2xl border-2 border-cyan-500 flex items-center justify-between">
+                    <div class="flex items-center gap-3"><i data-lucide="qr-code" class="text-cyan-400"></i><span class="font-bold">UPI / Bank</span></div>
+                    <i data-lucide="check-circle-2" class="text-cyan-400"></i>
+                </div>
+            </div>
+            <button onclick="processWithdrawal()" id="withdraw-btn" class="w-full py-4 bg-white text-black rounded-2xl font-bold shadow-lg btn-press">Request Payout</button>
+        </section>
 
-<script>
-const tg = window.Telegram?.WebApp || {
-  HapticFeedback:{impactOccurred:()=>{}}
-};
+        <section id="spin-wheel" class="tab-content px-5 pt-6 text-center">
+            <h2 class="text-2xl font-bold mb-8">Lucky Spin</h2>
+            <div class="relative mx-auto w-72 h-72 mb-10">
+                <div class="absolute -top-4 left-1/2 -translate-x-1/2 z-20 w-8 h-10 bg-white clip-triangle shadow-lg"></div>
+                <canvas id="wheelCanvas" width="300" height="300" class="w-full h-full"></canvas>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="w-12 h-12 bg-[#0f172a] rounded-full border-4 border-white/20 z-10"></div>
+                </div>
+            </div>
+            <button onclick="spinTheWheel()" id="spin-btn" class="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-2xl font-bold neon-glow btn-press">SPIN WHEEL</button>
+        </section>
 
-tg.expand();
-tg.ready();
+        <section id="leaderboard" class="tab-content px-5 pt-6">
+            <h2 class="text-2xl font-bold mb-10 text-center">Global Ranking</h2>
+            <div class="flex items-end justify-center gap-4 mb-10">
+                <div class="flex flex-col items-center">
+                    <div class="w-14 h-14 rounded-full border-2 border-slate-400 p-1 mb-2 bg-slate-800"></div>
+                    <div class="h-16 w-16 glass-card rounded-t-xl flex items-center justify-center font-bold">#2</div>
+                </div>
+                <div class="flex flex-col items-center">
+                    <i data-lucide="crown" class="text-yellow-400 mb-1"></i>
+                    <div class="w-20 h-20 rounded-full border-4 border-yellow-500 p-1 mb-2 bg-slate-800"></div>
+                    <div class="h-24 w-20 bg-yellow-500/10 border border-yellow-500/30 rounded-t-2xl flex items-center justify-center font-bold text-xl">#1</div>
+                </div>
+                <div class="flex flex-col items-center">
+                    <div class="w-14 h-14 rounded-full border-2 border-orange-700 p-1 mb-2 bg-slate-800"></div>
+                    <div class="h-12 w-16 glass-card rounded-t-xl flex items-center justify-center font-bold">#3</div>
+                </div>
+            </div>
+        </section>
 
-const user = tg.initDataUnsafe?.user;
+        <section id="wallet-connect" class="tab-content px-5 pt-6 text-center">
+            <div class="w-20 h-20 bg-[#0098EA] rounded-[2rem] mx-auto mb-6 flex items-center justify-center shadow-lg">
+                <i data-lucide="gem" class="w-10 h-10 text-white"></i>
+            </div>
+            <h2 class="text-2xl font-bold mb-8">TON Blockchain</h2>
+            
+            <div id="wallet-disconnected">
+                <div class="glass-card p-6 rounded-3xl mb-8 text-slate-400 text-sm">Connect your Telegram Wallet for Web3 withdrawals.</div>
+                <button onclick="connectTON()" class="w-full py-4 bg-[#0098EA] text-white rounded-2xl font-bold btn-press">Connect Wallet</button>
+            </div>
 
-// USER
-if(user){
-  document.getElementById("name").innerText = "Hi, " + user.first_name;
-}
+            <div id="wallet-connected" class="hidden">
+                <div class="glass-card p-6 rounded-3xl border-2 border-cyan-500 mb-8">
+                    <p class="text-xs text-cyan-400 font-bold uppercase mb-2">Connected Wallet</p>
+                    <p class="font-mono text-lg">UQAz...4f2B</p>
+                </div>
+                <button onclick="disconnectTON()" class="text-red-400 font-bold">Disconnect Wallet</button>
+            </div>
+        </section>
 
-// SOUND
-const clickSound = new Audio("https://www.soundjay.com/buttons/sounds/button-16.mp3");
-function playClick(){ clickSound.play(); }
+    </main>
 
-// BALANCE LOAD
-async function loadBalance(){
-  if(!user) return;
-  try{
-    const res = await fetch(`/user/${user.id}`);
-    const data = await res.json();
-    document.getElementById("balance").innerText = "₹"+data.balance;
-  }catch{
-    document.getElementById("balance").innerText = "₹0";
-  }
-}
+    <div id="invite-modal" class="fixed inset-0 z-[110] hidden">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-md" onclick="toggleInvite()"></div>
+        <div class="absolute bottom-0 left-0 right-0 glass-card rounded-t-[3rem] p-8 border-t border-white/20">
+            <h2 class="text-2xl font-bold mb-2 text-center">Invite Friends</h2>
+            <p class="text-slate-400 text-sm text-center mb-8">Earn ₹50 per friend who joins</p>
+            <div class="glass-card bg-white/5 border border-dashed border-white/20 rounded-2xl p-4 flex items-center justify-between mb-8">
+                <p class="text-sm font-medium text-cyan-300">adwallet.me/ref/john_77</p>
+                <button onclick="showToast('Link Copied!')" class="bg-white text-black p-2 rounded-lg"><i data-lucide="copy" class="w-4 h-4"></i></button>
+            </div>
+            <button onclick="toggleInvite()" class="w-full py-4 glass-card rounded-2xl font-bold">Close</button>
+        </div>
+    </div>
 
-// TASKS
-function loadTasks(){
-  const tasks = [
-    {title:"Join Channel", reward:10, link:"https://t.me/AdWalletCommunity"},
-    {title:"Visit Site", reward:20, link:"https://google.com"}
-  ];
+    <nav class="fixed bottom-0 left-0 right-0 glass-card border-t border-white/10 px-6 py-4 flex justify-between items-center z-50 rounded-t-[2.5rem]">
+        <button onclick="switchTab('home')" class="nav-btn nav-active" data-tab="home"><i data-lucide="home" class="w-6 h-6"></i></button>
+        <button onclick="switchTab('withdraw')" class="nav-btn text-slate-500" data-tab="withdraw"><i data-lucide="wallet" class="w-6 h-6"></i></button>
+        <div class="relative -top-8">
+            <button onclick="switchTab('spin-wheel')" class="w-16 h-16 bg-gradient-to-b from-cyan-400 to-blue-600 rounded-full flex items-center justify-center shadow-lg neon-glow border-[6px] border-[#0d1425] btn-press">
+                <i data-lucide="rotate-cw" class="w-7 h-7 text-white"></i>
+            </button>
+        </div>
+        <button onclick="switchTab('leaderboard')" class="nav-btn text-slate-500" data-tab="leaderboard"><i data-lucide="trophy" class="w-6 h-6"></i></button>
+        <button onclick="switchTab('wallet-connect')" class="nav-btn text-slate-500" data-tab="wallet-connect"><i data-lucide="gem" class="w-6 h-6"></i></button>
+    </nav>
 
-  const box = document.getElementById("tasks");
+    <script>
+        // --- 1. CONFIG & INIT ---
+        const tg = window.Telegram?.WebApp;
+        if(tg) { tg.expand(); tg.ready(); tg.headerColor = '#0f172a'; }
+        lucide.createIcons();
 
-  tasks.forEach(t=>{
-    const div = document.createElement("div");
-    div.className="glass p-4 rounded-xl flex justify-between";
+        // Preloader Logic
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('skeleton').style.opacity = '0';
+                setTimeout(() => document.getElementById('skeleton').remove(), 500);
+            }, 1500);
+            drawWheel();
+        });
 
-    div.innerHTML=`
-      <div>
-        <b>${t.title}</b><br>
-        <small>+₹${t.reward}</small>
-      </div>
-      <button onclick="start('${t.link}',${t.reward})">Start</button>
-    `;
+        // --- 2. NAVIGATION ---
+        function switchTab(tabId) {
+            triggerHaptic('light');
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.toggle('nav-active', btn.dataset.tab === tabId);
+                btn.classList.toggle('text-slate-500', btn.dataset.tab !== tabId);
+            });
+            window.scrollTo(0,0);
+        }
 
-    box.appendChild(div);
-  });
-}
+        // --- 3. SPIN WHEEL ENGINE ---
+        const sectors = [
+            { label: "₹10", color: "#1e1b4b", val: 10 }, { label: "₹0", color: "#0f172a", val: 0 },
+            { label: "₹50", color: "#312e81", val: 50 }, { label: "₹5", color: "#0f172a", val: 5 },
+            { label: "₹100", color: "#4338ca", val: 100 }, { label: "JACKPOT", color: "#06b6d4", val: 500 }
+        ];
+        const canvas = document.getElementById("wheelCanvas");
+        const ctx = canvas.getContext("2d");
+        let currentRotation = 0;
 
-// START TASK
-function start(link, amount){
-  playClick();
-  tg.HapticFeedback.impactOccurred("medium");
+        function drawWheel() {
+            const radius = 150;
+            const arc = (2 * Math.PI) / sectors.length;
+            sectors.forEach((s, i) => {
+                const angle = i * arc;
+                ctx.beginPath(); ctx.fillStyle = s.color; ctx.moveTo(radius, radius);
+                ctx.arc(radius, radius, radius, angle, angle + arc); ctx.fill();
+                ctx.save(); ctx.translate(radius, radius); ctx.rotate(angle + arc/2);
+                ctx.textAlign="right"; ctx.fillStyle="#fff"; ctx.font="bold 12px Inter";
+                ctx.fillText(s.label, radius - 20, 5); ctx.restore();
+            });
+        }
 
-  window.open(link);
+        function spinTheWheel() {
+            triggerHaptic('medium');
+            const btn = document.getElementById('spin-btn');
+            btn.disabled = true;
+            const spin = 10 + Math.random() * 5;
+            currentRotation += spin;
+            canvas.style.transition = "transform 4s cubic-bezier(0.15, 0, 0.15, 1)";
+            canvas.style.transform = `rotate(${currentRotation}rad)`;
+            setTimeout(() => {
+                btn.disabled = false;
+                triggerConfetti();
+                showToast("You won a reward!");
+            }, 4000);
+        }
 
-  setTimeout(()=>{
-    confetti({particleCount:100,spread:70});
-    showReward(amount);
-  },1000);
-}
+        // --- 4. CORE UTILITIES ---
+        function triggerHaptic(s) { tg?.HapticFeedback?.impactOccurred(s); }
+        function triggerConfetti() { confetti({ particleCount: 100, spread: 70, origin: { y: 0.8 } }); }
+        function toggleInvite() { document.getElementById('invite-modal').classList.toggle('hidden'); }
+        
+        function showToast(msg) {
+            const container = document.getElementById('toast-container');
+            const t = document.createElement('div');
+            t.className = "bg-white text-black text-center py-3 px-6 rounded-2xl font-bold mb-3 animate-in fade-in slide-in-from-top-4";
+            t.innerText = msg; container.appendChild(t);
+            setTimeout(() => t.remove(), 3000);
+        }
 
-// REWARD
-function showReward(val){
-  const box=document.getElementById("rewardBox");
-  box.innerText="🎉 +₹"+val;
-  box.style.transform="translate(-50%,-50%) scale(1)";
-  setTimeout(()=>box.style.transform="scale(0)",1500);
-}
+        function completeTask(el, r) {
+            triggerHaptic('medium'); el.style.opacity = '0.5';
+            showToast(`Task Complete: +₹${r}`); triggerConfetti();
+        }
 
-// STREAK
-function streak(){
-  let s=localStorage.getItem("s")||0;
-  let last=localStorage.getItem("d");
-  let today=new Date().toDateString();
+        function connectTON() {
+            triggerHaptic('medium');
+            showToast("Connecting...");
+            setTimeout(() => {
+                document.getElementById('wallet-disconnected').classList.add('hidden');
+                document.getElementById('wallet-connected').classList.remove('hidden');
+                triggerConfetti();
+            }, 1500);
+        }
 
-  if(last!==today){
-    s++;
-    localStorage.setItem("s",s);
-    localStorage.setItem("d",today);
-  }
+        function disconnectTON() {
+            document.getElementById('wallet-disconnected').classList.remove('hidden');
+            document.getElementById('wallet-connected').classList.add('hidden');
+        }
 
-  document.getElementById("streak").innerText=s+" days";
-}
-
-// NAV
-function nav(x){
-  playClick();
-}
-
-// DAILY BONUS
-function bonus(){
-  let last=localStorage.getItem("bonus");
-  let today=new Date().toDateString();
-
-  if(last!==today){
-    localStorage.setItem("bonus",today);
-    showReward(20);
-  }
-}
-
-// INIT
-loadBalance();
-loadTasks();
-streak();
-bonus();
-
-</script>
-
+        function processWithdrawal() {
+            triggerHaptic('heavy');
+            showToast("Processing Payout...");
+        }
+    </script>
 </body>
 </html>
+
