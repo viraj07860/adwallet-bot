@@ -1,167 +1,139 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AdWallet Premium</title>
-    <script src="https://app.adsgram.ai/js/adsgram-ad-sdk.js"></script>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap');
-        
-        :root {
-            --neon-cyan: #00f2ff;
-            --neon-purple: #bc13fe;
-            --glass: rgba(255, 255, 255, 0.03);
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AdWallet</title><!-- Telegram --><script src="https://telegram.org/js/telegram-web-app.js"></script><style>
+body{font-family:sans-serif;background:#f0fdf4;margin:0;text-align:center}
+.card{background:#fff;margin:20px;padding:20px;border-radius:15px}
+.btn{background:#22c55e;color:#fff;padding:12px;border:none;border-radius:10px;width:100%}
+#popup{position:fixed;top:10px;width:100%}
+.popup{background:#fff;margin:5px;padding:10px;border-radius:10px}
+#lock{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;justify-content:center;align-items:center}
+</style></head><body><!-- 🔒 SUBSCRIBE LOCK --><div id="lock">
+  <div class="card">
+    <h3>📢 Join Channel</h3>
+    <a href="https://t.me/adwalletcommunity" target="_blank" class="btn">Subscribe</a><br><br>
+    <button class="btn" onclick="unlock()">I Subscribed</button>
+  </div>
+</div><!-- DASHBOARD --><div class="card">
+<h2 id="user">User</h2>
+<h1>$<span id="bal">0.00</span></h1><button class="btn" onclick="watchAd()">🎬 Watch Ad</button><br><br>
+<button class="btn" onclick="bonus()">🎁 Daily Bonus</button>
 
-        body {
-            background-color: #050505;
-            color: #ffffff;
-            font-family: 'Space Grotesk', sans-serif;
-            overflow-x: hidden;
-        }
+</div><!-- REFERRAL --><div class="card">
+<h3>Invite & Earn ($0.075)</h3>
+<input id="ref" value="https://t.me/adwallet_bot?start=REF123" style="width:100%">
+<button class="btn" onclick="copy()">Copy</button>
+</div><!-- WITHDRAW --><div class="card">
+<h3>Withdraw (Min $10)</h3>
+<input id="amt" placeholder="$10" style="width:100%;padding:10px"><br><br>
+<button class="btn" onclick="withdraw()">Withdraw</button>
+</div><div id="popup"></div><!-- Monetag SDK --><script src='//libtl.com/sdk.js' data-zone='10760190' data-sdk='show_10760190'></script><script>
+let bal=0;
+let unlocked=false;
+let lastAd=0;
+let daily=0;
 
-        .glass-card {
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-        }
+// unlock
+function unlock(){
+  unlocked=true;
+  document.getElementById("lock").style.display="none";
+}
 
-        .neon-glow {
-            box-shadow: 0 0 15px var(--neon-cyan);
-        }
+// check
+function check(){
+  if(!unlocked){alert("Subscribe first");return false;}
+  return true;
+}
 
-        .btn-main {
-            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
+// reward ad (Monetag)
+function watchAd(){
+  if(!check()) return;
 
-        .btn-main:active {
-            transform: scale(0.92);
-            filter: brightness(1.2);
-        }
+  let now=Date.now();
+  if(now-lastAd<30000){alert("Wait 30 sec");return;}
+  if(daily>=10){alert("Limit reached");return;}
 
-        .shimmer {
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-            background-size: 200% 100%;
-            animation: shimmer 2s infinite;
-        }
+  lastAd=now;
+  daily++;
 
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
-    </style>
-</head>
-<body class="p-5 flex flex-col min-h-screen">
+  show_10760190('pop').then(res=>{
 
-    <div class="flex justify-between items-center mb-8">
-        <div class="flex items-center gap-2">
-            <div class="w-10 h-10 rounded-xl btn-main flex items-center justify-center font-bold text-black shadow-lg shadow-cyan-500/20">A</div>
-            <span class="text-xl font-bold tracking-tighter uppercase">Ad<span class="text-cyan-400">Wallet</span></span>
-        </div>
-        <div class="glass-card px-4 py-1.5 rounded-full border border-cyan-500/30">
-            <span class="text-[10px] font-bold text-cyan-400 animate-pulse">● NETWORK LIVE</span>
-        </div>
-    </div>
+    if(res?.reward_event_type==="valued"){
+      let reward=(Math.random()*0.05+0.05);
+      bal+=reward;
+      update();
+      alert("+$"+reward.toFixed(2));
+    } else {
+      alert("No reward");
+    }
 
-    <div class="glass-card w-full rounded-[2.5rem] p-8 mb-6 relative overflow-hidden">
-        <div class="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 blur-[60px] rounded-full"></div>
-        <div class="relative z-10">
-            <h2 class="text-gray-400 text-xs font-bold uppercase tracking-[0.2em] mb-3">Verified Balance</h2>
-            <div class="flex items-baseline gap-2">
-                <span class="text-4xl font-light text-gray-400">₹</span>
-                <span id="balance" class="text-6xl font-bold tracking-tighter">0.00</span>
-            </div>
-            <div class="mt-6 flex gap-4">
-                <div class="glass-card bg-white/5 rounded-2xl px-4 py-2">
-                    <p class="text-[9px] text-gray-500 uppercase font-bold">Total Ads</p>
-                    <p id="tasks" class="text-sm font-bold">0</p>
-                </div>
-                <div class="glass-card bg-white/5 rounded-2xl px-4 py-2">
-                    <p class="text-[9px] text-gray-500 uppercase font-bold">Daily Cap</p>
-                    <p class="text-sm font-bold">10/10</p>
-                </div>
-            </div>
-        </div>
-    </div>
+  }).catch(()=>alert("Ad failed"));
+}
 
-    <div class="mt-auto space-y-4 pb-4">
-        <div id="status-msg" class="text-center text-[10px] text-gray-500 uppercase font-bold tracking-widest h-4"></div>
-        
-        <button onclick="showAd()" class="btn-main w-full py-5 rounded-2xl text-black font-black uppercase tracking-tight text-lg shadow-xl shadow-purple-500/20">
-            Initialize Reward Ad
-        </button>
+// bonus
+function bonus(){
+  if(!check()) return;
+  bal+=0.25;
+  update();
+}
 
-        <div class="grid grid-cols-2 gap-4">
-            <button class="glass-card py-4 rounded-2xl text-xs font-bold uppercase text-gray-400 hover:text-white transition">
-                Withdraw
-            </button>
-            <button onclick="window.Telegram.WebApp.close()" class="glass-card py-4 rounded-2xl text-xs font-bold uppercase text-gray-400 hover:text-white transition">
-                Exit System
-            </button>
-        </div>
-    </div>
+// withdraw
+function withdraw(){
+  let a=parseFloat(document.getElementById("amt").value);
+  if(a<10) return alert("Min $10");
+  if(a>bal) return alert("No balance");
+  bal-=a;
+  update();
+  alert("Requested");
+}
 
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-        tg.headerColor = '#050505';
+// update UI
+function update(){
+  document.getElementById("bal").innerText=bal.toFixed(2);
+}
 
-        // USER DETAILS
-        const userId = tg.initDataUnsafe?.user?.id || 12345; // Default for browser testing
+// copy
+function copy(){
+  navigator.clipboard.writeText(document.getElementById("ref").value);
+  alert("Copied");
+}
 
-        // ADSGRAM INITIALIZATION (Your Details)
-        const AdController = window.Adsgram.init({ 
-            blockId: "25642", 
-            debug: true // Change to FALSE when you are ready for real money
-        });
+// popup system
+const names=["Rahul","Ali","John","Priya","Sneha","David"];
+const methods=["PayPal","Bitcoin","Paytm","PhonePe"];
 
-        // FETCH USER DATA ON LOAD
-        async function loadUser() {
-            try {
-                const response = await fetch(`/user/${userId}`);
-                const data = await response.json();
-                document.getElementById('balance').innerText = data.balance.toFixed(2);
-                document.getElementById('tasks').innerText = data.tasks || 0;
-            } catch (err) {
-                console.error("Failed to load user data");
-            }
-        }
+setInterval(()=>{
+  let n=names[Math.random()*names.length|0];
+  let m=methods[Math.random()*methods.length|0];
+  let a=(Math.random()*100+10).toFixed(2);
 
-        async function showAd() {
-            const status = document.getElementById('status-msg');
-            status.innerText = "Connecting to Ad Server...";
-            
-            try {
-                await AdController.show();
-                status.innerText = "Validating Reward...";
-                
-                // REWARD CALL TO BACKEND
-                const response = await fetch(`/api/adsgram-reward?userId=${userId}`);
-                const data = await response.json();
+  let el=document.createElement("div");
+  el.className="popup";
+  el.innerText=`${n} withdrew $${a} via ${m}`;
+  document.getElementById("popup").appendChild(el);
 
-                if (data.success) {
-                    status.innerText = "Reward Confirmed +₹20";
-                    loadUser(); // Refresh balance
-                    tg.HapticFeedback.notificationOccurred('success');
-                } else {
-                    status.innerText = data.error;
-                    tg.HapticFeedback.notificationOccurred('error');
-                }
-            } catch (err) {
-                status.innerText = "Ad Skipped or Error";
-                console.log(err);
-            }
-            
-            setTimeout(() => { status.innerText = ""; }, 3000);
-        }
+  setTimeout(()=>el.remove(),1000);
+},10000);
 
-        loadUser();
-    </script>
-</body>
+// telegram user
+window.onload=()=>{
+  if(window.Telegram){
+    let u=Telegram.WebApp.initDataUnsafe.user;
+    if(u) document.getElementById("user").innerText=u.first_name;
+  }
+
+  // AUTO ADS (your income)
+  show_10760190({
+    type:'inApp',
+    inAppSettings:{
+      frequency:2,
+      capping:0.1,
+      interval:30,
+      timeout:5,
+      everyPage:false
+    }
+  });
+}
+</script></body>
 </html>
