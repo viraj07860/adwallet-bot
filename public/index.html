@@ -1,200 +1,141 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<title>AdzWallet Pro</title>
-<script src='//libtl.com/sdk.js' data-zone='10760190' data-sdk='show_10760190'></script>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="https://cdn.tailwindcss.com"></script>
-<style>
-    :root { --green: #22c55e; --bg: #f8fafc; }
-    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); overflow: hidden; height: 100vh; }
-    .page { display: none; padding: 16px; height: 100%; overflow-y: auto; padding-bottom: 110px; }
-    .page.active { display: block; }
-    .glass-card { background: white; border: 1px solid #e2e8f0; border-radius: 24px; padding: 20px; }
-    .balance-gradient { background: linear-gradient(135deg, #16a34a, #22c55e); color: white; }
-    .method-card { border: 2px solid #f1f5f9; cursor: pointer; background: white; transition: 0.2s; }
-    .method-card.selected { border-color: var(--green); background: #f0fdf4; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AdzWallet</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --blue: #00f2ff; --purple: #bc13fe; --glass: rgba(255, 255, 255, 0.05); }
+        body { margin: 0; padding: 0; font-family: 'Rajdhani', sans-serif; background: #050505; color: #fff; overflow-x: hidden; }
+        .orb { position: fixed; width: 250px; height: 250px; border-radius: 50%; filter: blur(80px); z-index: -1; opacity: 0.2; }
+        .orb-1 { top: -50px; left: -50px; background: var(--blue); }
+        .orb-2 { bottom: -50px; right: -50px; background: var(--purple); }
+        
+        .container { padding: 20px; padding-bottom: 90px; }
+        .card { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; padding: 15px; margin-bottom: 15px; }
+        
+        .live-count { font-size: 1.8rem; color: var(--blue); text-shadow: 0 0 10px var(--blue); text-align: center; }
+        .pulse { display: inline-block; width: 8px; height: 8px; background: #0f0; border-radius: 50%; animation: p 1.5s infinite; }
+        @keyframes p { 0% { opacity: 0.3; } 50% { opacity: 1; } 100% { opacity: 0.3; } }
+
+        .btn { width: 100%; padding: 12px; background: linear-gradient(90deg, var(--blue), var(--purple)); border: none; border-radius: 8px; color: #fff; font-family: 'Orbitron'; font-weight: bold; cursor: pointer; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .faq-item { margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; }
+        .faq-q { color: var(--blue); font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; }
+        .faq-a { display: none; padding-top: 8px; color: #aaa; font-size: 0.9rem; }
+        .faq-item.open .faq-a { display: block; }
+
+        .nav { position: fixed; bottom: 0; width: 100%; background: rgba(0,0,0,0.8); display: flex; justify-content: space-around; padding: 12px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .nav-item { font-size: 0.8rem; color: #888; text-align: center; }
+        .nav-item.active { color: var(--blue); }
+        .page { display: none; }
+        .page.active { display: block; }
+    </style>
 </head>
 <body>
+    <div class="orb orb-1"></div><div class="orb orb-2"></div>
 
-<header class="h-16 bg-white border-b flex items-center justify-between px-6 sticky top-0 z-50">
-    <div class="font-black text-green-600 text-xl italic tracking-tighter">ADZWALLET</div>
-    <div class="bg-green-600 text-white px-3 py-1 rounded-full text-[10px] font-bold">₹<span id="tb-bal">0.00</span></div>
-</header>
-
-<main>
-    <section class="page active" id="page-dashboard">
-        <div class="glass-card balance-gradient mb-6">
-            <p class="text-[10px] uppercase tracking-widest opacity-80 mb-1">Welcome, <span id="user-name">User</span></p>
-            <h1 class="text-5xl font-black">₹<span id="bal-main">0.00</span></h1>
-        </div>
-        
-        <div class="grid grid-cols-2 gap-3 mb-6">
-            <div class="bg-white p-4 rounded-2xl border border-gray-100 text-center">
-                <p class="text-[9px] text-gray-400 font-bold uppercase">Totally Paid</p>
-                <p class="font-black text-green-600 text-sm">₹<span id="live-paid">45,373</span></p>
+    <div class="container">
+        <div id="home" class="page active">
+            <h1 style="font-family:'Orbitron'; text-align:center; font-size:1.4rem;">ADZ WALLET</h1>
+            <div class="card">
+                <div style="font-size:0.8rem; text-align:center;"><span class="pulse"></span> LIVE SYSTEM USERS</div>
+                <div class="live-count" id="live-counter">1,482</div>
             </div>
-            <div class="bg-white p-4 rounded-2xl border border-gray-100 text-center">
-                <p class="text-[9px] text-gray-400 font-bold uppercase">People Live</p>
-                <p class="font-black text-gray-800 text-sm">1,13,788</p>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <div class="card" style="text-align:center;">
+                    <div id="balance" style="font-size:1.5rem;">₹0.00</div>
+                    <div style="font-size:0.7rem; color:#aaa;">BALANCE</div>
+                </div>
+                <div class="card" style="text-align:center;">
+                    <div id="tasks" style="font-size:1.5rem;">0</div>
+                    <div style="font-size:0.7rem; color:#aaa;">TASKS</div>
+                </div>
             </div>
         </div>
-        <button onclick="navigate('earn')" class="w-full bg-green-600 text-white py-5 rounded-2xl font-black">🚀 GO TO EARN CENTER</button>
-    </section>
 
-    <section class="page" id="page-earn">
-        <h2 class="font-bold text-lg mb-4">Ad Servers</h2>
-        <div class="space-y-3">
-            <div onclick="watchAd('S1')" class="glass-card flex items-center gap-4 border-l-4 border-green-500">
-                <div class="text-xl">⚡</div><div class="flex-1 text-sm font-bold">Server #1 (Instant)</div><div class="text-green-600 font-bold text-xs">₹20</div>
-            </div>
-            <div onclick="watchAd('S2')" class="glass-card flex items-center gap-4 border-l-4 border-blue-500">
-                <div class="text-xl">💎</div><div class="flex-1 text-sm font-bold">Server #2 (Premium)</div><div class="text-green-600 font-bold text-xs">₹20</div>
-            </div>
-            <div onclick="watchAd('S3')" class="glass-card flex items-center gap-4 border-l-4 border-purple-500">
-                <div class="text-xl">🌍</div><div class="flex-1 text-sm font-bold">Server #3 (Global)</div><div class="text-green-600 font-bold text-xs">₹20</div>
-            </div>
-            <div onclick="watchAd('S4')" class="glass-card flex items-center gap-4 border-l-4 border-orange-500">
-                <div class="text-xl">🔥</div><div class="flex-1 text-sm font-bold">Server #4 (Hot)</div><div class="text-green-600 font-bold text-xs">₹20</div>
-            </div>
-            <div onclick="watchAd('S5')" class="glass-card flex items-center gap-4 border-l-4 border-red-500">
-                <div class="text-xl">🚀</div><div class="flex-1 text-sm font-bold">Server #5 (Speed)</div><div class="text-green-600 font-bold text-xs">₹20</div>
+        <div id="task-page" class="page">
+            <h2 style="font-family:'Orbitron';">EARN MONEY</h2>
+            <div class="card">
+                <h3 style="margin:0; color:var(--blue);">📺 Watch Video Ad</h3>
+                <p style="font-size:0.85rem; color:#ccc;">Complete 1 ad view to earn ₹20 instantly.</p>
+                <button class="btn" id="ad-btn" onclick="runTask()">WATCH & EARN ₹20</button>
             </div>
         </div>
-    </section>
 
-    <section class="page" id="page-refer">
-        <div class="glass-card mb-4 text-center">
-            <p class="text-xs text-gray-400 font-bold uppercase mb-2">Invite Friends (Earn ₹5)</p>
-            <p class="text-[10px] font-mono mb-4 text-blue-500" id="ref-link">t.me/AdzwalletBot?start=...</p>
-            <button onclick="copyLink()" class="bg-green-600 text-white px-8 py-3 rounded-xl font-bold text-xs">COPY LINK</button>
+        <div id="help" class="page">
+            <h2 style="font-family:'Orbitron';">HELP & FAQ</h2>
+            <div class="card" id="faq-container"></div>
         </div>
-        <h3 class="font-bold text-xs text-gray-400 uppercase mb-3">Joined Through You</h3>
-        <div id="ref-list" class="space-y-2">
-            <p class="text-center text-[10px] text-gray-300 py-4">No referrals yet</p>
-        </div>
-    </section>
+    </div>
 
-    <section class="page" id="page-cashout">
-        <div class="glass-card mb-6">
-            <div class="grid grid-cols-2 gap-2 mb-4">
-                <div class="method-card p-3 rounded-xl text-center text-[10px]" onclick="selMethod(this, 'Bitcoin')">₿ Bitcoin</div>
-                <div class="method-card p-3 rounded-xl text-center text-[10px]" onclick="selMethod(this, 'Crypto')">⛓️ Crypto</div>
-                <div class="method-card p-3 rounded-xl text-center text-[10px]" onclick="selMethod(this, 'UPI')">⚡ UPI</div>
-                <div class="method-card p-3 rounded-xl text-center text-[10px]" onclick="selMethod(this, 'PayPal')">🅿️ PayPal</div>
-            </div>
+    <nav class="nav">
+        <div class="nav-item active" onclick="tab('home', this)">🏠<br>Home</div>
+        <div class="nav-item" onclick="tab('task-page', this)">⚡<br>Tasks</div>
+        <div class="nav-item" onclick="tab('help', this)">❓<br>Help</div>
+    </nav>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('id');
+
+        // Initial Data Fetch
+        if(userId) {
+            fetch(`/user/${userId}`).then(r => r.json()).then(data => {
+                document.getElementById('balance').innerText = `₹${data.balance}`;
+                document.getElementById('tasks').innerText = data.tasks;
+            });
+        }
+
+        // Live Counter Logic
+        let count = 1482;
+        setInterval(() => {
+            count += Math.floor(Math.random() * 5) - 2;
+            document.getElementById('live-counter').innerText = count.toLocaleString();
+        }, 3000);
+
+        // Tab Switcher
+        function tab(id, el) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            el.classList.add('active');
+        }
+
+        // Task Logic
+        async function runTask() {
+            const btn = document.getElementById('ad-btn');
+            btn.disabled = true; btn.innerText = "WATCHING AD...";
             
-            <div id="address-box" class="hidden mb-4">
-                <input type="text" id="wd-address" placeholder="Enter Address / UPI ID" class="w-full p-4 bg-gray-50 rounded-2xl border text-sm">
-            </div>
-            
-            <input type="number" id="wd-amount" placeholder="Amount (Min ₹100)" class="w-full p-4 bg-gray-50 rounded-2xl mb-4 border font-bold text-center">
-            <button onclick="submitWithdrawal()" class="w-full bg-green-600 text-white py-4 rounded-2xl font-bold">SUBMIT REQUEST</button>
-        </div>
-        <h3 class="font-bold text-xs text-gray-400 mb-2 uppercase">Withdrawal History</h3>
-        <div id="history-list" class="space-y-2"></div>
-    </section>
-</main>
+            setTimeout(async () => {
+                const res = await fetch(`/api/adsgram-reward?userId=${userId}`);
+                const data = await res.json();
+                if(data.success) {
+                    alert("🎉 Reward Added!");
+                    document.getElementById('balance').innerText = `₹${data.balance}`;
+                    document.getElementById('tasks').innerText = data.tasks;
+                } else { alert(data.message || "Error"); }
+                btn.disabled = false; btn.innerText = "WATCH & EARN ₹20";
+            }, 3000);
+        }
 
-<nav class="fixed bottom-0 left-0 right-0 h-20 bg-white border-t flex items-center justify-around z-50">
-    <button onclick="navigate('dashboard')" class="flex flex-col items-center gap-1 text-green-600"><span class="text-xl">🏠</span><span class="text-[10px] font-bold">Home</span></button>
-    <button onclick="navigate('earn')" class="flex flex-col items-center gap-1 text-gray-400"><span class="text-xl">🎬</span><span class="text-[10px] font-bold">Earn</span></button>
-    <button onclick="navigate('refer')" class="flex flex-col items-center gap-1 text-gray-400"><span class="text-xl">👥</span><span class="text-[10px] font-bold">Invite</span></button>
-    <button onclick="navigate('cashout')" class="flex flex-col items-center gap-1 text-gray-400"><span class="text-xl">💸</span><span class="text-[10px] font-bold">Cash</span></button>
-</nav>
+        // FAQ Data
+        const faqs = [
+            {q: "How to earn ₹5?", a: "Share your link. When a friend joins via your link, you get ₹5."},
+            {q: "What is the minimum withdrawal?", a: "You can withdraw once you reach ₹500."},
+            {q: "How long does payout take?", a: "Payments are sent within 24-48 hours."},
+            {q: "Can I use multiple accounts?", a: "No, multiple accounts will result in a permanent ban."}
+        ];
 
-<script>
-const tg = window.Telegram.WebApp;
-const userId = tg.initDataUnsafe?.user?.id || 12345;
-let selectedMethod = "";
-
-// 1. LIVE MONEY COUNTER
-let totalPaid = 45373;
-setInterval(() => {
-    totalPaid += Math.floor(Math.random() * 900) + 100;
-    document.getElementById('live-paid').innerText = totalPaid.toLocaleString();
-}, 5000);
-
-async function loadUser() {
-    const res = await fetch(`/user/${userId}`);
-    const user = await res.json();
-    
-    document.getElementById('user-name').innerText = tg.initDataUnsafe?.user?.first_name || user.username;
-    document.getElementById('bal-main').innerText = user.balance.toFixed(2);
-    document.getElementById('tb-bal').innerText = user.balance.toFixed(2);
-    document.getElementById('ref-link').innerText = `t.me/AdzwalletBot?start=${userId}`;
-    
-    // RENDER REFERRAL LIST
-    const rList = document.getElementById('ref-list');
-    if(user.referralList?.length) {
-        rList.innerHTML = user.referralList.map(r => `
-            <div class="glass-card p-3 flex justify-between items-center text-[10px]">
-                <span class="font-bold">${r.username}</span>
-                <span class="text-gray-400">${new Date(r.date).toLocaleDateString()}</span>
-            </div>
-        `).join('');
-    }
-
-    // RENDER HISTORY
-    const hList = document.getElementById('history-list');
-    if(user.withdrawalHistory?.length) {
-        hList.innerHTML = user.withdrawalHistory.reverse().map(h => `
-            <div class="glass-card p-3 flex justify-between items-center text-[10px]">
-                <div><p class="font-bold">${h.method}</p><p class="text-gray-400 truncate w-32">${h.address}</p></div>
-                <div class="text-right"><p class="text-green-600 font-bold">₹${h.amount}</p><p class="text-blue-500 uppercase">${h.status}</p></div>
-            </div>
-        `).join('');
-    }
-}
-
-function navigate(id) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById('page-'+id).classList.add('active');
-}
-
-function selMethod(el, name) {
-    document.querySelectorAll('.method-card').forEach(m => m.classList.remove('selected'));
-    el.classList.add('selected');
-    selectedMethod = name;
-    document.getElementById('address-box').classList.remove('hidden');
-    document.getElementById('wd-address').placeholder = `Enter ${name} Address/ID`;
-}
-
-function watchAd(s) {
-    show_10760190().then(() => {
-        fetch(`/api/adsgram-reward?userId=${userId}`).then(() => {
-            loadUser();
-            tg.HapticFeedback.notificationOccurred('success');
+        const faqCont = document.getElementById('faq-container');
+        faqs.forEach(f => {
+            const div = document.createElement('div');
+            div.className = 'faq-item';
+            div.innerHTML = `<div class="faq-q" onclick="this.parentElement.classList.toggle('open')">${f.q} <span>+</span></div><div class="faq-a">${f.a}</div>`;
+            faqCont.appendChild(div);
         });
-    }).catch(() => tg.showAlert("Ad server busy."));
-}
-
-function submitWithdrawal() {
-    const amt = document.getElementById('wd-amount').value;
-    const addr = document.getElementById('wd-address').value;
-    if(!selectedMethod || !addr || amt < 100) return tg.showAlert("Fill all details (Min ₹100)");
-
-    fetch('/api/withdraw', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ userId, amount: Number(amt), method: selectedMethod, address: addr })
-    }).then(() => {
-        tg.showAlert("Withdrawal Requested!");
-        loadUser();
-        navigate('cashout');
-    });
-}
-
-function copyLink() {
-    navigator.clipboard.writeText(`https://t.me/AdzwalletBot?start=${userId}`);
-    tg.showAlert("Link Copied!");
-}
-
-loadUser();
-</script>
+    </script>
 </body>
 </html>
-

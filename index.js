@@ -1,142 +1,118 @@
-<!<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AdzWallet</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
-    <style>
-        :root { --blue: #00f2ff; --purple: #bc13fe; --glass: rgba(255, 255, 255, 0.05); }
-        body { margin: 0; padding: 0; font-family: 'Rajdhani', sans-serif; background: #050505; color: #fff; overflow-x: hidden; }
-        .orb { position: fixed; width: 250px; height: 250px; border-radius: 50%; filter: blur(80px); z-index: -1; opacity: 0.2; }
-        .orb-1 { top: -50px; left: -50px; background: var(--blue); }
-        .orb-2 { bottom: -50px; right: -50px; background: var(--purple); }
-        
-        .container { padding: 20px; padding-bottom: 90px; }
-        .card { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; padding: 15px; margin-bottom: 15px; }
-        
-        .live-count { font-size: 1.8rem; color: var(--blue); text-shadow: 0 0 10px var(--blue); text-align: center; }
-        .pulse { display: inline-block; width: 8px; height: 8px; background: #0f0; border-radius: 50%; animation: p 1.5s infinite; }
-        @keyframes p { 0% { opacity: 0.3; } 50% { opacity: 1; } 100% { opacity: 0.3; } }
+require('dotenv').config();
+const express = require('express');
+const { Telegraf } = require('telegraf');
+const path = require('path');
 
-        .btn { width: 100%; padding: 12px; background: linear-gradient(90deg, var(--blue), var(--purple)); border: none; border-radius: 8px; color: #fff; font-family: 'Orbitron'; font-weight: bold; cursor: pointer; }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+const app = express();
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
-        .faq-item { margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; }
-        .faq-q { color: var(--blue); font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; }
-        .faq-a { display: none; padding-top: 8px; color: #aaa; font-size: 0.9rem; }
-        .faq-item.open .faq-a { display: block; }
+const PORT = process.env.PORT || 8080;
+const CHANNEL = "@AdWalletCommunity";
+const bot = new Telegraf(process.env.BOT_TOKEN);
 
-        .nav { position: fixed; bottom: 0; width: 100%; background: rgba(0,0,0,0.8); display: flex; justify-content: space-around; padding: 12px; border-top: 1px solid rgba(255,255,255,0.1); }
-        .nav-item { font-size: 0.8rem; color: #888; text-align: center; }
-        .nav-item.active { color: var(--blue); }
-        .page { display: none; }
-        .page.active { display: block; }
-    </style>
-</head>
-<body>
-    <div class="orb orb-1"></div><div class="orb orb-2"></div>
+// ===== DATA STORAGE (Note: Data resets on restart until MongoDB is added) =====
+const users = {};
 
-    <div class="container">
-        <div id="home" class="page active">
-            <h1 style="font-family:'Orbitron'; text-align:center; font-size:1.4rem;">ADZ WALLET</h1>
-            <div class="card">
-                <div style="font-size:0.8rem; text-align:center;"><span class="pulse"></span> LIVE SYSTEM USERS</div>
-                <div class="live-count" id="live-counter">1,482</div>
-            </div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                <div class="card" style="text-align:center;">
-                    <div id="balance" style="font-size:1.5rem;">₹0.00</div>
-                    <div style="font-size:0.7rem; color:#aaa;">BALANCE</div>
-                </div>
-                <div class="card" style="text-align:center;">
-                    <div id="tasks" style="font-size:1.5rem;">0</div>
-                    <div style="font-size:0.7rem; color:#aaa;">TASKS</div>
-                </div>
-            </div>
-        </div>
+// ===== BOT LOGIC =====
+bot.start(async (ctx) => {
+  const userId = ctx.from.id;
+  const username = ctx.from.username || ctx.from.first_name;
+  const startPayload = ctx.payload;
 
-        <div id="task-page" class="page">
-            <h2 style="font-family:'Orbitron';">EARN MONEY</h2>
-            <div class="card">
-                <h3 style="margin:0; color:var(--blue);">📺 Watch Video Ad</h3>
-                <p style="font-size:0.85rem; color:#ccc;">Complete 1 ad view to earn ₹20 instantly.</p>
-                <button class="btn" id="ad-btn" onclick="runTask()">WATCH & EARN ₹20</button>
-            </div>
-        </div>
+  if (!users[userId]) {
+    users[userId] = {
+      balance: 0,
+      tasks: 0,
+      username: username,
+      referralList: [],
+      isSubscribed: false,
+      lastAdTime: 0
+    };
 
-        <div id="help" class="page">
-            <h2 style="font-family:'Orbitron';">HELP & FAQ</h2>
-            <div class="card" id="faq-container"></div>
-        </div>
-    </div>
+    if (startPayload && users[startPayload] && startPayload != userId) {
+      users[startPayload].balance += 5;
+      users[startPayload].referralList.push({ username, date: new Date().toLocaleDateString() });
+      ctx.telegram.sendMessage(startPayload, `👥 New Referral! ${username} joined. You earned ₹5!`);
+    }
+  }
 
-    <nav class="nav">
-        <div class="nav-item active" onclick="tab('home', this)">🏠<br>Home</div>
-        <div class="nav-item" onclick="tab('task-page', this)">⚡<br>Tasks</div>
-        <div class="nav-item" onclick="tab('help', this)">❓<br>Help</div>
-    </nav>
+  try {
+    const member = await ctx.telegram.getChatMember(CHANNEL, userId);
+    if (["member", "administrator", "creator"].includes(member.status)) {
+      users[userId].isSubscribed = true;
+      return sendApp(ctx);
+    }
+  } catch (e) { console.log("Sub check error"); }
 
-    <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const userId = urlParams.get('id');
+  ctx.reply(`Welcome ${username}! 🚀\n\nJoin our community to start earning.`, {
+    reply_markup: {
+      inline_keyboard: [
+        [{ text: "📢 Join Channel", url: "https://t.me/AdWalletCommunity" }],
+        [{ text: "✅ I Have Joined", callback_data: "check_sub" }]
+      ]
+    }
+  });
+});
 
-        // Initial Data Fetch
-        if(userId) {
-            fetch(`/user/${userId}`).then(r => r.json()).then(data => {
-                document.getElementById('balance').innerText = `₹${data.balance}`;
-                document.getElementById('tasks').innerText = data.tasks;
-            });
-        }
+bot.action("check_sub", async (ctx) => {
+  const userId = ctx.from.id;
+  try {
+    const member = await ctx.telegram.getChatMember(CHANNEL, userId);
+    if (["member", "administrator", "creator"].includes(member.status)) {
+      if (users[userId]) users[userId].isSubscribed = true;
+      return sendApp(ctx);
+    }
+    await ctx.answerCbQuery("❌ Please join @AdWalletCommunity first!", { show_alert: true });
+  } catch (err) { ctx.answerCbQuery("⚠️ Error"); }
+});
 
-        // Live Counter Logic
-        let count = 1482;
-        setInterval(() => {
-            count += Math.floor(Math.random() * 5) - 2;
-            document.getElementById('live-counter').innerText = count.toLocaleString();
-        }, 3000);
+function sendApp(ctx) {
+  const userId = ctx.from.id;
+  // Passing the ID to the Mini App via URL Query
+  const webAppUrl = `https://${process.env.RAILWAY_STATIC_URL || 'your-app-url.up.railway.app'}/?id=${userId}`;
+  
+  return ctx.reply("✨ Access Granted! Start earning now:", {
+    reply_markup: {
+      inline_keyboard: [
+        [{ text: "💰 Open AdzWallet", web_app: { url: webAppUrl } }]
+      ]
+    }
+  });
+}
 
-        // Tab Switcher
-        function tab(id, el) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            el.classList.add('active');
-        }
+// ===== API ENDPOINTS =====
+app.get('/user/:id', (req, res) => {
+  const id = req.params.id;
+  if (!users[id]) return res.status(404).json({ error: "User not found" });
+  res.json(users[id]);
+});
 
-        // Task Logic
-        async function runTask() {
-            const btn = document.getElementById('ad-btn');
-            btn.disabled = true; btn.innerText = "WATCHING AD...";
-            
-            setTimeout(async () => {
-                const res = await fetch(`/api/adsgram-reward?userId=${userId}`);
-                const data = await res.json();
-                if(data.success) {
-                    alert("🎉 Reward Added!");
-                    document.getElementById('balance').innerText = `₹${data.balance}`;
-                    document.getElementById('tasks').innerText = data.tasks;
-                } else { alert(data.message || "Error"); }
-                btn.disabled = false; btn.innerText = "WATCH & EARN ₹20";
-            }, 3000);
-        }
+app.get('/api/adsgram-reward', (req, res) => {
+  const { userId } = req.query;
+  const now = Date.now();
 
-        // FAQ Data
-        const faqs = [
-            {q: "How to earn ₹5?", a: "Share your link. When a friend joins via your link, you get ₹5."},
-            {q: "What is the minimum withdrawal?", a: "You can withdraw once you reach ₹500."},
-            {q: "How long does payout take?", a: "Payments are sent within 24-48 hours."},
-            {q: "Can I use multiple accounts?", a: "No, multiple accounts will result in a permanent ban."}
-        ];
+  if (!userId || !users[userId]) return res.status(400).json({ success: false });
 
-        const faqCont = document.getElementById('faq-container');
-        faqs.forEach(f => {
-            const div = document.createElement('div');
-            div.className = 'faq-item';
-            div.innerHTML = `<div class="faq-q" onclick="this.parentElement.classList.toggle('open')">${f.q} <span>+</span></div><div class="faq-a">${f.a}</div>`;
-            faqCont.appendChild(div);
-        });
-    </script>
-</body>
-</html>
+  // 30-second cooldown to prevent spamming the "Earn" button
+  if (users[userId].lastAdTime && (now - users[userId].lastAdTime < 30000)) {
+    return res.status(429).json({ success: false, message: "Wait 30s" });
+  }
+
+  users[userId].balance += 20;
+  users[userId].tasks += 1;
+  users[userId].lastAdTime = now;
+
+  res.json({ success: true, balance: users[userId].balance, tasks: users[userId].tasks });
+});
+
+// ===== STARTUP & SHUTDOWN =====
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`✅ Server on port ${PORT}`);
+  bot.launch().catch(err => console.error("Bot fail:", err));
+});
+
+// Prevent 409 Conflicts during Railway redeploys
+process.once('SIGINT', () => { bot.stop('SIGINT'); process.exit(0); });
+process.once('SIGTERM', () => { bot.stop('SIGTERM'); process.exit(0); });
 
