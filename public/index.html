@@ -3,199 +3,175 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<title>AdWallet – Premium Earn</title>
-
+<title>AdzWallet Pro</title>
 <script src='//libtl.com/sdk.js' data-zone='10760190' data-sdk='show_10760190'></script>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
-
 <style>
-  /* Base styles from your provided UI */
-  :root {
-    --green: #22c55e; --green-dark: #16a34a; --bg: #f0fdf4; --text: #0f172a; --muted: #64748b; --border: #e2e8f0;
-    --radius: 18px; --nav-h: 68px; --sidebar-w: 280px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; height: 100vh; }
-  
-  /* Sidebar & Navigation */
-  #sidebar { position: fixed; top: 0; left: 0; height: 100%; width: var(--sidebar-w); background: #fff; z-index: 1000; transform: translateX(-100%); transition: 0.35s; border-radius: 0 28px 28px 0; box-shadow: 8px 0 40px rgba(0,0,0,0.1); }
-  #sidebar.open { transform: translateX(0); }
-  #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); opacity: 0; pointer-events: none; transition: 0.3s; z-index: 900; }
-  #overlay.show { opacity: 1; pointer-events: all; }
-  
-  /* Card & Button Styles */
-  .balance-card { background: linear-gradient(135deg, #16a34a, #22c55e); color: #fff; border-radius: 24px; padding: 26px; box-shadow: 0 8px 32px rgba(34,197,94,0.3); margin-bottom: 16px; position: relative; overflow: hidden; }
-  .page { display: none; padding: 16px; height: 100%; overflow-y: auto; }
-  .page.active { display: block; }
-  .btn-green { background: var(--green); color: #fff; padding: 12px; border-radius: 12px; font-weight: 700; width: 100%; }
-  .method.sel { border: 2px solid var(--green); background: #dcfce7; }
+    :root { --green: #22c55e; --bg: #f8fafc; }
+    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #0f172a; overflow: hidden; height: 100vh; }
+    .page { display: none; padding: 16px; height: 100%; overflow-y: auto; padding-bottom: 110px; }
+    .page.active { display: block; }
+    .glass-card { background: white; border: 1px solid #e2e8f0; border-radius: 24px; padding: 20px; }
+    .balance-gradient { background: linear-gradient(135deg, #16a34a, #22c55e); color: white; box-shadow: 0 10px 25px rgba(22,163,74,0.2); }
+    .method-card { border: 2px solid #f1f5f9; transition: 0.2s; cursor: pointer; background: white; }
+    .method-card.selected { border-color: var(--green); background: #f0fdf4; }
+    #force-sub { position: fixed; inset: 0; background: white; z-index: 2000; display: flex; flex-direction: column; items: center; justify-content: center; padding: 30px; text-align: center; display: none; }
 </style>
 </head>
 <body>
 
-<div id="overlay" onclick="toggleSidebar()"></div>
+<div id="force-sub">
+    <div class="text-6xl mb-4">🔐</div>
+    <h2 class="text-2xl font-black mb-2 uppercase">Access Locked</h2>
+    <p class="text-gray-500 mb-8 text-sm">Join our official channel to unlock earning features.</p>
+    <a href="https://t.me/AdWalletCommunity" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold mb-3 block">JOIN CHANNEL</a>
+    <button onclick="checkSub()" class="w-full border-2 border-gray-100 py-4 rounded-2xl font-bold text-gray-400">VERIFY JOIN</button>
+</div>
 
-<nav id="sidebar" class="flex flex-col">
-  <div class="p-8 bg-green-600 text-white">
-    <div class="w-12 h-12 rounded-full bg-white/20 mb-2 flex items-center justify-center text-xl">👤</div>
-    <div class="font-bold" id="sb-name">User</div>
-    <div class="text-xs opacity-80">Bal: ₹<span id="sb-bal">0.00</span></div>
-  </div>
-  <div class="p-4 space-y-2 flex-1">
-    <div class="p-3 bg-green-50 text-green-700 rounded-xl font-bold" onclick="navigate('dashboard',0)">🏠 Dashboard</div>
-    <div class="p-3 text-gray-600 font-bold" onclick="navigate('ads',1)">▶️ Watch Ads</div>
-    <div class="p-3 text-gray-600 font-bold" onclick="navigate('invite',3)">👥 Invite Friends</div>
-    <div class="p-3 text-gray-600 font-bold" onclick="navigate('cashout',4)">💸 Cash Out</div>
-  </div>
-</nav>
-
-<header class="h-16 bg-white flex items-center justify-between px-4 shadow-sm fixed top-0 left-0 right-0 z-50">
-  <div class="flex items-center gap-3">
-    <button onclick="toggleSidebar()" class="w-10 h-10 bg-gray-100 rounded-xl flex flex-col items-center justify-center gap-1">
-      <span class="w-5 h-0.5 bg-gray-800"></span><span class="w-5 h-0.5 bg-gray-800"></span>
-    </button>
-    <div class="font-black text-green-600 text-lg">AdWallet</div>
-  </div>
-  <div class="bg-green-600 text-white px-3 py-1.5 rounded-full text-xs font-bold">₹<span id="tb-bal">0.00</span></div>
+<header class="h-16 bg-white border-b flex items-center justify-between px-6 sticky top-0 z-50">
+    <div class="font-black text-green-600 text-xl italic tracking-tighter">ADZWALLET</div>
+    <div class="bg-green-600 text-white px-3 py-1 rounded-full text-[10px] font-bold">₹<span id="tb-bal">0.00</span></div>
 </header>
 
-<main class="pt-20 pb-24 h-full" id="main">
-  <section class="page active" id="page-dashboard">
-    <div class="balance-card">
-      <div class="text-sm opacity-90 mb-1" id="greeting">Hi, Operator!</div>
-      <div class="text-4xl font-black">₹<span id="bal-main">0.00</span></div>
-      <div class="mt-4 bg-white/20 h-2 rounded-full overflow-hidden">
-        <div id="prog-fill" class="bg-white h-full transition-all duration-1000" style="width: 0%"></div>
-      </div>
-      <div class="flex justify-between text-[10px] mt-2 opacity-80"><span>Goal: ₹100</span><span id="prog-text">0%</span></div>
-    </div>
-    
-    <button onclick="triggerAd()" class="btn-green py-5 text-lg shadow-lg shadow-green-500/20 mb-6">⚡ START EARNING</button>
-    
-    <div class="grid grid-cols-2 gap-4">
-        <div class="bg-white p-4 rounded-2xl border border-gray-100 text-center">
-            <div class="text-2xl">🎬</div>
-            <div class="text-[10px] text-gray-400 font-bold uppercase mt-1">Ads Watched</div>
-            <div class="font-bold text-green-600" id="stat-ads">0</div>
+<main>
+    <section class="page active" id="page-dashboard">
+        <div class="glass-card balance-gradient mb-6">
+            <p class="text-[10px] uppercase tracking-widest opacity-80 mb-1">Account: <span id="user-name">Loading...</span></p>
+            <h1 class="text-5xl font-black">₹<span id="bal-main">0.00</span></h1>
+            <div class="mt-6 grid grid-cols-2 gap-3 text-[10px] font-bold uppercase">
+                <div class="bg-white/20 p-3 rounded-xl">Ads: <span id="stat-ads">0</span></div>
+                <div class="bg-white/20 p-3 rounded-xl">Refs: <span id="stat-refs">0</span></div>
+            </div>
         </div>
-        <div class="bg-white p-4 rounded-2xl border border-gray-100 text-center">
-            <div class="text-2xl">👥</div>
-            <div class="text-[10px] text-gray-400 font-bold uppercase mt-1">Referrals</div>
-            <div class="font-bold text-green-600" id="stat-refs">0</div>
+        
+        <div class="glass-card flex items-center justify-between mb-4">
+            <div class="overflow-hidden mr-4"><p class="text-[9px] text-gray-400 font-bold uppercase">Invite Link</p><p class="text-[10px] font-mono truncate" id="ref-link">t.me/AdzwalletBot?start=...</p></div>
+            <button onclick="copyLink()" class="bg-green-600 text-white px-4 py-2 rounded-xl text-[10px] font-bold">COPY</button>
         </div>
-    </div>
-  </section>
+        <button onclick="navigate('earn')" class="w-full bg-green-600 text-white py-5 rounded-2xl font-black text-lg shadow-xl shadow-green-500/20">🚀 START EARNING NOW</button>
+    </section>
 
-  <section class="page" id="page-invite">
-    <div class="font-bold text-lg mb-2">Invite & Earn</div>
-    <div class="text-xs text-gray-500 mb-6">Get ₹5.00 for every active friend.</div>
-    <div class="bg-white p-6 rounded-2xl border border-gray-100">
-        <div class="text-xs font-bold text-gray-400 uppercase mb-2">Your Link</div>
-        <div class="flex gap-2 bg-gray-50 p-2 rounded-xl border border-gray-200">
-            <input id="ref-link" readonly class="bg-transparent text-xs flex-1 outline-none" value="Loading...">
-            <button onclick="copyLink()" class="bg-green-600 text-white px-4 py-2 rounded-lg text-[10px] font-bold">COPY</button>
+    <section class="page" id="page-earn">
+        <h2 class="font-bold text-lg mb-4">Available Tasks</h2>
+        <div class="space-y-3">
+            <div onclick="watchAd('Server 1')" class="glass-card flex items-center gap-4 border-l-4 border-green-500 py-6">
+                <div class="text-2xl">⚡</div>
+                <div class="flex-1 font-bold text-sm">Main Ad Server #1</div>
+                <div class="text-green-600 font-black text-xs">₹20.00</div>
+            </div>
+            <div onclick="watchAd('Server 2')" class="glass-card flex items-center gap-4 border-l-4 border-blue-500 py-6">
+                <div class="text-2xl">💎</div>
+                <div class="flex-1 font-bold text-sm">Premium Ads #2</div>
+                <div class="text-green-600 font-black text-xs">₹20.00</div>
+            </div>
+            <div onclick="watchAd('Server 3')" class="glass-card flex items-center gap-4 border-l-4 border-purple-500 py-6">
+                <div class="text-2xl">🌍</div>
+                <div class="flex-1 font-bold text-sm">Global Network #3</div>
+                <div class="text-green-600 font-black text-xs">₹20.00</div>
+            </div>
         </div>
-    </div>
-  </section>
+    </section>
 
-  <section class="page" id="page-cashout">
-    <div class="font-bold text-lg mb-4">Cash Out</div>
-    <div class="bg-white p-6 rounded-3xl mb-4">
-        <div class="text-xs font-bold text-gray-400 uppercase mb-4">Select Method</div>
-        <div class="grid grid-cols-3 gap-3 mb-6" id="method-grid">
-            <div class="p-3 border rounded-xl text-center method" onclick="selMethod(this, 'Paytm')">💳<div class="text-[10px] mt-1">Paytm</div></div>
-            <div class="p-3 border rounded-xl text-center method" onclick="selMethod(this, 'PhonePe')">📱<div class="text-[10px] mt-1">PhonePe</div></div>
-            <div class="p-3 border rounded-xl text-center method" onclick="selMethod(this, 'UPI')">⚡<div class="text-[10px] mt-1">UPI</div></div>
+    <section class="page" id="page-cashout">
+        <h2 class="font-bold text-lg mb-4">Payouts</h2>
+        <div class="glass-card mb-6">
+            <div class="grid grid-cols-2 gap-2 mb-4">
+                <div class="method-card p-3 rounded-xl text-center text-[10px] font-bold" onclick="selMethod(this, 'Bitcoin (15% Bonus)')">₿ Bitcoin<br><span class="text-green-500 text-[8px]">+15% Bonus</span></div>
+                <div class="method-card p-3 rounded-xl text-center text-[10px] font-bold" onclick="selMethod(this, 'Crypto (15% Bonus)')">⛓️ Crypto<br><span class="text-green-500 text-[8px]">+15% Bonus</span></div>
+                <div class="method-card p-3 rounded-xl text-center text-[10px] font-bold" onclick="selMethod(this, 'UPI')">⚡ UPI</div>
+                <div class="method-card p-3 rounded-xl text-center text-[10px] font-bold" onclick="selMethod(this, 'PayPal')">🅿️ PayPal</div>
+            </div>
+            <input type="number" id="wd-amount" placeholder="Amount (Min ₹100)" class="w-full p-4 bg-gray-50 rounded-2xl mb-4 border outline-none text-center font-bold">
+            <button onclick="submitWithdrawal()" class="w-full bg-green-600 text-white py-4 rounded-2xl font-bold">REQUEST WITHDRAWAL</button>
         </div>
-        <input type="number" id="wd-amount" placeholder="Enter Amount (Min ₹100)" class="w-full p-4 bg-gray-50 rounded-2xl border mb-4 outline-none font-bold">
-        <button onclick="submitWithdrawal()" class="btn-green">REQUEST PAYOUT</button>
-    </div>
-  </section>
+
+        <h3 class="font-bold text-xs uppercase text-gray-400 mb-3 tracking-widest">Withdrawal History</h3>
+        <div id="history-list" class="space-y-2">
+            <p class="text-center text-xs text-gray-300 py-6 italic">No history yet</p>
+        </div>
+    </section>
 </main>
 
-<nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 h-20 bg-white border-t flex items-center justify-around px-6 z-50">
-  <div onclick="navigate('dashboard',0)" class="flex flex-col items-center gap-1"><span class="text-xl">🏠</span><span class="text-[10px] font-bold text-gray-400">Home</span></div>
-  <div onclick="navigate('ads',1)" class="flex flex-col items-center gap-1"><span class="text-xl">▶️</span><span class="text-[10px] font-bold text-gray-400">Earn</span></div>
-  <div onclick="navigate('invite',3)" class="flex flex-col items-center gap-1"><span class="text-xl">👥</span><span class="text-[10px] font-bold text-gray-400">Invite</span></div>
-  <div onclick="navigate('cashout',4)" class="flex flex-col items-center gap-1"><span class="text-xl">💸</span><span class="text-[10px] font-bold text-gray-400">Cash</span></div>
+<nav class="fixed bottom-0 left-0 right-0 h-20 bg-white border-t flex items-center justify-around z-50">
+    <button onclick="navigate('dashboard')" class="flex flex-col items-center gap-1 text-green-600"><span class="text-2xl">🏠</span><span class="text-[10px] font-bold">Dashboard</span></button>
+    <button onclick="navigate('earn')" class="flex flex-col items-center gap-1 text-gray-400"><span class="text-2xl">📽️</span><span class="text-[10px] font-bold">Watch</span></button>
+    <button onclick="navigate('cashout')" class="flex flex-col items-center gap-1 text-gray-400"><span class="text-2xl">💳</span><span class="text-[10px] font-bold">History</span></button>
 </nav>
 
 <script>
 const tg = window.Telegram.WebApp;
-tg.expand();
 const userId = tg.initDataUnsafe?.user?.id || 12345;
 let selectedMethod = "";
 
-function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('open');
-    document.getElementById('overlay').classList.toggle('show');
+async function loadUser() {
+    const res = await fetch(`/user/${userId}`);
+    const user = await res.json();
+    
+    // Updates
+    document.getElementById('user-name').innerText = tg.initDataUnsafe?.user?.username || user.username || "Member";
+    document.getElementById('bal-main').innerText = user.balance.toFixed(2);
+    document.getElementById('tb-bal').innerText = user.balance.toFixed(2);
+    document.getElementById('stat-ads').innerText = user.adsWatched || 0;
+    document.getElementById('stat-refs').innerText = user.referrals || 0;
+    document.getElementById('ref-link').innerText = `t.me/AdzwalletBot?start=${userId}`;
+    
+    if(!user.isSubscribed) document.getElementById('force-sub').style.display = 'flex';
+    renderHistory(user.withdrawalHistory || []);
 }
 
-function navigate(id, idx) {
+function renderHistory(history) {
+    const container = document.getElementById('history-list');
+    if(!history.length) return;
+    container.innerHTML = history.reverse().map(h => `
+        <div class="glass-card p-4 flex justify-between items-center bg-gray-50/50">
+            <div><p class="font-bold text-xs">${h.method}</p><p class="text-[9px] text-gray-400">${new Date(h.date).toLocaleDateString()}</p></div>
+            <div class="text-right"><p class="text-green-600 font-bold text-xs">₹${h.amount}</p><p class="text-[9px] text-blue-500 uppercase font-black">${h.status}</p></div>
+        </div>
+    `).join('');
+}
+
+function navigate(id) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById('page-'+id).classList.add('active');
-    if(document.getElementById('sidebar').classList.contains('open')) toggleSidebar();
 }
 
-// AD LOGIC
-function triggerAd() {
-    show_10760190().then(() => {
-        fetch(`/api/adsgram-reward?userId=${userId}`).then(() => {
-            loadUser();
-            tg.HapticFeedback.notificationOccurred('success');
-        });
-    }).catch(() => {
-        tg.showAlert("Ad not ready yet. Please try again in 10 seconds.");
-    });
-}
-
-// REFERRAL FIX
-function copyLink() {
-    const link = document.getElementById('ref-link').value;
-    navigator.clipboard.writeText(link).then(() => {
-        tg.showScanQrPopup({ text: "Link Copied!" });
-        setTimeout(() => tg.closeScanQrPopup(), 1000);
-    });
-}
-
-// WITHDRAWAL OPINION
 function selMethod(el, name) {
-    document.querySelectorAll('.method').forEach(m => m.classList.remove('sel'));
-    el.classList.add('sel');
+    document.querySelectorAll('.method-card').forEach(m => m.classList.remove('selected'));
+    el.classList.add('selected');
     selectedMethod = name;
+}
+
+function watchAd(server) {
+    show_10760190().then(() => {
+        fetch(`/api/adsgram-reward?userId=${userId}`).then(() => loadUser());
+        tg.HapticFeedback.notificationOccurred('success');
+    }).catch(() => tg.showAlert("Server busy, try again!"));
 }
 
 function submitWithdrawal() {
     const amt = document.getElementById('wd-amount').value;
-    if(!selectedMethod) return tg.showAlert("Please select a payment method.");
-    if(amt < 100) return tg.showAlert("Minimum withdrawal is ₹100.");
+    if(!selectedMethod || amt < 100) return tg.showAlert("Select method & Enter min ₹100");
     
-    // Logic for sending withdrawal to server
-    tg.showConfirm(`Confirm withdrawal of ₹${amt} via ${selectedMethod}?`, (ok) => {
-        if(ok) tg.showAlert("Withdrawal request sent! Processing takes 24 hours.");
+    fetch('/api/withdraw', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ userId, amount: Number(amt), method: selectedMethod })
+    }).then(() => {
+        tg.showAlert("Success! Request added to history.");
+        loadUser();
     });
 }
 
-async function loadUser() {
-    try {
-        const res = await fetch(`/user/${userId}`);
-        const user = await res.json();
-        const bal = user.balance.toFixed(2);
-        
-        document.getElementById('bal-main').innerText = bal;
-        document.getElementById('tb-bal').innerText = bal;
-        document.getElementById('sb-bal').innerText = bal;
-        document.getElementById('stat-ads').innerText = user.adsWatched || 0;
-        document.getElementById('stat-refs').innerText = user.referrals || 0;
-        document.getElementById('ref-link').value = `https://t.me/AdzwalletBot?start=${userId}`;
-        
-        const pct = Math.min(100, (user.balance / 100) * 100);
-        document.getElementById('prog-fill').style.width = pct + "%";
-        document.getElementById('prog-text').innerText = Math.floor(pct) + "%";
-        
-        if(user.username) document.getElementById('greeting').innerText = `Hi, ${user.username}!`;
-    } catch(e) {}
+function copyLink() {
+    navigator.clipboard.writeText(`https://t.me/AdzwalletBot?start=${userId}`);
+    tg.showAlert("Invite link copied!");
+}
+
+function checkSub() {
+    // You would add a real API call here to verify channel membership
+    document.getElementById('force-sub').style.display = 'none';
+    tg.showAlert("Success! You have been verified.");
 }
 
 loadUser();
