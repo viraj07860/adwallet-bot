@@ -3,143 +3,178 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<title>AdWallet Premium</title>
+<title>AdWallet – Premium Earn</title>
 
 <script src='//libtl.com/sdk.js' data-zone='10760190' data-sdk='show_10760190'></script>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
+  /* Base styles from your provided UI */
   :root {
-    --neon-cyan: #00f2ff;
-    --neon-purple: #bc13fe;
-    --bg-dark: #050505;
-    --glass: rgba(255, 255, 255, 0.03);
-    --sidebar-w: 280px;
+    --green: #22c55e; --green-dark: #16a34a; --bg: #f0fdf4; --text: #0f172a; --muted: #64748b; --border: #e2e8f0;
+    --radius: 18px; --nav-h: 68px; --sidebar-w: 280px;
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  body { font-family: 'Inter', sans-serif; background: var(--bg-dark); color: white; overflow: hidden; height: 100vh; }
-
-  /* GLASSMORPHISM UI */
-  .glass-card {
-    background: var(--glass);
-    backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
-  .neon-text { text-shadow: 0 0 10px var(--neon-cyan); color: var(--neon-cyan); }
-  .btn-cyber { background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple)); color: black; font-weight: 800; }
-
-  /* SIDEBAR LOGIC */
-  #sidebar {
-    position: fixed; top: 0; left: 0; height: 100%; width: var(--sidebar-w);
-    background: #0a0a0a; border-right: 1px solid rgba(0, 242, 255, 0.2);
-    transform: translateX(-100%); transition: 0.3s; z-index: 1000;
-  }
-  #sidebar.open { transform: translateX(0); }
-  #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); opacity: 0; pointer-events: none; z-index: 900; transition: 0.3s; }
-  #overlay.show { opacity: 1; pointer-events: all; }
-
-  /* ANIMATIONS */
-  .live-dot { width: 8px; height: 8px; background: #00f2ff; border-radius: 50%; box-shadow: 0 0 10px #00f2ff; animation: pulse 1.5s infinite; }
-  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+  body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; height: 100vh; }
   
-  .popup {
-    background: rgba(0,0,0,0.9); border-left: 3px solid var(--neon-cyan);
-    position: fixed; top: 70px; left: 15px; right: 15px; padding: 12px;
-    border-radius: 12px; transform: translateY(-20px); opacity: 0; transition: 0.4s; z-index: 1100;
-  }
-  .popup.show { transform: translateY(0); opacity: 1; }
+  /* Sidebar & Navigation */
+  #sidebar { position: fixed; top: 0; left: 0; height: 100%; width: var(--sidebar-w); background: #fff; z-index: 1000; transform: translateX(-100%); transition: 0.35s; border-radius: 0 28px 28px 0; box-shadow: 8px 0 40px rgba(0,0,0,0.1); }
+  #sidebar.open { transform: translateX(0); }
+  #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); opacity: 0; pointer-events: none; transition: 0.3s; z-index: 900; }
+  #overlay.show { opacity: 1; pointer-events: all; }
+  
+  /* Card & Button Styles */
+  .balance-card { background: linear-gradient(135deg, #16a34a, #22c55e); color: #fff; border-radius: 24px; padding: 26px; box-shadow: 0 8px 32px rgba(34,197,94,0.3); margin-bottom: 16px; position: relative; overflow: hidden; }
+  .page { display: none; padding: 16px; height: 100%; overflow-y: auto; }
+  .page.active { display: block; }
+  .btn-green { background: var(--green); color: #fff; padding: 12px; border-radius: 12px; font-weight: 700; width: 100%; }
+  .method.sel { border: 2px solid var(--green); background: #dcfce7; }
 </style>
 </head>
-<body class="flex flex-col p-4">
+<body>
 
 <div id="overlay" onclick="toggleSidebar()"></div>
 
-<nav id="sidebar" class="p-6 flex flex-col">
-  <div class="mb-10">
-    <div class="w-12 h-12 rounded-full bg-cyan-500/20 mb-4 flex items-center justify-center text-xl">👤</div>
-    <div class="font-bold text-lg" id="sb-name">Operator</div>
-    <div class="text-xs text-gray-500">Balance: <span class="neon-text" id="sb-bal">₹0.00</span></div>
+<nav id="sidebar" class="flex flex-col">
+  <div class="p-8 bg-green-600 text-white">
+    <div class="w-12 h-12 rounded-full bg-white/20 mb-2 flex items-center justify-center text-xl">👤</div>
+    <div class="font-bold" id="sb-name">User</div>
+    <div class="text-xs opacity-80">Bal: ₹<span id="sb-bal">0.00</span></div>
   </div>
-  <div class="space-y-4 flex-1">
-    <div class="p-3 glass-card rounded-xl text-sm font-bold neon-text" onclick="navigate('dashboard')">Dashboard</div>
-    <div class="p-3 text-gray-400 text-sm font-bold" onclick="navigate('ads')">Watch Ads</div>
-    <div class="p-3 text-gray-400 text-sm font-bold" onclick="navigate('cashout')">Cash Out</div>
+  <div class="p-4 space-y-2 flex-1">
+    <div class="p-3 bg-green-50 text-green-700 rounded-xl font-bold" onclick="navigate('dashboard',0)">🏠 Dashboard</div>
+    <div class="p-3 text-gray-600 font-bold" onclick="navigate('ads',1)">▶️ Watch Ads</div>
+    <div class="p-3 text-gray-600 font-bold" onclick="navigate('invite',3)">👥 Invite Friends</div>
+    <div class="p-3 text-gray-600 font-bold" onclick="navigate('cashout',4)">💸 Cash Out</div>
   </div>
-  <div class="text-[10px] text-gray-600 text-center uppercase tracking-widest">AdWallet Pro v2.5</div>
 </nav>
 
-<div class="flex justify-between items-center mb-6 z-10">
-  <div onclick="toggleSidebar()" class="w-10 h-10 glass-card rounded-xl flex flex-col items-center justify-center gap-1">
-    <span class="w-5 h-0.5 bg-white"></span>
-    <span class="w-5 h-0.5 bg-white"></span>
-  </div>
-  <div class="text-xl font-black neon-text italic">ADWALLET</div>
-  <div class="glass-card px-3 py-1 rounded-full text-[10px] font-bold">₹<span id="tb-bal">0.00</span></div>
-</div>
-
-<div id="popup-container"></div>
-
-<main id="main" class="flex-1 overflow-y-auto pb-20">
-  <div class="page active" id="page-dashboard">
-    <div class="glass-card rounded-[2.5rem] p-8 mb-6 text-center relative overflow-hidden">
-      <div class="absolute -top-10 -left-10 w-32 h-32 bg-cyan-500/10 blur-[50px]"></div>
-      <p class="text-gray-500 text-[10px] uppercase tracking-[0.3em] mb-2 font-bold">Total Credits</p>
-      <div class="text-6xl font-black neon-text tracking-tighter">₹<span id="bal-main">0.00</span></div>
-      
-      <div class="mt-6 flex gap-3">
-        <button onclick="navigate('cashout')" class="flex-1 py-3 glass-card rounded-2xl text-xs font-bold uppercase">Withdraw</button>
-        <button onclick="claimBonus()" class="flex-1 py-3 glass-card rounded-2xl text-xs font-bold uppercase border-cyan-500/30">Bonus</button>
-      </div>
-    </div>
-
-    <div class="grid grid-cols-2 gap-4 mb-6">
-      <div class="glass-card rounded-2xl p-4 border-b-2 border-cyan-500">
-        <p class="text-[9px] text-gray-500 font-bold uppercase">Total Payouts</p>
-        <p class="text-sm font-mono neon-text" id="stat-payout">₹48,312</p>
-      </div>
-      <div class="glass-card rounded-2xl p-4 border-b-2 border-purple-500">
-        <p class="text-[9px] text-gray-500 font-bold uppercase">Active Users</p>
-        <p class="text-sm font-mono" id="stat-users">12,847</p>
-      </div>
-    </div>
-
-    <button onclick="triggerAd()" class="btn-cyber w-full py-5 rounded-2xl font-black text-lg uppercase tracking-widest shadow-lg shadow-cyan-500/20">
-      ⚡ Earn Credits
+<header class="h-16 bg-white flex items-center justify-between px-4 shadow-sm fixed top-0 left-0 right-0 z-50">
+  <div class="flex items-center gap-3">
+    <button onclick="toggleSidebar()" class="w-10 h-10 bg-gray-100 rounded-xl flex flex-col items-center justify-center gap-1">
+      <span class="w-5 h-0.5 bg-gray-800"></span><span class="w-5 h-0.5 bg-gray-800"></span>
     </button>
+    <div class="font-black text-green-600 text-lg">AdWallet</div>
   </div>
+  <div class="bg-green-600 text-white px-3 py-1.5 rounded-full text-xs font-bold">₹<span id="tb-bal">0.00</span></div>
+</header>
+
+<main class="pt-20 pb-24 h-full" id="main">
+  <section class="page active" id="page-dashboard">
+    <div class="balance-card">
+      <div class="text-sm opacity-90 mb-1" id="greeting">Hi, Operator!</div>
+      <div class="text-4xl font-black">₹<span id="bal-main">0.00</span></div>
+      <div class="mt-4 bg-white/20 h-2 rounded-full overflow-hidden">
+        <div id="prog-fill" class="bg-white h-full transition-all duration-1000" style="width: 0%"></div>
+      </div>
+      <div class="flex justify-between text-[10px] mt-2 opacity-80"><span>Goal: ₹100</span><span id="prog-text">0%</span></div>
+    </div>
+    
+    <button onclick="triggerAd()" class="btn-green py-5 text-lg shadow-lg shadow-green-500/20 mb-6">⚡ START EARNING</button>
+    
+    <div class="grid grid-cols-2 gap-4">
+        <div class="bg-white p-4 rounded-2xl border border-gray-100 text-center">
+            <div class="text-2xl">🎬</div>
+            <div class="text-[10px] text-gray-400 font-bold uppercase mt-1">Ads Watched</div>
+            <div class="font-bold text-green-600" id="stat-ads">0</div>
+        </div>
+        <div class="bg-white p-4 rounded-2xl border border-gray-100 text-center">
+            <div class="text-2xl">👥</div>
+            <div class="text-[10px] text-gray-400 font-bold uppercase mt-1">Referrals</div>
+            <div class="font-bold text-green-600" id="stat-refs">0</div>
+        </div>
+    </div>
+  </section>
+
+  <section class="page" id="page-invite">
+    <div class="font-bold text-lg mb-2">Invite & Earn</div>
+    <div class="text-xs text-gray-500 mb-6">Get ₹5.00 for every active friend.</div>
+    <div class="bg-white p-6 rounded-2xl border border-gray-100">
+        <div class="text-xs font-bold text-gray-400 uppercase mb-2">Your Link</div>
+        <div class="flex gap-2 bg-gray-50 p-2 rounded-xl border border-gray-200">
+            <input id="ref-link" readonly class="bg-transparent text-xs flex-1 outline-none" value="Loading...">
+            <button onclick="copyLink()" class="bg-green-600 text-white px-4 py-2 rounded-lg text-[10px] font-bold">COPY</button>
+        </div>
+    </div>
+  </section>
+
+  <section class="page" id="page-cashout">
+    <div class="font-bold text-lg mb-4">Cash Out</div>
+    <div class="bg-white p-6 rounded-3xl mb-4">
+        <div class="text-xs font-bold text-gray-400 uppercase mb-4">Select Method</div>
+        <div class="grid grid-cols-3 gap-3 mb-6" id="method-grid">
+            <div class="p-3 border rounded-xl text-center method" onclick="selMethod(this, 'Paytm')">💳<div class="text-[10px] mt-1">Paytm</div></div>
+            <div class="p-3 border rounded-xl text-center method" onclick="selMethod(this, 'PhonePe')">📱<div class="text-[10px] mt-1">PhonePe</div></div>
+            <div class="p-3 border rounded-xl text-center method" onclick="selMethod(this, 'UPI')">⚡<div class="text-[10px] mt-1">UPI</div></div>
+        </div>
+        <input type="number" id="wd-amount" placeholder="Enter Amount (Min ₹100)" class="w-full p-4 bg-gray-50 rounded-2xl border mb-4 outline-none font-bold">
+        <button onclick="submitWithdrawal()" class="btn-green">REQUEST PAYOUT</button>
+    </div>
+  </section>
 </main>
+
+<nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 h-20 bg-white border-t flex items-center justify-around px-6 z-50">
+  <div onclick="navigate('dashboard',0)" class="flex flex-col items-center gap-1"><span class="text-xl">🏠</span><span class="text-[10px] font-bold text-gray-400">Home</span></div>
+  <div onclick="navigate('ads',1)" class="flex flex-col items-center gap-1"><span class="text-xl">▶️</span><span class="text-[10px] font-bold text-gray-400">Earn</span></div>
+  <div onclick="navigate('invite',3)" class="flex flex-col items-center gap-1"><span class="text-xl">👥</span><span class="text-[10px] font-bold text-gray-400">Invite</span></div>
+  <div onclick="navigate('cashout',4)" class="flex flex-col items-center gap-1"><span class="text-xl">💸</span><span class="text-[10px] font-bold text-gray-400">Cash</span></div>
+</nav>
 
 <script>
 const tg = window.Telegram.WebApp;
 tg.expand();
 const userId = tg.initDataUnsafe?.user?.id || 12345;
+let selectedMethod = "";
 
-// SIDEBAR TOGGLE
 function toggleSidebar() {
     document.getElementById('sidebar').classList.toggle('open');
     document.getElementById('overlay').classList.toggle('show');
 }
 
-// AD TRIGGER
+function navigate(id, idx) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-'+id).classList.add('active');
+    if(document.getElementById('sidebar').classList.contains('open')) toggleSidebar();
+}
+
+// AD LOGIC
 function triggerAd() {
     show_10760190().then(() => {
-        processReward();
-        tg.HapticFeedback.notificationOccurred('success');
-    }).catch(e => {
-        alert("Ad not ready. Please try again.");
+        fetch(`/api/adsgram-reward?userId=${userId}`).then(() => {
+            loadUser();
+            tg.HapticFeedback.notificationOccurred('success');
+        });
+    }).catch(() => {
+        tg.showAlert("Ad not ready yet. Please try again in 10 seconds.");
     });
 }
 
-// REWARD LOGIC
-async function processReward() {
-    const res = await fetch(`/api/adsgram-reward?userId=${userId}`);
-    const data = await res.json();
-    if(data.success) {
-        loadUser();
-        showPopup("Neural Link Confirmed", "₹20.00 added to wallet");
-    }
+// REFERRAL FIX
+function copyLink() {
+    const link = document.getElementById('ref-link').value;
+    navigator.clipboard.writeText(link).then(() => {
+        tg.showScanQrPopup({ text: "Link Copied!" });
+        setTimeout(() => tg.closeScanQrPopup(), 1000);
+    });
+}
+
+// WITHDRAWAL OPINION
+function selMethod(el, name) {
+    document.querySelectorAll('.method').forEach(m => m.classList.remove('sel'));
+    el.classList.add('sel');
+    selectedMethod = name;
+}
+
+function submitWithdrawal() {
+    const amt = document.getElementById('wd-amount').value;
+    if(!selectedMethod) return tg.showAlert("Please select a payment method.");
+    if(amt < 100) return tg.showAlert("Minimum withdrawal is ₹100.");
+    
+    // Logic for sending withdrawal to server
+    tg.showConfirm(`Confirm withdrawal of ₹${amt} via ${selectedMethod}?`, (ok) => {
+        if(ok) tg.showAlert("Withdrawal request sent! Processing takes 24 hours.");
+    });
 }
 
 async function loadUser() {
@@ -147,28 +182,20 @@ async function loadUser() {
         const res = await fetch(`/user/${userId}`);
         const user = await res.json();
         const bal = user.balance.toFixed(2);
+        
         document.getElementById('bal-main').innerText = bal;
         document.getElementById('tb-bal').innerText = bal;
-        document.getElementById('sb-bal').innerText = "₹" + bal;
+        document.getElementById('sb-bal').innerText = bal;
+        document.getElementById('stat-ads').innerText = user.adsWatched || 0;
+        document.getElementById('stat-refs').innerText = user.referrals || 0;
+        document.getElementById('ref-link').value = `https://t.me/AdzwalletBot?start=${userId}`;
+        
+        const pct = Math.min(100, (user.balance / 100) * 100);
+        document.getElementById('prog-fill').style.width = pct + "%";
+        document.getElementById('prog-text').innerText = Math.floor(pct) + "%";
+        
+        if(user.username) document.getElementById('greeting').innerText = `Hi, ${user.username}!`;
     } catch(e) {}
-}
-
-// LIVE STATS ANIMATION
-function updateStats() {
-    let payouts = parseInt(document.getElementById('stat-payout').innerText.replace('₹',''));
-    document.getElementById('stat-payout').innerText = '₹' + (payouts + Math.floor(Math.random()*10)).toLocaleString();
-}
-setInterval(updateStats, 5000);
-
-// POPUP SYSTEM
-function showPopup(main, sub) {
-    const container = document.getElementById('popup-container');
-    const el = document.createElement('div');
-    el.className = 'popup glass-card';
-    el.innerHTML = `<div class="font-bold text-xs neon-text uppercase">${main}</div><div class="text-[10px] text-gray-400">${sub}</div>`;
-    container.appendChild(el);
-    setTimeout(() => el.classList.add('show'), 100);
-    setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 500); }, 4000);
 }
 
 loadUser();
