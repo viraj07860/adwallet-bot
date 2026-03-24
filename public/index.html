@@ -9,25 +9,16 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
     :root { --green: #22c55e; --bg: #f8fafc; }
-    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #0f172a; overflow: hidden; height: 100vh; }
+    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); overflow: hidden; height: 100vh; }
     .page { display: none; padding: 16px; height: 100%; overflow-y: auto; padding-bottom: 110px; }
     .page.active { display: block; }
     .glass-card { background: white; border: 1px solid #e2e8f0; border-radius: 24px; padding: 20px; }
-    .balance-gradient { background: linear-gradient(135deg, #16a34a, #22c55e); color: white; box-shadow: 0 10px 25px rgba(22,163,74,0.2); }
-    .method-card { border: 2px solid #f1f5f9; transition: 0.2s; cursor: pointer; background: white; }
+    .balance-gradient { background: linear-gradient(135deg, #16a34a, #22c55e); color: white; }
+    .method-card { border: 2px solid #f1f5f9; cursor: pointer; background: white; transition: 0.2s; }
     .method-card.selected { border-color: var(--green); background: #f0fdf4; }
-    #force-sub { position: fixed; inset: 0; background: white; z-index: 2000; display: flex; flex-direction: column; items: center; justify-content: center; padding: 30px; text-align: center; display: none; }
 </style>
 </head>
 <body>
-
-<div id="force-sub">
-    <div class="text-6xl mb-4">🔐</div>
-    <h2 class="text-2xl font-black mb-2 uppercase">Access Locked</h2>
-    <p class="text-gray-500 mb-8 text-sm">Join our official channel to unlock earning features.</p>
-    <a href="https://t.me/AdWalletCommunity" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold mb-3 block">JOIN CHANNEL</a>
-    <button onclick="checkSub()" class="w-full border-2 border-gray-100 py-4 rounded-2xl font-bold text-gray-400">VERIFY JOIN</button>
-</div>
 
 <header class="h-16 bg-white border-b flex items-center justify-between px-6 sticky top-0 z-50">
     <div class="font-black text-green-600 text-xl italic tracking-tighter">ADZWALLET</div>
@@ -37,66 +28,82 @@
 <main>
     <section class="page active" id="page-dashboard">
         <div class="glass-card balance-gradient mb-6">
-            <p class="text-[10px] uppercase tracking-widest opacity-80 mb-1">Account: <span id="user-name">Loading...</span></p>
+            <p class="text-[10px] uppercase tracking-widest opacity-80 mb-1">Welcome, <span id="user-name">User</span></p>
             <h1 class="text-5xl font-black">₹<span id="bal-main">0.00</span></h1>
-            <div class="mt-6 grid grid-cols-2 gap-3 text-[10px] font-bold uppercase">
-                <div class="bg-white/20 p-3 rounded-xl">Ads: <span id="stat-ads">0</span></div>
-                <div class="bg-white/20 p-3 rounded-xl">Refs: <span id="stat-refs">0</span></div>
-            </div>
         </div>
         
-        <div class="glass-card flex items-center justify-between mb-4">
-            <div class="overflow-hidden mr-4"><p class="text-[9px] text-gray-400 font-bold uppercase">Invite Link</p><p class="text-[10px] font-mono truncate" id="ref-link">t.me/AdzwalletBot?start=...</p></div>
-            <button onclick="copyLink()" class="bg-green-600 text-white px-4 py-2 rounded-xl text-[10px] font-bold">COPY</button>
+        <div class="grid grid-cols-2 gap-3 mb-6">
+            <div class="bg-white p-4 rounded-2xl border border-gray-100 text-center">
+                <p class="text-[9px] text-gray-400 font-bold uppercase">Totally Paid</p>
+                <p class="font-black text-green-600 text-sm">₹<span id="live-paid">45,373</span></p>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border border-gray-100 text-center">
+                <p class="text-[9px] text-gray-400 font-bold uppercase">People Live</p>
+                <p class="font-black text-gray-800 text-sm">1,13,788</p>
+            </div>
         </div>
-        <button onclick="navigate('earn')" class="w-full bg-green-600 text-white py-5 rounded-2xl font-black text-lg shadow-xl shadow-green-500/20">🚀 START EARNING NOW</button>
+        <button onclick="navigate('earn')" class="w-full bg-green-600 text-white py-5 rounded-2xl font-black">🚀 GO TO EARN CENTER</button>
     </section>
 
     <section class="page" id="page-earn">
-        <h2 class="font-bold text-lg mb-4">Available Tasks</h2>
+        <h2 class="font-bold text-lg mb-4">Ad Servers</h2>
         <div class="space-y-3">
-            <div onclick="watchAd('Server 1')" class="glass-card flex items-center gap-4 border-l-4 border-green-500 py-6">
-                <div class="text-2xl">⚡</div>
-                <div class="flex-1 font-bold text-sm">Main Ad Server #1</div>
-                <div class="text-green-600 font-black text-xs">₹20.00</div>
+            <div onclick="watchAd('S1')" class="glass-card flex items-center gap-4 border-l-4 border-green-500">
+                <div class="text-xl">⚡</div><div class="flex-1 text-sm font-bold">Server #1 (Instant)</div><div class="text-green-600 font-bold text-xs">₹20</div>
             </div>
-            <div onclick="watchAd('Server 2')" class="glass-card flex items-center gap-4 border-l-4 border-blue-500 py-6">
-                <div class="text-2xl">💎</div>
-                <div class="flex-1 font-bold text-sm">Premium Ads #2</div>
-                <div class="text-green-600 font-black text-xs">₹20.00</div>
+            <div onclick="watchAd('S2')" class="glass-card flex items-center gap-4 border-l-4 border-blue-500">
+                <div class="text-xl">💎</div><div class="flex-1 text-sm font-bold">Server #2 (Premium)</div><div class="text-green-600 font-bold text-xs">₹20</div>
             </div>
-            <div onclick="watchAd('Server 3')" class="glass-card flex items-center gap-4 border-l-4 border-purple-500 py-6">
-                <div class="text-2xl">🌍</div>
-                <div class="flex-1 font-bold text-sm">Global Network #3</div>
-                <div class="text-green-600 font-black text-xs">₹20.00</div>
+            <div onclick="watchAd('S3')" class="glass-card flex items-center gap-4 border-l-4 border-purple-500">
+                <div class="text-xl">🌍</div><div class="flex-1 text-sm font-bold">Server #3 (Global)</div><div class="text-green-600 font-bold text-xs">₹20</div>
             </div>
+            <div onclick="watchAd('S4')" class="glass-card flex items-center gap-4 border-l-4 border-orange-500">
+                <div class="text-xl">🔥</div><div class="flex-1 text-sm font-bold">Server #4 (Hot)</div><div class="text-green-600 font-bold text-xs">₹20</div>
+            </div>
+            <div onclick="watchAd('S5')" class="glass-card flex items-center gap-4 border-l-4 border-red-500">
+                <div class="text-xl">🚀</div><div class="flex-1 text-sm font-bold">Server #5 (Speed)</div><div class="text-green-600 font-bold text-xs">₹20</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="page" id="page-refer">
+        <div class="glass-card mb-4 text-center">
+            <p class="text-xs text-gray-400 font-bold uppercase mb-2">Invite Friends (Earn ₹5)</p>
+            <p class="text-[10px] font-mono mb-4 text-blue-500" id="ref-link">t.me/AdzwalletBot?start=...</p>
+            <button onclick="copyLink()" class="bg-green-600 text-white px-8 py-3 rounded-xl font-bold text-xs">COPY LINK</button>
+        </div>
+        <h3 class="font-bold text-xs text-gray-400 uppercase mb-3">Joined Through You</h3>
+        <div id="ref-list" class="space-y-2">
+            <p class="text-center text-[10px] text-gray-300 py-4">No referrals yet</p>
         </div>
     </section>
 
     <section class="page" id="page-cashout">
-        <h2 class="font-bold text-lg mb-4">Payouts</h2>
         <div class="glass-card mb-6">
             <div class="grid grid-cols-2 gap-2 mb-4">
-                <div class="method-card p-3 rounded-xl text-center text-[10px] font-bold" onclick="selMethod(this, 'Bitcoin (15% Bonus)')">₿ Bitcoin<br><span class="text-green-500 text-[8px]">+15% Bonus</span></div>
-                <div class="method-card p-3 rounded-xl text-center text-[10px] font-bold" onclick="selMethod(this, 'Crypto (15% Bonus)')">⛓️ Crypto<br><span class="text-green-500 text-[8px]">+15% Bonus</span></div>
-                <div class="method-card p-3 rounded-xl text-center text-[10px] font-bold" onclick="selMethod(this, 'UPI')">⚡ UPI</div>
-                <div class="method-card p-3 rounded-xl text-center text-[10px] font-bold" onclick="selMethod(this, 'PayPal')">🅿️ PayPal</div>
+                <div class="method-card p-3 rounded-xl text-center text-[10px]" onclick="selMethod(this, 'Bitcoin')">₿ Bitcoin</div>
+                <div class="method-card p-3 rounded-xl text-center text-[10px]" onclick="selMethod(this, 'Crypto')">⛓️ Crypto</div>
+                <div class="method-card p-3 rounded-xl text-center text-[10px]" onclick="selMethod(this, 'UPI')">⚡ UPI</div>
+                <div class="method-card p-3 rounded-xl text-center text-[10px]" onclick="selMethod(this, 'PayPal')">🅿️ PayPal</div>
             </div>
-            <input type="number" id="wd-amount" placeholder="Amount (Min ₹100)" class="w-full p-4 bg-gray-50 rounded-2xl mb-4 border outline-none text-center font-bold">
-            <button onclick="submitWithdrawal()" class="w-full bg-green-600 text-white py-4 rounded-2xl font-bold">REQUEST WITHDRAWAL</button>
+            
+            <div id="address-box" class="hidden mb-4">
+                <input type="text" id="wd-address" placeholder="Enter Address / UPI ID" class="w-full p-4 bg-gray-50 rounded-2xl border text-sm">
+            </div>
+            
+            <input type="number" id="wd-amount" placeholder="Amount (Min ₹100)" class="w-full p-4 bg-gray-50 rounded-2xl mb-4 border font-bold text-center">
+            <button onclick="submitWithdrawal()" class="w-full bg-green-600 text-white py-4 rounded-2xl font-bold">SUBMIT REQUEST</button>
         </div>
-
-        <h3 class="font-bold text-xs uppercase text-gray-400 mb-3 tracking-widest">Withdrawal History</h3>
-        <div id="history-list" class="space-y-2">
-            <p class="text-center text-xs text-gray-300 py-6 italic">No history yet</p>
-        </div>
+        <h3 class="font-bold text-xs text-gray-400 mb-2 uppercase">Withdrawal History</h3>
+        <div id="history-list" class="space-y-2"></div>
     </section>
 </main>
 
 <nav class="fixed bottom-0 left-0 right-0 h-20 bg-white border-t flex items-center justify-around z-50">
-    <button onclick="navigate('dashboard')" class="flex flex-col items-center gap-1 text-green-600"><span class="text-2xl">🏠</span><span class="text-[10px] font-bold">Dashboard</span></button>
-    <button onclick="navigate('earn')" class="flex flex-col items-center gap-1 text-gray-400"><span class="text-2xl">📽️</span><span class="text-[10px] font-bold">Watch</span></button>
-    <button onclick="navigate('cashout')" class="flex flex-col items-center gap-1 text-gray-400"><span class="text-2xl">💳</span><span class="text-[10px] font-bold">History</span></button>
+    <button onclick="navigate('dashboard')" class="flex flex-col items-center gap-1 text-green-600"><span class="text-xl">🏠</span><span class="text-[10px] font-bold">Home</span></button>
+    <button onclick="navigate('earn')" class="flex flex-col items-center gap-1 text-gray-400"><span class="text-xl">🎬</span><span class="text-[10px] font-bold">Earn</span></button>
+    <button onclick="navigate('refer')" class="flex flex-col items-center gap-1 text-gray-400"><span class="text-xl">👥</span><span class="text-[10px] font-bold">Invite</span></button>
+    <button onclick="navigate('cashout')" class="flex flex-col items-center gap-1 text-gray-400"><span class="text-xl">💸</span><span class="text-[10px] font-bold">Cash</span></button>
 </nav>
 
 <script>
@@ -104,31 +111,43 @@ const tg = window.Telegram.WebApp;
 const userId = tg.initDataUnsafe?.user?.id || 12345;
 let selectedMethod = "";
 
+// 1. LIVE MONEY COUNTER
+let totalPaid = 45373;
+setInterval(() => {
+    totalPaid += Math.floor(Math.random() * 900) + 100;
+    document.getElementById('live-paid').innerText = totalPaid.toLocaleString();
+}, 5000);
+
 async function loadUser() {
     const res = await fetch(`/user/${userId}`);
     const user = await res.json();
     
-    // Updates
-    document.getElementById('user-name').innerText = tg.initDataUnsafe?.user?.username || user.username || "Member";
+    document.getElementById('user-name').innerText = tg.initDataUnsafe?.user?.first_name || user.username;
     document.getElementById('bal-main').innerText = user.balance.toFixed(2);
     document.getElementById('tb-bal').innerText = user.balance.toFixed(2);
-    document.getElementById('stat-ads').innerText = user.adsWatched || 0;
-    document.getElementById('stat-refs').innerText = user.referrals || 0;
     document.getElementById('ref-link').innerText = `t.me/AdzwalletBot?start=${userId}`;
     
-    if(!user.isSubscribed) document.getElementById('force-sub').style.display = 'flex';
-    renderHistory(user.withdrawalHistory || []);
-}
+    // RENDER REFERRAL LIST
+    const rList = document.getElementById('ref-list');
+    if(user.referralList?.length) {
+        rList.innerHTML = user.referralList.map(r => `
+            <div class="glass-card p-3 flex justify-between items-center text-[10px]">
+                <span class="font-bold">${r.username}</span>
+                <span class="text-gray-400">${new Date(r.date).toLocaleDateString()}</span>
+            </div>
+        `).join('');
+    }
 
-function renderHistory(history) {
-    const container = document.getElementById('history-list');
-    if(!history.length) return;
-    container.innerHTML = history.reverse().map(h => `
-        <div class="glass-card p-4 flex justify-between items-center bg-gray-50/50">
-            <div><p class="font-bold text-xs">${h.method}</p><p class="text-[9px] text-gray-400">${new Date(h.date).toLocaleDateString()}</p></div>
-            <div class="text-right"><p class="text-green-600 font-bold text-xs">₹${h.amount}</p><p class="text-[9px] text-blue-500 uppercase font-black">${h.status}</p></div>
-        </div>
-    `).join('');
+    // RENDER HISTORY
+    const hList = document.getElementById('history-list');
+    if(user.withdrawalHistory?.length) {
+        hList.innerHTML = user.withdrawalHistory.reverse().map(h => `
+            <div class="glass-card p-3 flex justify-between items-center text-[10px]">
+                <div><p class="font-bold">${h.method}</p><p class="text-gray-400 truncate w-32">${h.address}</p></div>
+                <div class="text-right"><p class="text-green-600 font-bold">₹${h.amount}</p><p class="text-blue-500 uppercase">${h.status}</p></div>
+            </div>
+        `).join('');
+    }
 }
 
 function navigate(id) {
@@ -140,38 +159,38 @@ function selMethod(el, name) {
     document.querySelectorAll('.method-card').forEach(m => m.classList.remove('selected'));
     el.classList.add('selected');
     selectedMethod = name;
+    document.getElementById('address-box').classList.remove('hidden');
+    document.getElementById('wd-address').placeholder = `Enter ${name} Address/ID`;
 }
 
-function watchAd(server) {
+function watchAd(s) {
     show_10760190().then(() => {
-        fetch(`/api/adsgram-reward?userId=${userId}`).then(() => loadUser());
-        tg.HapticFeedback.notificationOccurred('success');
-    }).catch(() => tg.showAlert("Server busy, try again!"));
+        fetch(`/api/adsgram-reward?userId=${userId}`).then(() => {
+            loadUser();
+            tg.HapticFeedback.notificationOccurred('success');
+        });
+    }).catch(() => tg.showAlert("Ad server busy."));
 }
 
 function submitWithdrawal() {
     const amt = document.getElementById('wd-amount').value;
-    if(!selectedMethod || amt < 100) return tg.showAlert("Select method & Enter min ₹100");
-    
+    const addr = document.getElementById('wd-address').value;
+    if(!selectedMethod || !addr || amt < 100) return tg.showAlert("Fill all details (Min ₹100)");
+
     fetch('/api/withdraw', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ userId, amount: Number(amt), method: selectedMethod })
+        body: JSON.stringify({ userId, amount: Number(amt), method: selectedMethod, address: addr })
     }).then(() => {
-        tg.showAlert("Success! Request added to history.");
+        tg.showAlert("Withdrawal Requested!");
         loadUser();
+        navigate('cashout');
     });
 }
 
 function copyLink() {
     navigator.clipboard.writeText(`https://t.me/AdzwalletBot?start=${userId}`);
-    tg.showAlert("Invite link copied!");
-}
-
-function checkSub() {
-    // You would add a real API call here to verify channel membership
-    document.getElementById('force-sub').style.display = 'none';
-    tg.showAlert("Success! You have been verified.");
+    tg.showAlert("Link Copied!");
 }
 
 loadUser();

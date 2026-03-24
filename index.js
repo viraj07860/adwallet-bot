@@ -1,5 +1,4 @@
 require('dotenv').config();
-
 const express = require('express');
 const { Telegraf } = require('telegraf');
 const path = require('path');
@@ -9,176 +8,130 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 const PORT = process.env.PORT || 8080;
-
-// 🔥 CHANGE THIS TO YOUR CHANNEL
 const CHANNEL = "@AdWalletCommunity";
-
-// ===== BOT =====
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
-// ===== DATA (TEMP STORAGE) =====
-const users = {};
-const lastAdWatch = {};
-const dailyLimit = {};
+// ===== DATA STORAGE (Note: Use MongoDB for permanent storage later) =====
+const users = {}; 
 
-// ===== START COMMAND (FORCE SUBSCRIBE) =====
+// ===== BOT: START & REFERRAL LOGIC =====
 bot.start(async (ctx) => {
   const userId = ctx.from.id;
+  const username = ctx.from.username || ctx.from.first_name;
+  
+  // Extract Referral ID from /start command (e.g., /start 12345)
+  const startPayload = ctx.payload; 
 
   if (!users[userId]) {
-    users[userId] = { balance: 0, tasks: 0 };
+    users[userId] = { 
+      balance: 0, 
+      tasks: 0, 
+      username: username,
+      referralList: [], 
+      withdrawalHistory: [],
+      isSubscribed: false 
+    };
+
+    // If joined via referral link
+    if (startPayload && users[startPayload] && startPayload != userId) {
+      users[startPayload].balance += 5; // Reward referrer
+      users[startPayload].referralList.push({ 
+        username: username, 
+        date: new Date().toLocaleDateString() 
+      });
+      ctx.telegram.sendMessage(startPayload, `👥 New Referral! ${username} joined. You earned ₹5!`);
+    }
   }
 
   try {
     const member = await ctx.telegram.getChatMember(CHANNEL, userId);
-
     if (["member", "administrator", "creator"].includes(member.status)) {
+      users[userId].isSubscribed = true;
       return sendApp(ctx);
     }
+  } catch (e) { console.log("Sub check error"); }
 
-  } catch (e) {
-    console.log(e);
-  }
-
-  // ❌ Not subscribed
-  ctx.reply("⭐ Please join our channel to continue", {
+  // Force Subscribe Message
+  ctx.reply(`Welcome ${username}! 🚀\n\nTo use @AdzwalletBot, you must join our community channel first.`, {
     reply_markup: {
       inline_keyboard: [
-        [
-          {
-            text: "📢 Join Channel",
-            url: "https://t.me/AdWalletCommunity"
-          }
-        ],
-        [
-          {
-            text: "✅ I Subscribed",
-            callback_data: "check_sub"
-          }
-        ]
+        [{ text: "📢 Join Channel", url: "https://t.me/AdWalletCommunity" }],
+        [{ text: "✅ I Have Joined", callback_data: "check_sub" }]
       ]
     }
   });
 });
 
-// ===== CHECK SUBSCRIBE BUTTON =====
 bot.action("check_sub", async (ctx) => {
   const userId = ctx.from.id;
-
   try {
     const member = await ctx.telegram.getChatMember(CHANNEL, userId);
-
     if (["member", "administrator", "creator"].includes(member.status)) {
-
+      if (users[userId]) users[userId].isSubscribed = true;
       await ctx.answerCbQuery("✅ Verified!");
       return sendApp(ctx);
-
     } else {
-      ctx.answerCbQuery("❌ Join channel first!", { show_alert: true });
+      ctx.answerCbQuery("❌ Please join @AdWalletCommunity first!", { show_alert: true });
     }
-
-  } catch (err) {
-    ctx.answerCbQuery("⚠️ Error checking", { show_alert: true });
-  }
+  } catch (err) { ctx.answerCbQuery("⚠️ Verification Error"); }
 });
 
-// ===== OPEN APP =====
 function sendApp(ctx) {
-  return ctx.reply("🚀 Access granted!", {
+  return ctx.reply("✨ Access Granted! Start earning now:", {
     reply_markup: {
       inline_keyboard: [
-        [
-          {
-            text: "💰 Open App",
-            web_app: {
-              url: "https://adwallet-bot-production.up.railway.app/"
-            }
-          }
-        ]
+        [{ text: "💰 Open AdzWallet", web_app: { url: "https://adwallet-bot-production.up.railway.app/" } }]
       ]
     }
   });
 }
 
-// ===== SAFE BOT START =====
-bot.launch()
-  .then(() => console.log("Bot started ✅"))
-  .catch(err => console.log("Bot error:", err.message));
-
-// ===== API: GET USER =====
+// ===== API: USER DATA (Dashboard & Referrals) =====
 app.get('/user/:id', (req, res) => {
   const id = req.params.id;
-
   if (!users[id]) {
-    users[id] = { balance: 0, tasks: 0 };
+    users[id] = { balance: 0, tasks: 0, username: "User", referralList: [], withdrawalHistory: [], isSubscribed: false };
   }
-
   res.json(users[id]);
 });
 
-// ===== API: TASK LIST =====
-app.get('/tasks', (req, res) => {
-  res.json([
-    { title: "Watch Ad", reward: 20 },
-    { title: "Join Channel", reward: 10 }
-  ]);
+// ===== API: WITHDRAWAL SYSTEM =====
+app.post('/api/withdraw', (req, res) => {
+  const { userId, amount, method, address } = req.body;
+  
+  if (!users[userId] || users[userId].balance < amount) {
+    return res.status(400).json({ error: "Insufficient Balance" });
+  }
+
+  // Calculate Bonus
+  const hasBonus = method.includes("Bitcoin") || method.includes("Crypto");
+  const finalAmount = hasBonus ? amount * 1.15 : amount;
+
+  const record = {
+    amount: finalAmount.toFixed(2),
+    method: method,
+    address: address,
+    status: "Pending",
+    date: new Date().toLocaleDateString()
+  };
+
+  // Update Data
+  users[userId].balance -= amount;
+  users[userId].withdrawalHistory.push(record);
+
+  res.json({ success: true, balance: users[userId].balance });
 });
 
 // ===== API: ADS REWARD =====
 app.get('/api/adsgram-reward', (req, res) => {
   const { userId } = req.query;
+  if (!userId || !users[userId]) return res.status(400).send("User not found");
 
-  if (!userId) {
-    return res.status(400).json({ error: "Missing userId" });
-  }
-
-  const now = Date.now();
-
-  if (!users[userId]) {
-    users[userId] = { balance: 0, tasks: 0 };
-  }
-
-  // ⏳ Cooldown
-  if (lastAdWatch[userId] && now - lastAdWatch[userId] < 30000) {
-    return res.status(429).json({ error: "⏳ Wait 30 seconds" });
-  }
-
-  // 📅 Daily limit
-  const today = new Date().toDateString();
-
-  if (!dailyLimit[userId]) {
-    dailyLimit[userId] = { count: 0, date: today };
-  }
-
-  if (dailyLimit[userId].date !== today) {
-    dailyLimit[userId] = { count: 0, date: today };
-  }
-
-  if (dailyLimit[userId].count >= 10) {
-    return res.status(403).json({ error: "🚫 Daily limit reached" });
-  }
-
-  // 💰 Reward
-  const reward = 20;
-  users[userId].balance += reward;
+  users[userId].balance += 20;
   users[userId].tasks += 1;
-
-  lastAdWatch[userId] = now;
-  dailyLimit[userId].count++;
-
-  res.json({
-    success: true,
-    reward,
-    balance: users[userId].balance
-  });
+  res.json({ success: true, balance: users[userId].balance });
 });
 
-// ===== ROOT =====
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+bot.launch();
+app.listen(PORT, '0.0.0.0', () => console.log(`Server running on port ${PORT}`));
 
-// ===== START SERVER =====
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
-});
