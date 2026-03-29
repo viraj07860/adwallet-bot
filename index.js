@@ -11,7 +11,6 @@ const PORT = process.env.PORT || 8080;
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const REWARD_SECRET = process.env.REWARD_SECRET || 'adwallet7062';
 const BOT_USERNAME = process.env.BOT_USERNAME || 'AdzwalletBot';
-const CHANNEL = process.env.CHANNEL || '@AdWalletCommunity';
 
 const bot = new Telegraf(BOT_TOKEN);
 
@@ -19,7 +18,13 @@ const bot = new Telegraf(BOT_TOKEN);
 const users = {};
 const withdrawals = [];
 
-// ----- Helpers -----
+function getBaseUrl() {
+  const raw = (process.env.WEBAPP_URL || process.env.RAILWAY_STATIC_URL || '').trim().replace(/\/+$/, '');
+  if (!raw) return 'http://localhost:8080';
+  if (raw.startsWith('http://') || raw.startsWith('https://')) return raw;
+  return `https://${raw}`;
+}
+
 function ensureUser(userId, username = 'User') {
   const id = String(userId);
 
@@ -32,11 +37,13 @@ function ensureUser(userId, username = 'User') {
       referralCount: 0,
       referralEarnings: 0,
       referralList: [],
+      referredBy: '',
       lastAdTime: 0,
       dailyAds: 0,
-      lastReset: Date.now(),
-      isSubscribed: false
+      lastReset: Date.now()
     };
+  } else if (username && users[id].username === 'User') {
+    users[id].username = username;
   }
 
   return users[id];
@@ -53,54 +60,45 @@ function checkDailyLimit(user) {
   return user.dailyAds < 20;
 }
 
-function getWebAppUrl(userId) {
-  const base = process.env.RAILWAY_STATIC_URL;
-  if (!base) return `/?id=${encodeURIComponent(userId)}`;
-  return `https://${base}/?id=${encodeURIComponent(userId)}`;
-}
-
-// ----- Root route -----
+// Serve app root
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// ----- Telegram bot -----
+// Telegram bot start
 bot.start(async (ctx) => {
   const userId = String(ctx.from.id);
   const username = ctx.from.username || ctx.from.first_name || 'User';
-  const refPayload = ctx.payload ? String(ctx.payload).trim() : '';
+  const startPayload = String(ctx.startPayload || ctx.payload || '').trim();
 
   const user = ensureUser(userId, username);
 
-  // Referral handling
-  if (refPayload && refPayload !== userId) {
-    const refUser = ensureUser(refPayload, 'User');
+  // Referral reward only if referrer already exists and it's not self
+  if (startPayload && startPayload !== userId && !user.referredBy) {
+    const referrer = users[startPayload];
 
-    if (refPayload !== userId) {
-      const isFirstTimeReferral = !user.referredBy;
-      if (isFirstTimeReferral) {
-        user.referredBy = refPayload;
-        refUser.balance += 5;
-        refUser.referralCount += 1;
-        refUser.referralEarnings += 5;
-        refUser.referralList.push({
-          username,
-          date: new Date().toLocaleDateString()
-        });
+    if (referrer) {
+      user.referredBy = startPayload;
+      referrer.balance += 5;
+      referrer.referralCount += 1;
+      referrer.referralEarnings += 5;
+      referrer.referralList.push({
+        username,
+        date: new Date().toLocaleDateString()
+      });
 
-        try {
-          await ctx.telegram.sendMessage(
-            refPayload,
-            `🎉 New referral joined!\n👤 ${username}\n💰 ₹5 added`
-          );
-        } catch (e) {
-          console.log('Referral notify failed:', e.message);
-        }
+      try {
+        await ctx.telegram.sendMessage(
+          startPayload,
+          `🎉 New referral joined!\n👤 ${username}\n💰 $5 added`
+        );
+      } catch (e) {
+        console.log('Referral notify failed:', e.message);
       }
     }
   }
 
-  const webAppUrl = getWebAppUrl(userId);
+  const webAppUrl = `${getBaseUrl()}/?id=${encodeURIComponent(userId)}`;
 
   return ctx.reply('✨ Access Granted! Start earning now:', {
     reply_markup: {
@@ -111,25 +109,7 @@ bot.start(async (ctx) => {
   });
 });
 
-bot.action('check_sub', async (ctx) => {
-  const userId = String(ctx.from.id);
-  ensureUser(userId, ctx.from.username || ctx.from.first_name || 'User');
-
-  try {
-    const member = await ctx.telegram.getChatMember(CHANNEL, userId);
-    const ok = ['member', 'administrator', 'creator'].includes(member.status);
-    if (ok) {
-      users[userId].isSubscribed = true;
-      return ctx.answerCbQuery('✅ Joined!');
-    }
-    return ctx.answerCbQuery(`❌ Please join ${CHANNEL} first!`, { show_alert: true });
-  } catch (err) {
-    console.log('Sub check error:', err.message);
-    return ctx.answerCbQuery('⚠️ Error checking subscription', { show_alert: true });
-  }
-});
-
-// ----- APIs -----
+// User API for UI
 app.get('/user/:id', (req, res) => {
   const userId = String(req.params.id);
   const user = ensureUser(userId);
@@ -141,21 +121,23 @@ app.get('/user/:id', (req, res) => {
     tasks: Number(user.tasks || 0),
     referralCount: Number(user.referralCount || 0),
     referralEarnings: Number(user.referralEarnings || 0),
-    isSubscribed: !!user.isSubscribed
+    referralList: user.referralList || []
   });
 });
 
+// Referrals API
 app.get('/api/referrals/:id', (req, res) => {
   const userId = String(req.params.id);
   const user = ensureUser(userId);
 
   res.json({
-    total: user.referralCount || 0,
-    earnings: user.referralEarnings || 0,
+    total: Number(user.referralCount || 0),
+    earnings: Number(user.referralEarnings || 0),
     list: user.referralList || []
   });
 });
 
+// Reward callback from Adsgram
 app.get('/api/reward', (req, res) => {
   const { userid, userId, key } = req.query;
   const id = String(userid || userId || '');
@@ -184,11 +166,12 @@ app.get('/api/reward', (req, res) => {
   user.dailyAds += 1;
   user.lastAdTime = now;
 
-  res.send('OK');
+  return res.send('OK');
 });
 
+// Withdraw endpoint
 app.post('/api/withdraw', (req, res) => {
-  const { userId, amount, method, details } = req.body;
+  const { userId, amount, method, account, details } = req.body;
   const id = String(userId || '');
 
   if (!id) {
@@ -196,8 +179,8 @@ app.post('/api/withdraw', (req, res) => {
   }
 
   const user = ensureUser(id);
-
   const amt = Number(amount);
+
   if (!Number.isFinite(amt) || amt <= 0) {
     return res.json({ success: false, message: 'Invalid amount' });
   }
@@ -216,28 +199,30 @@ app.post('/api/withdraw', (req, res) => {
     userId: id,
     amount: amt,
     method: method || 'Unknown',
+    account: account || '',
     details: details || {},
     status: 'pending',
     date: new Date().toISOString()
   });
 
-  res.json({ success: true });
+  return res.json({ success: true });
 });
 
+// Admin view of withdrawals
 app.get('/admin/withdrawals', (req, res) => {
   res.json(withdrawals);
 });
 
-// ----- Start server -----
 app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
+
   if (!BOT_TOKEN) {
     console.log('⚠️ BOT_TOKEN missing');
-  } else {
-    bot.launch().catch(err => console.error('Bot launch failed:', err));
+    return;
   }
+
+  bot.launch().catch(err => console.error('Bot launch failed:', err));
 });
 
-// ----- Graceful shutdown -----
 process.once('SIGINT', () => bot.stop('SIGINT'));
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
