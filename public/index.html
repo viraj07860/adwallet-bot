@@ -1,269 +1,1150 @@
+
 <!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>AdzWallet</title>
-
-<script src="https://sad.adsgram.ai/js/sad.min.js"></script>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-
+<html lang="en">
+<<script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>AdWallet – Earn While You Watch</title>
 <style>
-body {
-  margin:0;
-  font-family: system-ui;
-  background:#0c0f14;
-  color:#fff;
-}
+  :root {
+    --green:        #22c55e;
+    --green-dark:   #16a34a;
+    --green-light:  #bbf7d0;
+    --green-glow:   rgba(34,197,94,.35);
+    --white:        #ffffff;
+    --bg:           #f0fdf4;
+    --card:         #ffffff;
+    --text:         #0f172a;
+    --muted:        #64748b;
+    --border:       #e2e8f0;
+    --shadow:       0 4px 24px rgba(0,0,0,.08);
+    --radius:       18px;
+    --nav-h:        68px;
+    --sidebar-w:    280px;
+  }
 
-/* HEADER */
-.header {
-  padding:15px;
-  text-align:center;
-  font-weight:bold;
-  font-size:18px;
-}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;overflow:hidden;}
 
-/* CARD */
-.card {
-  background:#151a22;
-  margin:10px;
-  padding:15px;
-  border-radius:15px;
-}
+  body{
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    position:relative;
+    overflow:hidden;
+  }
 
-/* BALANCE */
-.balance {
-  text-align:center;
-  font-size:30px;
-  font-weight:bold;
-}
+  /* ─── SIDEBAR ─────────────────────────────── */
+  #overlay{
+    position:fixed;inset:0;background:rgba(0,0,0,.45);
+    opacity:0;pointer-events:none;
+    transition:opacity .3s;z-index:900;backdrop-filter:blur(3px);
+  }
+  #overlay.show{opacity:1;pointer-events:all;}
 
-/* GRID */
-.grid {
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-}
+  #sidebar{
+    position:fixed;top:0;left:0;height:100%;width:var(--sidebar-w);
+    background:var(--white);border-radius:0 28px 28px 0;
+    box-shadow:8px 0 40px rgba(0,0,0,.18);
+    transform:translateX(-100%);
+    transition:transform .35s cubic-bezier(.4,0,.2,1);
+    z-index:1000;display:flex;flex-direction:column;overflow:hidden;
+  }
+  #sidebar.open{transform:translateX(0);}
 
-.box {
-  background:#1d2430;
-  padding:12px;
-  border-radius:12px;
-  text-align:center;
-}
+  .sb-header{
+    background:linear-gradient(135deg,var(--green-dark),var(--green));
+    padding:36px 24px 24px;color:#fff;
+  }
+  .sb-avatar{
+    width:54px;height:54px;border-radius:50%;
+    background:rgba(255,255,255,.25);
+    display:flex;align-items:center;justify-content:center;
+    font-size:22px;margin-bottom:10px;border:2px solid rgba(255,255,255,.5);
+  }
+  .sb-name{font-size:17px;font-weight:700;}
+  .sb-bal{font-size:13px;opacity:.85;margin-top:3px;}
 
-/* BUTTON */
-.btn {
-  width:100%;
-  padding:12px;
-  border:none;
-  border-radius:12px;
-  background:linear-gradient(90deg,#00f2ff,#4facfe);
-  color:#000;
-  font-weight:bold;
-  margin-top:10px;
-}
+  .sb-nav{flex:1;padding:16px 12px;overflow-y:auto;}
+  .sb-item{
+    display:flex;align-items:center;gap:14px;
+    padding:13px 16px;border-radius:14px;
+    cursor:pointer;transition:all .2s;margin-bottom:4px;
+    font-size:15px;font-weight:500;color:var(--text);
+  }
+  .sb-item:hover{background:var(--green-light);}
+  .sb-item.active{
+    background:var(--green);color:#fff;
+    box-shadow:0 4px 16px var(--green-glow);
+  }
+  .sb-item .icon{font-size:20px;min-width:26px;text-align:center;}
 
-/* METHOD GRID */
-.method-grid {
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:10px;
-}
+  .sb-footer{
+    padding:16px 20px;border-top:1px solid var(--border);
+    font-size:12px;color:var(--muted);text-align:center;
+  }
 
-.method {
-  background:#1d2430;
-  padding:10px;
-  border-radius:10px;
-  text-align:center;
-  cursor:pointer;
-}
+  /* ─── TOPBAR ──────────────────────────────── */
+  #topbar{
+    position:fixed;top:0;left:0;right:0;height:60px;
+    background:var(--white);display:flex;align-items:center;
+    justify-content:space-between;padding:0 16px;
+    box-shadow:0 2px 12px rgba(0,0,0,.06);z-index:800;
+  }
+  .tb-left{display:flex;align-items:center;gap:12px;}
+  .hamburger{
+    width:40px;height:40px;border-radius:12px;
+    background:var(--bg);display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:5px;cursor:pointer;
+    transition:background .2s;
+  }
+  .hamburger:hover{background:var(--green-light);}
+  .hamburger span{
+    display:block;width:20px;height:2.5px;
+    background:var(--text);border-radius:4px;transition:all .3s;
+  }
+  .logo{font-size:20px;font-weight:800;color:var(--green-dark);}
+  .logo span{color:var(--green);}
 
-.method.sel {
-  border:2px solid #00f2ff;
-}
+  .tb-right{display:flex;align-items:center;gap:8px;}
+  .tb-badge{
+    background:linear-gradient(135deg,var(--green),var(--green-dark));
+    color:#fff;padding:6px 12px;border-radius:20px;
+    font-size:13px;font-weight:700;
+  }
+  .tb-notif{
+    width:38px;height:38px;border-radius:12px;background:var(--bg);
+    display:flex;align-items:center;justify-content:center;
+    font-size:18px;cursor:pointer;position:relative;
+  }
+  .notif-dot{
+    position:absolute;top:6px;right:6px;width:8px;height:8px;
+    background:#ef4444;border-radius:50%;border:2px solid #fff;
+  }
 
-/* INPUT */
-input {
-  width:100%;
-  padding:10px;
-  border:none;
-  border-radius:10px;
-  margin-top:10px;
-}
+  /* ─── MAIN SCROLL ─────────────────────────── */
+  #main{
+    position:fixed;top:60px;bottom:var(--nav-h);left:0;right:0;
+    overflow-y:auto;scroll-behavior:smooth;
+    -webkit-overflow-scrolling:touch;
+  }
+  .page{display:none;padding:16px 16px 24px;}
+  .page.active{display:block;}
 
-/* NAV */
-.nav {
-  position:fixed;
-  bottom:0;
-  width:100%;
-  background:#111;
-  display:flex;
-  justify-content:space-around;
-  padding:10px;
-}
+  /* ─── CARDS ───────────────────────────────── */
+  .card{
+    background:var(--card);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:20px;margin-bottom:16px;
+    border:1px solid var(--border);
+  }
 
-.nav div {
-  color:#888;
-  cursor:pointer;
-}
+  /* ─── BALANCE HERO ────────────────────────── */
+  .balance-card{
+    background:linear-gradient(135deg,#16a34a 0%,#22c55e 60%,#4ade80 100%);
+    color:#fff;border-radius:24px;padding:26px 22px;
+    box-shadow:0 8px 32px var(--green-glow);
+    position:relative;overflow:hidden;margin-bottom:16px;
+  }
+  .balance-card::before{
+    content:'';position:absolute;top:-40px;right:-40px;
+    width:160px;height:160px;border-radius:50%;
+    background:rgba(255,255,255,.1);
+  }
+  .balance-card::after{
+    content:'';position:absolute;bottom:-60px;left:-20px;
+    width:200px;height:200px;border-radius:50%;
+    background:rgba(255,255,255,.06);
+  }
+  .bal-greeting{font-size:14px;opacity:.9;margin-bottom:4px;}
+  .bal-amount{font-size:42px;font-weight:900;letter-spacing:-1px;line-height:1;}
+  .bal-label{font-size:13px;opacity:.8;margin-top:4px;}
 
-.nav .active {
-  color:#00f2ff;
-}
+  .progress-wrap{margin-top:18px;}
+  .progress-label{
+    display:flex;justify-content:space-between;
+    font-size:12px;opacity:.85;margin-bottom:6px;
+  }
+  .progress-bar{
+    height:8px;background:rgba(255,255,255,.25);border-radius:8px;overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;width:34%;
+    background:#fff;border-radius:8px;
+    box-shadow:0 0 10px rgba(255,255,255,.6);
+    transition:width 1s ease;
+  }
 
-.page { display:none; }
-.page.active { display:block; }
+  .bal-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px;}
+  .btn{
+    padding:13px 16px;border-radius:14px;
+    font-size:14px;font-weight:700;cursor:pointer;
+    border:none;outline:none;transition:all .2s;
+    display:flex;align-items:center;justify-content:center;gap:7px;
+    text-align:center;
+  }
+  .btn:active{transform:scale(.95);}
+  .btn-white{background:#fff;color:var(--green-dark);}
+  .btn-white:hover{background:var(--green-light);}
+  .btn-outline{background:rgba(255,255,255,.2);color:#fff;border:1.5px solid rgba(255,255,255,.5);}
+  .btn-outline:hover{background:rgba(255,255,255,.3);}
 
+  /* green buttons outside card */
+  .btn-green{background:var(--green);color:#fff;box-shadow:0 4px 14px var(--green-glow);}
+  .btn-green:hover{background:var(--green-dark);}
+  .btn-ghost{background:var(--bg);color:var(--text);border:1.5px solid var(--border);}
+  .btn-ghost:hover{border-color:var(--green);color:var(--green);}
+
+  /* ─── EARN PILLS ──────────────────────────── */
+  .earn-pills{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+  .pill{
+    background:var(--card);border-radius:var(--radius);padding:16px;
+    border:1px solid var(--border);box-shadow:var(--shadow);
+    display:flex;flex-direction:column;gap:4px;
+  }
+  .pill-icon{font-size:26px;}
+  .pill-val{font-size:16px;font-weight:800;color:var(--green-dark);}
+  .pill-desc{font-size:12px;color:var(--muted);}
+
+  /* ─── REFERRAL ────────────────────────────── */
+  .ref-link-wrap{
+    display:flex;align-items:center;
+    background:var(--bg);border:1.5px solid var(--border);
+    border-radius:12px;overflow:hidden;margin:12px 0;
+  }
+  .ref-link-wrap input{
+    flex:1;padding:12px;background:transparent;
+    border:none;outline:none;font-size:13px;color:var(--text);
+  }
+  .copy-btn{
+    padding:12px 14px;background:var(--green);color:#fff;
+    font-size:13px;font-weight:700;cursor:pointer;
+    transition:background .2s;white-space:nowrap;border:none;
+  }
+  .copy-btn:hover{background:var(--green-dark);}
+
+  .share-row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;}
+  .share-btn{
+    flex:1;min-width:70px;padding:10px 8px;border-radius:12px;
+    font-size:12px;font-weight:600;cursor:pointer;border:none;
+    color:#fff;display:flex;align-items:center;justify-content:center;
+    gap:5px;transition:transform .2s,opacity .2s;
+  }
+  .share-btn:active{transform:scale(.93);}
+  .sh-tg{background:#0088cc;} .sh-wa{background:#25d366;}
+  .sh-tw{background:#1da1f2;} .sh-fb{background:#1877f2;}
+  .sh-me{background:#0084ff;}
+
+  /* ─── STATS ───────────────────────────────── */
+  .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .stat-item{
+    background:linear-gradient(135deg,#f0fdf4,#dcfce7);
+    border:1px solid #bbf7d0;border-radius:14px;padding:16px;
+    text-align:center;
+  }
+  .stat-num{font-size:20px;font-weight:800;color:var(--green-dark);}
+  .stat-lbl{font-size:11px;color:var(--muted);margin-top:3px;}
+  .live-dot{
+    display:inline-block;width:7px;height:7px;background:#22c55e;
+    border-radius:50%;margin-right:5px;
+    animation:pulse 1.4s ease-in-out infinite;
+  }
+
+  /* ─── ADS SECTION ─────────────────────────── */
+  .ads-grid{display:flex;flex-direction:column;gap:12px;}
+  .ad-card{
+    background:var(--card);border:1px solid var(--border);
+    border-radius:var(--radius);padding:16px;
+    display:flex;align-items:center;gap:14px;
+    box-shadow:var(--shadow);
+  }
+  .ad-thumb{
+    width:60px;height:60px;border-radius:12px;
+    background:linear-gradient(135deg,#e0f2fe,#bae6fd);
+    display:flex;align-items:center;justify-content:center;
+    font-size:26px;flex-shrink:0;
+  }
+  .ad-info{flex:1;}
+  .ad-title{font-size:14px;font-weight:700;}
+  .ad-reward{font-size:13px;color:var(--green-dark);font-weight:600;margin-top:3px;}
+  .ad-dur{font-size:11px;color:var(--muted);margin-top:2px;}
+  .ad-btn{padding:9px 18px;font-size:13px;}
+
+  /* ─── OFFERS ──────────────────────────────── */
+  .offer-empty{
+    text-align:center;padding:40px 20px;
+    display:flex;flex-direction:column;align-items:center;gap:12px;
+  }
+  .offer-emoji{font-size:56px;}
+  .offer-title{font-size:18px;font-weight:700;}
+  .offer-sub{font-size:14px;color:var(--muted);}
+
+  /* ─── CASHOUT ─────────────────────────────── */
+  .method-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0;}
+  .method{
+    background:var(--bg);border:2px solid var(--border);
+    border-radius:14px;padding:14px 8px;text-align:center;
+    cursor:pointer;transition:all .2s;
+  }
+  .method:hover,.method.sel{
+    border-color:var(--green);background:var(--green-light);
+  }
+  .method.sel{box-shadow:0 0 0 3px var(--green-glow);}
+  .method-icon{font-size:24px;margin-bottom:6px;}
+  .method-name{font-size:12px;font-weight:600;}
+
+  .amount-input{
+    width:100%;padding:14px;border-radius:14px;
+    border:1.5px solid var(--border);font-size:18px;font-weight:700;
+    outline:none;background:var(--bg);color:var(--text);
+    transition:border-color .2s;margin-bottom:8px;
+  }
+  .amount-input:focus{border-color:var(--green);}
+  .min-note{font-size:12px;color:var(--muted);margin-bottom:16px;}
+  .min-note span{color:var(--green-dark);font-weight:700;}
+
+  /* ─── FAQ ─────────────────────────────────── */
+  .faq-item{
+    border:1px solid var(--border);border-radius:14px;
+    overflow:hidden;margin-bottom:10px;
+  }
+  .faq-q{
+    padding:16px;font-size:14px;font-weight:600;
+    cursor:pointer;display:flex;justify-content:space-between;align-items:center;
+    background:var(--card);transition:background .2s;
+  }
+  .faq-q:hover{background:var(--green-light);}
+  .faq-q .arrow{transition:transform .3s;font-size:16px;}
+  .faq-a{
+    max-height:0;overflow:hidden;
+    transition:max-height .35s ease,padding .35s;
+    background:#f8fff9;font-size:13px;color:var(--muted);line-height:1.6;
+    padding:0 16px;
+  }
+  .faq-item.open .faq-a{max-height:200px;padding:14px 16px;}
+  .faq-item.open .arrow{transform:rotate(180deg);}
+
+  /* ─── BOTTOM NAV ──────────────────────────── */
+  #bottom-nav{
+    position:fixed;bottom:0;left:0;right:0;height:var(--nav-h);
+    background:var(--white);
+    border-top:1px solid var(--border);
+    display:flex;align-items:center;justify-content:space-around;
+    z-index:800;box-shadow:0 -4px 20px rgba(0,0,0,.07);
+  }
+  .nav-item{
+    display:flex;flex-direction:column;align-items:center;gap:4px;
+    cursor:pointer;padding:6px 12px;border-radius:12px;
+    transition:all .2s;flex:1;
+  }
+  .nav-item .nav-icon{font-size:22px;transition:transform .2s;}
+  .nav-item .nav-lbl{font-size:10px;font-weight:600;color:var(--muted);}
+  .nav-item.active .nav-icon{transform:scale(1.15);}
+  .nav-item.active .nav-lbl{color:var(--green);}
+  .nav-item:active .nav-icon{transform:scale(.9);}
+
+  /* ─── FAB ─────────────────────────────────── */
+  #fab{
+    position:fixed;bottom:calc(var(--nav-h) + 16px);right:18px;
+    width:54px;height:54px;border-radius:18px;
+    background:linear-gradient(135deg,var(--green),var(--green-dark));
+    color:#fff;font-size:24px;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 6px 20px var(--green-glow);
+    cursor:pointer;z-index:700;transition:transform .2s,box-shadow .2s;
+    border:none;outline:none;
+  }
+  #fab:hover{transform:scale(1.08);box-shadow:0 8px 28px var(--green-glow);}
+  #fab:active{transform:scale(.95);}
+
+  /* ─── POPUP NOTIFICATIONS ─────────────────── */
+  #popup-container{
+    position:fixed;top:72px;left:16px;right:16px;z-index:1100;
+    pointer-events:none;
+  }
+  .popup{
+    background:var(--white);border-left:4px solid var(--green);
+    border-radius:14px;padding:12px 16px;margin-bottom:8px;
+    box-shadow:0 8px 32px rgba(0,0,0,.15);
+    display:flex;align-items:center;gap:12px;
+    transform:translateY(-20px) scale(.95);opacity:0;
+    transition:all .4s cubic-bezier(.34,1.56,.64,1);
+    pointer-events:all;
+  }
+  .popup.show{transform:translateY(0) scale(1);opacity:1;}
+  .popup-icon{font-size:26px;}
+  .popup-text{flex:1;}
+  .popup-main{font-size:13px;font-weight:700;color:var(--text);}
+  .popup-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+
+  /* ─── SECTION HEADERS ─────────────────────── */
+  .sec-title{
+    font-size:18px;font-weight:800;margin-bottom:4px;color:var(--text);
+  }
+  .sec-sub{font-size:13px;color:var(--muted);margin-bottom:16px;}
+
+  /* ─── ANIMATIONS ──────────────────────────── */
+  @keyframes pulse{
+    0%,100%{transform:scale(1);opacity:1;}
+    50%{transform:scale(1.6);opacity:.6;}
+  }
+  @keyframes countup{from{transform:translateY(6px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+  .countup{animation:countup .4s ease;}
+
+  /* ─── TOAST ───────────────────────────────── */
+  #toast{
+    position:fixed;bottom:calc(var(--nav-h) + 80px);left:50%;
+    transform:translateX(-50%) translateY(20px);
+    background:#0f172a;color:#fff;padding:10px 20px;
+    border-radius:24px;font-size:13px;font-weight:600;
+    opacity:0;transition:all .3s;z-index:2000;pointer-events:none;
+    white-space:nowrap;
+  }
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  /* scrollbar */
+  #main::-webkit-scrollbar,.sb-nav::-webkit-scrollbar{width:4px;}
+  #main::-webkit-scrollbar-thumb,.sb-nav::-webkit-scrollbar-thumb{
+    background:var(--border);border-radius:4px;
+  }
 </style>
 </head>
-
 <body>
 
-<div class="header">💰 AdzWallet</div>
+<!-- SIDEBAR OVERLAY -->
+<div id="overlay" onclick="toggleSidebar()"></div>
 
-<!-- HOME -->
-<div id="home" class="page active">
-
-<div class="card">
-  <div class="balance">₹<span id="balance">0</span></div>
-</div>
-
-<div class="grid">
-  <div class="box">
-    <div id="tasks">0</div>
-    <small>Tasks</small>
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="sb-header">
+    <div class="sb-avatar">👤</div>
+    <div class="sb-name">Rahul Kumar</div>
+    <div class="sb-bal">Balance: <strong id="sb-bal">$3.40</strong></div>
   </div>
-  <div class="box">
-    <div id="refs">0</div>
-    <small>Referrals</small>
+  <div class="sb-nav">
+    <div class="sb-item active" onclick="navigate('dashboard',0,this)">
+      <span class="icon">🏠</span> Dashboard
+    </div>
+    <div class="sb-item" onclick="navigate('ads',1,this)">
+      <span class="icon">▶️</span> Watch Ads
+    </div>
+    <div class="sb-item" onclick="navigate('offers',2,this)">
+      <span class="icon">🎁</span> Offer Center
+    </div>
+    <div class="sb-item" onclick="navigate('invite',3,this)">
+      <span class="icon">👥</span> Invite Friends
+    </div>
+    <div class="sb-item" onclick="navigate('cashout',4,this)">
+      <span class="icon">💸</span> Cash Out
+    </div>
+    <div class="sb-item" onclick="navigate('help',5,this)">
+      <span class="icon">❓</span> Help &amp; FAQ
+    </div>
   </div>
-</div>
+  <div class="sb-footer">AdWallet v2.4 · Made with 💚</div>
+</nav>
 
-</div>
-
-<!-- EARN -->
-<div id="earn" class="page">
-  <div class="card">
-    <button class="btn" onclick="watchAd()">📺 Watch Ad (+₹20)</button>
+<!-- TOPBAR -->
+<header id="topbar">
+  <div class="tb-left">
+    <div class="hamburger" onclick="toggleSidebar()" id="ham">
+      <span></span><span></span><span></span>
+    </div>
+    <div class="logo">Ad<span>Wallet</span></div>
   </div>
-</div>
-
-<!-- REFERRAL -->
-<div id="ref" class="page">
-  <div class="card">
-    <input id="refLink" readonly>
-    <button class="btn" onclick="copyRef()">Copy Link</button>
+  <div class="tb-right">
+    <div class="tb-badge">💰 $<span id="tb-bal">3.40</span></div>
+    <div class="tb-notif">🔔<span class="notif-dot"></span></div>
   </div>
-</div>
+</header>
 
-<!-- WITHDRAW -->
-<div id="wallet" class="page">
+<!-- POPUP NOTIFICATIONS -->
+<div id="popup-container"></div>
 
-<div class="card">
+<!-- MAIN CONTENT -->
+<main id="main">
 
-<div class="method-grid">
+  <!-- ── DASHBOARD ─────────────────────────── -->
+  <section class="page active" id="page-dashboard">
 
-<div class="method sel" onclick="selectMethod(this)">PayPal</div>
-<div class="method" onclick="selectMethod(this)">Bitcoin</div>
-<div class="method" onclick="selectMethod(this)">USDT</div>
-<div class="method" onclick="selectMethod(this)">UPI</div>
-<div class="method" onclick="selectMethod(this)">Paytm</div>
-<div class="method" onclick="selectMethod(this)">Telegram</div>
+    <!-- Balance Hero -->
+    <div class="balance-card">
+      <div class="bal-greeting">👋 Hi, Rahul!</div>
+      <div class="bal-amount">$<span id="bal-main">3.40</span></div>
+      <div class="bal-label">Total Earnings</div>
+      <div class="progress-wrap">
+        <div class="progress-label">
+          <span>Earning Progress</span>
+          <span>$3.40 / $10.00</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="prog-fill"></div>
+        </div>
+      </div>
+      <div class="bal-actions">
+        <button class="btn btn-white" onclick="navigate('cashout',4)">
+          💸 Cash Out
+        </button>
+        <button class="btn btn-outline" onclick="claimBonus()">
+          🎁 Daily Bonus
+        </button>
+      </div>
+    </div>
 
-</div>
+    <!-- Earn Pills -->
+    <div class="earn-pills">
+      <div class="pill">
+        <span class="pill-icon">🎬</span>
+        <span class="pill-val">$0.05–$0.10</span>
+        <span class="pill-desc">per ad watched</span>
+      </div>
+      <div class="pill">
+        <span class="pill-icon">👥</span>
+        <span class="pill-val">$0.075</span>
+        <span class="pill-desc">per referral</span>
+      </div>
+      <div class="pill">
+        <span class="pill-icon">✅</span>
+        <span class="pill-val">$0.25</span>
+        <span class="pill-desc">daily bonus</span>
+      </div>
+      <div class="pill">
+        <span class="pill-icon">📦</span>
+        <span class="pill-val">$0.50+</span>
+        <span class="pill-desc">per offer task</span>
+      </div>
+    </div>
 
-<input id="amount" placeholder="Amount">
-<input id="account" placeholder="Account / Wallet">
+    <!-- Quick Actions -->
+    <div class="card">
+      <div class="sec-title">Quick Earn</div>
+      <div class="sec-sub">Start earning immediately</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <button class="btn btn-green" onclick="navigate('ads',1)">▶️ Watch Ads</button>
+        <button class="btn btn-ghost" onclick="navigate('offers',2)">🎁 Offers</button>
+      </div>
+    </div>
 
-<button class="btn" onclick="withdraw()">Withdraw</button>
+    <!-- Platform Stats -->
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+        <span class="live-dot"></span>
+        <span class="sec-title" style="margin:0;font-size:16px;">Live Platform Stats</span>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-num" id="stat-payout">$48,312</div>
+          <div class="stat-lbl">Total Payouts</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num" id="stat-users">12,847</div>
+          <div class="stat-lbl">Active Users</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num" id="stat-ads">3.2M</div>
+          <div class="stat-lbl">Ads Watched</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num" id="stat-today">$2,190</div>
+          <div class="stat-lbl">Paid Today</div>
+        </div>
+      </div>
+    </div>
 
-</div>
+    <!-- Referral Teaser -->
+    <div class="card" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);">
+      <div style="display:flex;justify-content:space-between;align-items:start;">
+        <div>
+          <div class="sec-title">Invite &amp; Earn</div>
+          <div class="sec-sub" style="margin-bottom:12px;">Get $0.075 per friend you invite</div>
+          <button class="btn btn-green" onclick="navigate('invite',3)" style="padding:11px 20px;">👥 Invite Friends</button>
+        </div>
+        <span style="font-size:52px;opacity:.6;">🎉</span>
+      </div>
+    </div>
+  </section>
 
-</div>
+  <!-- ── WATCH ADS ───────────────────────────── -->
+  <section class="page" id="page-ads">
+    <div class="sec-title">Watch Ads</div>
+    <div class="sec-sub">Earn real money watching short video ads</div>
 
-<!-- NAV -->
-<div class="nav">
-  <div class="active" onclick="tab('home',this)">Home</div>
-  <div onclick="tab('earn',this)">Earn</div>
-  <div onclick="tab('ref',this)">Refer</div>
-  <div onclick="tab('wallet',this)">Wallet</div>
-</div>
+    <div class="card" style="text-align:center;background:linear-gradient(135deg,#0f172a,#1e293b);color:#fff;padding:32px 20px;margin-bottom:16px;">
+      <div style="font-size:52px;margin-bottom:12px;">🎬</div>
+      <div style="font-size:20px;font-weight:800;margin-bottom:6px;">Ready to Earn?</div>
+      <div style="font-size:14px;opacity:.7;margin-bottom:20px;">Watch a 15–30s ad and earn instantly</div>
+      <button class="btn btn-green" style="width:100%;padding:16px;font-size:16px;" onclick="earnNow()">
+        ▶️ &nbsp;Earn Now
+      </button>
+    </div>
+
+    <div class="ads-grid">
+      <div class="ad-card">
+        <div class="ad-thumb">📱</div>
+        <div class="ad-info">
+          <div class="ad-title">Mobile App Promo</div>
+          <div class="ad-reward">+$0.08</div>
+          <div class="ad-dur">⏱ 30 seconds</div>
+        </div>
+        <button class="btn btn-green ad-btn" onclick="watchAd(this)">Watch</button>
+      </div>
+      <div class="ad-card">
+        <div class="ad-thumb">🛒</div>
+        <div class="ad-info">
+          <div class="ad-title">E-Commerce Ad</div>
+          <div class="ad-reward">+$0.06</div>
+          <div class="ad-dur">⏱ 15 seconds</div>
+        </div>
+        <button class="btn btn-green ad-btn" onclick="watchAd(this)">Watch</button>
+      </div>
+      <div class="ad-card">
+        <div class="ad-thumb">🎮</div>
+        <div class="ad-info">
+          <div class="ad-title">Game Ad Sponsor</div>
+          <div class="ad-reward">+$0.10</div>
+          <div class="ad-dur">⏱ 45 seconds</div>
+        </div>
+        <button class="btn btn-green ad-btn" onclick="watchAd(this)">Watch</button>
+      </div>
+      <div class="ad-card">
+        <div class="ad-thumb">💊</div>
+        <div class="ad-info">
+          <div class="ad-title">Health &amp; Wellness</div>
+          <div class="ad-reward">+$0.07</div>
+          <div class="ad-dur">⏱ 20 seconds</div>
+        </div>
+        <button class="btn btn-green ad-btn" onclick="watchAd(this)">Watch</button>
+      </div>
+      <div class="ad-card">
+        <div class="ad-thumb">✈️</div>
+        <div class="ad-info">
+          <div class="ad-title">Travel Deals</div>
+          <div class="ad-reward">+$0.09</div>
+          <div class="ad-dur">⏱ 25 seconds</div>
+        </div>
+        <button class="btn btn-green ad-btn" onclick="watchAd(this)">Watch</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── OFFERS ──────────────────────────────── -->
+  <section class="page" id="page-offers">
+    <div class="sec-title">Offer Center</div>
+    <div class="sec-sub">Complete tasks for bigger rewards</div>
+    <div class="card">
+      <div class="offer-empty">
+        <span class="offer-emoji">🚀</span>
+        <div class="offer-title">Coming Soon!</div>
+        <div class="offer-sub">Exciting offers from top brands are being integrated. Stay tuned for big rewards!</div>
+        <button class="btn btn-green" style="padding:13px 28px;margin-top:8px;">🔔 Notify Me</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="sec-title" style="font-size:16px;margin-bottom:12px;">Preview Offers</div>
+      <div class="ads-grid">
+        <div class="ad-card">
+          <div class="ad-thumb" style="background:linear-gradient(135deg,#fef3c7,#fde68a);">📋</div>
+          <div class="ad-info">
+            <div class="ad-title">Survey Task</div>
+            <div class="ad-reward">+$0.50</div>
+            <div class="ad-dur">⏱ ~5 min</div>
+          </div>
+          <button class="btn btn-ghost ad-btn" style="font-size:12px;">Soon</button>
+        </div>
+        <div class="ad-card">
+          <div class="ad-thumb" style="background:linear-gradient(135deg,#ede9fe,#ddd6fe);">📥</div>
+          <div class="ad-info">
+            <div class="ad-title">App Install</div>
+            <div class="ad-reward">+$1.20</div>
+            <div class="ad-dur">⏱ ~2 min</div>
+          </div>
+          <button class="btn btn-ghost ad-btn" style="font-size:12px;">Soon</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── INVITE ──────────────────────────────── -->
+  <section class="page" id="page-invite">
+    <div class="sec-title">Invite &amp; Earn</div>
+    <div class="sec-sub">Share your link and earn $0.075 per active referral</div>
+
+    <div class="card" style="background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div>
+          <div style="font-size:13px;opacity:.85;">Your Referrals</div>
+          <div style="font-size:32px;font-weight:900;" id="ref-count">14</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:13px;opacity:.85;">Referral Earnings</div>
+          <div style="font-size:26px;font-weight:900;">$1.05</div>
+        </div>
+      </div>
+      <div style="height:1px;background:rgba(255,255,255,.2);margin-bottom:14px;"></div>
+      <div style="font-size:13px;opacity:.85;">🎯 Earn <strong>$0.075</strong> for every friend who joins and watches their first ad</div>
+    </div>
+
+    <div class="card">
+      <div class="sec-title" style="font-size:16px;">Your Referral Link</div>
+      <div class="ref-link-wrap">
+        <input type="text" id="ref-link-input" value="<input type="text" id="ref-link-input" readonly/>" readonly/>
+        <button class="copy-btn" onclick="copyRef()">📋 Copy</button>
+      </div>
+      <div class="sec-sub" style="font-size:12px;margin:0 0 12px;">Share this link to start earning</div>
+      <div class="share-row">
+        <button class="share-btn sh-tg" onclick="share('Telegram')">✈️ Telegram</button>
+        <button class="share-btn sh-wa" onclick="share('WhatsApp')">💬 WhatsApp</button>
+        <button class="share-btn sh-tw" onclick="share('Twitter')">🐦 Twitter</button>
+        <button class="share-btn sh-fb" onclick="share('Facebook')">👥 Facebook</button>
+        <button class="share-btn sh-me" onclick="share('Messenger')">💌 Messenger</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="sec-title" style="font-size:16px;margin-bottom:12px;">How It Works</div>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div style="display:flex;gap:14px;align-items:start;">
+          <div style="width:32px;height:32px;border-radius:10px;background:var(--green-light);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--green-dark);flex-shrink:0;">1</div>
+          <div><div style="font-weight:700;font-size:14px;">Share Your Link</div><div style="font-size:12px;color:var(--muted);">Share your unique referral link with friends</div></div>
+        </div>
+        <div style="display:flex;gap:14px;align-items:start;">
+          <div style="width:32px;height:32px;border-radius:10px;background:var(--green-light);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--green-dark);flex-shrink:0;">2</div>
+          <div><div style="font-weight:700;font-size:14px;">Friend Joins</div><div style="font-size:12px;color:var(--muted);">They sign up and watch their first ad</div></div>
+        </div>
+        <div style="display:flex;gap:14px;align-items:start;">
+          <div style="width:32px;height:32px;border-radius:10px;background:var(--green-light);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--green-dark);flex-shrink:0;">3</div>
+          <div><div style="font-weight:700;font-size:14px;">You Earn $0.075</div><div style="font-size:12px;color:var(--muted);">Credit added instantly to your balance</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CASH OUT ────────────────────────────── -->
+  <section class="page" id="page-cashout">
+    <div class="sec-title">Cash Out</div>
+    <div class="sec-sub">Withdraw your earnings instantly</div>
+
+    <div class="card">
+      <div style="font-size:14px;font-weight:700;margin-bottom:12px;">Select Payment Method</div>
+      <div class="method-grid">
+        <div class="method sel" onclick="selectMethod(this)">
+          <div class="method-icon">🅿️</div>
+          <div class="method-name">PayPal</div>
+        </div>
+        <div class="method" onclick="selectMethod(this)">
+          <div class="method-icon">₿</div>
+          <div class="method-name">Bitcoin</div>
+        </div>
+        <div class="method" onclick="selectMethod(this)">
+          <div class="method-icon">🔷</div>
+          <div class="method-name">Crypto</div>
+        </div>
+        <div class="method" onclick="selectMethod(this)">
+          <div class="method-icon">🏦</div>
+          <div class="method-name">Paytm</div>
+        </div>
+        <div class="method" onclick="selectMethod(this)">
+          <div class="method-icon">📱</div>
+          <div class="method-name">PhonePe</div>
+        </div>
+        <div class="method" onclick="selectMethod(this)">
+          <div class="method-icon">🏧</div>
+          <div class="method-name">Bank</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="font-size:14px;font-weight:700;margin-bottom:10px;">Withdrawal Amount</div>
+      <input class="amount-input" type="number" placeholder="$0.00" id="withdraw-amount"/>
+      <div class="min-note">Minimum withdrawal: <span>$10.00</span> · Your balance: <span id="co-bal">$3.40</span></div>
+      <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+        <button class="btn btn-ghost" style="padding:8px 14px;font-size:12px;" onclick="setAmount(10)">$10</button>
+        <button class="btn btn-ghost" style="padding:8px 14px;font-size:12px;" onclick="setAmount(25)">$25</button>
+        <button class="btn btn-ghost" style="padding:8px 14px;font-size:12px;" onclick="setAmount(50)">$50</button>
+        <button class="btn btn-ghost" style="padding:8px 14px;font-size:12px;" onclick="setAmountMax()">Max</button>
+      </div>
+      <button class="btn btn-green" style="width:100%;padding:16px;" onclick="submitWithdraw()">
+        💸 &nbsp;Request Withdrawal
+      </button>
+    </div>
+
+    <div class="card">
+      <div style="font-size:14px;font-weight:700;margin-bottom:12px;">Recent Withdrawals</div>
+      <div id="withdraw-history"></div>
+    </div>
+  </section>
+
+  <!-- ── HELP ───────────────────────────────── -->
+  <section class="page" id="page-help">
+    <div class="sec-title">Help &amp; FAQ</div>
+    <div class="sec-sub">Got questions? We've got answers</div>
+
+    <div id="faq-list">
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          How do I earn money on AdWallet?
+          <span class="arrow">▾</span>
+        </div>
+        <div class="faq-a">Earn by watching short video ads (15–45 seconds), completing offers, inviting friends, and claiming your daily bonus. Earnings are credited instantly to your balance.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          What is the minimum withdrawal amount?
+          <span class="arrow">▾</span>
+        </div>
+        <div class="faq-a">The minimum withdrawal is $10.00. Once your balance reaches this threshold, you can cash out via PayPal, Bitcoin, Crypto, Paytm, PhonePe, or bank transfer.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          How does the referral system work?
+          <span class="arrow">▾</span>
+        </div>
+        <div class="faq-a">Share your unique referral link. When a friend signs up and watches their first ad, you instantly earn $0.075. There's no limit to how many friends you can refer!</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          How long does withdrawal take?
+          <span class="arrow">▾</span>
+        </div>
+        <div class="faq-a">Most withdrawals are processed within 24–48 hours. Crypto withdrawals are typically faster (under 1 hour). Bank transfers may take 3–5 business days.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Is AdWallet free to use?
+          <span class="arrow">▾</span>
+        </div>
+        <div class="faq-a">Yes! AdWallet is 100% free. We earn revenue from advertisers and share it directly with our users. No hidden fees, no subscriptions.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Why was my withdrawal rejected?
+          <span class="arrow">▾</span>
+        </div>
+        <div class="faq-a">Withdrawals may be rejected if your balance is below $10, if there's suspicious activity on your account, or if your payment details are incorrect. Contact support for assistance.</div>
+      </div>
+    </div>
+
+    <div class="card" style="text-align:center;margin-top:16px;">
+      <div style="font-size:32px;margin-bottom:10px;">💬</div>
+      <div style="font-size:16px;font-weight:700;margin-bottom:6px;">Still need help?</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:14px;">Our support team is available 24/7</div>
+      <button class="btn btn-green" style="padding:13px 28px;">Contact Support</button>
+    </div>
+  </section>
+
+</main>
+
+<!-- BOTTOM NAV -->
+<nav id="bottom-nav">
+  <div class="nav-item active" onclick="navigate('dashboard',0)" id="nav-0">
+    <span class="nav-icon">🏠</span>
+    <span class="nav-lbl">Home</span>
+  </div>
+  <div class="nav-item" onclick="navigate('ads',1)" id="nav-1">
+    <span class="nav-icon">▶️</span>
+    <span class="nav-lbl">Earn</span>
+  </div>
+  <div class="nav-item" onclick="navigate('offers',2)" id="nav-2">
+    <span class="nav-icon">🎁</span>
+    <span class="nav-lbl">Offers</span>
+  </div>
+  <div class="nav-item" onclick="navigate('invite',3)" id="nav-3">
+    <span class="nav-icon">👥</span>
+    <span class="nav-lbl">Invite</span>
+  </div>
+  <div class="nav-item" onclick="navigate('cashout',4)" id="nav-4">
+    <span class="nav-icon">💸</span>
+    <span class="nav-lbl">Cash</span>
+  </div>
+</nav>
+
+<!-- FAB -->
+<button id="fab" onclick="navigate('ads',1)" title="Earn Now">⚡</button>
+
+<!-- TOAST -->
+<div id="toast"></div>
 
 <script>
-const tg = window.Telegram.WebApp;
-tg.expand();
-
+// ── STATE ────────────────────────────────────────
+let balance = 0;
 const userId = new URLSearchParams(location.search).get('id');
+let currentPage = 'dashboard';
+const pages = ['dashboard','ads','offers','invite','cashout','help'];
+const withdrawHistory = [
+  {user:'Priya S.',amount:'$12.00',method:'PayPal',time:'2h ago'},
+  {user:'Alex M.',amount:'$25.50',method:'Bitcoin',time:'5h ago'},
+  {user:'Sneha K.',amount:'$10.00',method:'Paytm',time:'1d ago'},
+];
 
-// INIT ADSGRAM
-window.onload = () => {
-  if(window.Adsgram){
-    window.Adsgram.init({ blockId: "26225" });
+// ── SIDEBAR ──────────────────────────────────────
+let sidebarOpen = false;
+function toggleSidebar(){
+  sidebarOpen = !sidebarOpen;
+  document.getElementById('sidebar').classList.toggle('open', sidebarOpen);
+  document.getElementById('overlay').classList.toggle('show', sidebarOpen);
+  const ham = document.getElementById('ham');
+  const spans = ham.querySelectorAll('span');
+  if(sidebarOpen){
+    spans[0].style.transform='rotate(45deg) translate(5px,5px)';
+    spans[1].style.opacity='0';
+    spans[2].style.transform='rotate(-45deg) translate(5px,-5px)';
+  } else {
+    spans.forEach(s=>{s.style.transform='';s.style.opacity='';});
   }
-};
-
-// NAV
-function tab(id,el){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav div').forEach(n=>n.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  el.classList.add('active');
 }
 
-// SELECT METHOD
+// ── NAVIGATION ───────────────────────────────────
+function navigate(page, idx, sbItem){
+  // close sidebar
+  if(sidebarOpen) toggleSidebar();
+
+  // hide all pages
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.getElementById('main').scrollTop = 0;
+  currentPage = page;
+
+  // bottom nav
+  document.querySelectorAll('.nav-item').forEach((n,i)=>n.classList.toggle('active', i===idx));
+
+  // sidebar nav
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  if(sbItem) sbItem.classList.add('active');
+  else document.querySelectorAll('.sb-item')[idx].classList.add('active');
+
+  // vibrate
+  if(navigator.vibrate) navigator.vibrate(20);
+}
+
+// ── BALANCE UPDATES ──────────────────────────────
+function updateBalance(delta){
+  balance = Math.max(0, balance + delta);
+  const fmt = balance.toFixed(2);
+  document.getElementById('bal-main').textContent = fmt;
+  document.getElementById('tb-bal').textContent   = fmt;
+  document.getElementById('sb-bal').textContent   = '$'+fmt;
+  document.getElementById('co-bal').textContent   = '$'+fmt;
+  // progress
+  const pct = Math.min(100, (balance/10)*100);
+  document.getElementById('prog-fill').style.width = pct+'%';
+}
+
+// ── DAILY BONUS ──────────────────────────────────
+let bonusClaimed = false;
+function claimBonus(){
+  if(bonusClaimed){ showToast('✅ Already claimed today!'); return; }
+  bonusClaimed = true;
+  updateBalance(0.25);
+  showToast('🎁 +$0.25 Daily Bonus claimed!');
+  if(navigator.vibrate) navigator.vibrate([40,20,40]);
+}
+
+// ── WATCH AD ─────────────────────────────────────
+function earnNow(){
+  watchAd();
+}{ watchAd(null,0.08); navigate('ads',1); }
+async function watchAd(btn){
+  try {
+    await window.Adsgram.show();
+
+    const res = await fetch(`/api/reward?userid=${userId}&key=adwallet7062`);
+    const text = await res.text();
+
+    if(text === "OK"){
+      showToast("🎬 Reward added!");
+      setTimeout(init, 1000);
+    } else {
+      showToast("❌ Reward failed");
+    }
+
+  } catch(e){
+    showToast("❌ Ad failed");
+  }
+}
+
+// ── COPY REFERRAL ─────────────────────────────────
+function copyRef(){
+  const val = document.getElementById('ref-link-input').value;
+  navigator.clipboard?.writeText(val).then(()=>showToast('📋 Link copied!')).catch(()=>showToast('📋 Copy: '+val));
+  if(navigator.vibrate) navigator.vibrate(30);
+}
+
+// ── SHARE ─────────────────────────────────────────
+function share(platform){ showToast('✈️ Sharing via '+platform+'…'); }
+
+// ── SELECT METHOD ─────────────────────────────────
 function selectMethod(el){
   document.querySelectorAll('.method').forEach(m=>m.classList.remove('sel'));
   el.classList.add('sel');
 }
 
-// WATCH AD
-async function watchAd(){
-  try{
-    await window.Adsgram.show();
-    alert("Ad watched!");
-    setTimeout(loadUser,2000);
-  }catch(e){
-    alert("Ad failed ❌");
+// ── WITHDRAW ─────────────────────────────────────
+function setAmount(v){ document.getElementById('withdraw-amount').value = v; }
+function setAmountMax(){ document.getElementById('withdraw-amount').value = balance.toFixed(2); }
+async function submitWithdraw(){
+  const amt = parseFloat(document.getElementById('withdraw-amount').value)||0;
+
+  if(amt < 10){
+    showToast('⚠️ Minimum $10');
+    return;
   }
-}
 
-// LOAD USER
-async function loadUser(){
-  const res = await fetch(`/user/${userId}`);
-  const d = await res.json();
+  if(amt > balance){
+    showToast('⚠️ Insufficient balance');
+    return;
+  }
 
-  balance.innerText = d.balance;
-  tasks.innerText = d.tasks;
-  refs.innerText = d.referralCount || 0;
-}
-
-// REF LINK
-refLink.value = `https://t.me/AdzwalletBot?start=${userId}`;
-
-function copyRef(){
-  navigator.clipboard.writeText(refLink.value);
-  alert("Copied!");
-}
-
-// WITHDRAW
-async function withdraw(){
-  const method = document.querySelector('.method.sel').innerText;
-  const amount = document.getElementById('amount').value;
-  const account = document.getElementById('account').value;
+  const method = document.querySelector('.method.sel .method-name').innerText;
 
   const res = await fetch('/api/withdraw',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({ userId, method, amount, account })
+    body: JSON.stringify({
+      userId,
+      amount: amt,
+      method,
+      account: "user-input"
+    })
   });
 
-  const d = await res.json();
-  alert(d.success ? "Requested!" : d.message);
+  const data = await res.json();
+
+  if(data.success){
+    showToast("✅ Withdraw requested");
+    setTimeout(init, 1000);
+  } else {
+    showToast(data.message);
+  }
 }
 
-loadUser();
-</script>
+// ── FAQ ───────────────────────────────────────────
+function toggleFaq(el){
+  const item = el.parentElement;
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));
+  if(!isOpen) item.classList.add('open');
+}
 
+// ── TOAST ─────────────────────────────────────────
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2400);
+}
+
+// ── WITHDRAWAL HISTORY ────────────────────────────
+function renderHistory(){
+  const container = document.getElementById('withdraw-history');
+  container.innerHTML = withdrawHistory.map(w=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);">
+      <div>
+        <div style="font-size:13px;font-weight:700;">${w.user}</div>
+        <div style="font-size:11px;color:var(--muted);">${w.method} · ${w.time}</div>
+      </div>
+      <div style="font-size:14px;font-weight:800;color:var(--green-dark);">${w.amount}</div>
+    </div>
+  `).join('');
+}
+
+// ── POPUP NOTIFICATIONS ───────────────────────────
+const popupNames = ['@Rahul23','@Priya_S','@Alex_M','@Sneha99','@Vikram_T','@Ananya_R','@David_K','@Meera_B','@John_D','@Fatima_Z','@Carlos_M','@Yuki_T'];
+const popupMethods = ['PayPal','Bitcoin','Paytm','PhonePe','Crypto Wallet','Bank Transfer'];
+const popupAmounts = ['$10.00','$12.50','$25.00','$15.75','$50.00','$100.00','$30.00','$18.25','$42.00','$120.00'];
+const popupTimes = ['just now','2 seconds ago','5 seconds ago','10 seconds ago','a minute ago'];
+
+function createPopup(){
+  const name   = popupNames[Math.floor(Math.random()*popupNames.length)];
+  const method = popupMethods[Math.floor(Math.random()*popupMethods.length)];
+  const amount = popupAmounts[Math.floor(Math.random()*popupAmounts.length)];
+  const time   = popupTimes[Math.floor(Math.random()*popupTimes.length)];
+
+  const el = document.createElement('div');
+  el.className = 'popup';
+  el.innerHTML = `
+    <span class="popup-icon">💰</span>
+    <div class="popup-text">
+      <div class="popup-main">${name} withdrew ${amount}</div>
+      <div class="popup-sub">via ${method} · ${time}</div>
+    </div>
+  `;
+  document.getElementById('popup-container').appendChild(el);
+  requestAnimationFrame(()=>{ requestAnimationFrame(()=>{ el.classList.add('show'); }); });
+  setTimeout(()=>{
+    el.classList.remove('show');
+    setTimeout(()=>el.remove(), 400);
+  }, 3500);
+}
+setInterval(createPopup, 10000);
+setTimeout(createPopup, 2000); // first one early
+
+// ── LIVE STATS UPDATE ─────────────────────────────
+let statsPayouts = 48312;
+let statsUsers   = 12847;
+let statsAds     = 3200000;
+let statsToday   = 2190;
+
+function updateStats(){
+  statsPayouts += Math.floor(Math.random()*8+1);
+  statsUsers   += Math.floor(Math.random()*3);
+  statsAds     += Math.floor(Math.random()*50+10);
+  statsToday   += Math.floor(Math.random()*5+1);
+
+  const p = document.getElementById('stat-payout');
+  const u = document.getElementById('stat-users');
+  const a = document.getElementById('stat-ads');
+  const t = document.getElementById('stat-today');
+
+  if(p) p.textContent = '$'+statsPayouts.toLocaleString();
+  if(u) u.textContent = statsUsers.toLocaleString();
+  if(a) a.textContent = (statsAds/1000000).toFixed(1)+'M';
+  if(t) t.textContent = '$'+statsToday.toLocaleString();
+}
+setInterval(updateStats, 4000);
+
+// ── INIT ──────────────────────────────────────────
+async function init(){
+  renderHistory();
+
+  try {
+    const res = await fetch(`/user/${userId}`);
+    const data = await res.json();
+
+    balance = data.balance || 0;
+
+    updateBalance(0);
+
+    // referral link
+    document.getElementById('ref-link-input').value =
+    `https://t.me/AdzwalletBot?start=${userId}`;
+
+    // referral count
+    document.getElementById('ref-count').innerText =
+    data.referralCount || 0;
+
+  } catch(e){
+    console.log("Init error", e);
+  }
+
+  // Telegram integration
+  if(window.Telegram?.WebApp){
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+
+    const user = tg.initDataUnsafe?.user;
+    if(user){
+      const name = user.first_name || 'User';
+      document.querySelector('.bal-greeting').textContent = '👋 Hi, '+name+'!';
+      document.querySelector('.sb-name').textContent = name;
+    }
+  }
+}
+
+init();
+</script>
 </body>
 </html>
+</parameter>
+</invoke>
