@@ -391,8 +391,6 @@
       0%,100%{transform:scale(1);opacity:1;}
       50%{transform:scale(1.6);opacity:.6;}
     }
-    @keyframes countup{from{transform:translateY(6px);opacity:0;}to{transform:translateY(0);opacity:1;}}
-    .countup{animation:countup .4s ease;}
 
     #toast{
       position:fixed;bottom:calc(var(--nav-h) + 80px);left:50%;
@@ -447,7 +445,6 @@
 <div id="popup-container"></div>
 
 <main id="main">
-
   <section class="page active" id="page-dashboard">
     <div class="balance-card">
       <div class="bal-greeting" id="bal-greeting">👋 Hi, User!</div>
@@ -469,26 +466,10 @@
     </div>
 
     <div class="earn-pills">
-      <div class="pill">
-        <span class="pill-icon">🎬</span>
-        <span class="pill-val">$0.05–$0.10</span>
-        <span class="pill-desc">per ad watched</span>
-      </div>
-      <div class="pill">
-        <span class="pill-icon">👥</span>
-        <span class="pill-val">$0.075</span>
-        <span class="pill-desc">per referral</span>
-      </div>
-      <div class="pill">
-        <span class="pill-icon">✅</span>
-        <span class="pill-val">$0.25</span>
-        <span class="pill-desc">daily bonus</span>
-      </div>
-      <div class="pill">
-        <span class="pill-icon">📦</span>
-        <span class="pill-val">$0.50+</span>
-        <span class="pill-desc">per offer task</span>
-      </div>
+      <div class="pill"><span class="pill-icon">🎬</span><span class="pill-val">$0.05–$0.10</span><span class="pill-desc">per ad watched</span></div>
+      <div class="pill"><span class="pill-icon">👥</span><span class="pill-val">$0.075</span><span class="pill-desc">per referral</span></div>
+      <div class="pill"><span class="pill-icon">✅</span><span class="pill-val">$0.25</span><span class="pill-desc">daily bonus</span></div>
+      <div class="pill"><span class="pill-icon">📦</span><span class="pill-val">$0.50+</span><span class="pill-desc">per offer task</span></div>
     </div>
 
     <div class="card">
@@ -506,22 +487,10 @@
         <span class="sec-title" style="margin:0;font-size:16px;">Live Platform Stats</span>
       </div>
       <div class="stats-grid">
-        <div class="stat-item">
-          <div class="stat-num" id="stat-payout">$48,312</div>
-          <div class="stat-lbl">Total Payouts</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-num" id="stat-users">12,847</div>
-          <div class="stat-lbl">Active Users</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-num" id="stat-ads">3.2M</div>
-          <div class="stat-lbl">Ads Watched</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-num" id="stat-today">$2,190</div>
-          <div class="stat-lbl">Paid Today</div>
-        </div>
+        <div class="stat-item"><div class="stat-num" id="stat-payout">$48,312</div><div class="stat-lbl">Total Payouts</div></div>
+        <div class="stat-item"><div class="stat-num" id="stat-users">12,847</div><div class="stat-lbl">Active Users</div></div>
+        <div class="stat-item"><div class="stat-num" id="stat-ads">3.2M</div><div class="stat-lbl">Ads Watched</div></div>
+        <div class="stat-item"><div class="stat-num" id="stat-today">$2,190</div><div class="stat-lbl">Paid Today</div></div>
       </div>
     </div>
 
@@ -545,57 +514,15 @@
       <div style="font-size:52px;margin-bottom:12px;">🎬</div>
       <div style="font-size:20px;font-weight:800;margin-bottom:6px;">Ready to Earn?</div>
       <div style="font-size:14px;opacity:.7;margin-bottom:20px;">Watch a 15–30s ad and earn instantly</div>
-      <button class="btn btn-green" style="width:100%;padding:16px;font-size:16px;" onclick="earnNow()">
-        ▶️ &nbsp;Earn Now
-      </button>
+      <button class="btn btn-green" style="width:100%;padding:16px;font-size:16px;" onclick="earnNow()">▶️ &nbsp;Earn Now</button>
     </div>
 
     <div class="ads-grid">
-      <div class="ad-card">
-        <div class="ad-thumb">📱</div>
-        <div class="ad-info">
-          <div class="ad-title">Mobile App Promo</div>
-          <div class="ad-reward">+$0.08</div>
-          <div class="ad-dur">⏱ 30 seconds</div>
-        </div>
-        <button class="btn btn-green ad-btn" onclick="watchAd(this)">Watch</button>
-      </div>
-      <div class="ad-card">
-        <div class="ad-thumb">🛒</div>
-        <div class="ad-info">
-          <div class="ad-title">E-Commerce Ad</div>
-          <div class="ad-reward">+$0.06</div>
-          <div class="ad-dur">⏱ 15 seconds</div>
-        </div>
-        <button class="btn btn-green ad-btn" onclick="watchAd(this)">Watch</button>
-      </div>
-      <div class="ad-card">
-        <div class="ad-thumb">🎮</div>
-        <div class="ad-info">
-          <div class="ad-title">Game Ad Sponsor</div>
-          <div class="ad-reward">+$0.10</div>
-          <div class="ad-dur">⏱ 45 seconds</div>
-        </div>
-        <button class="btn btn-green ad-btn" onclick="watchAd(this)">Watch</button>
-      </div>
-      <div class="ad-card">
-        <div class="ad-thumb">💊</div>
-        <div class="ad-info">
-          <div class="ad-title">Health &amp; Wellness</div>
-          <div class="ad-reward">+$0.07</div>
-          <div class="ad-dur">⏱ 20 seconds</div>
-        </div>
-        <button class="btn btn-green ad-btn" onclick="watchAd(this)">Watch</button>
-      </div>
-      <div class="ad-card">
-        <div class="ad-thumb">✈️</div>
-        <div class="ad-info">
-          <div class="ad-title">Travel Deals</div>
-          <div class="ad-reward">+$0.09</div>
-          <div class="ad-dur">⏱ 25 seconds</div>
-        </div>
-        <button class="btn btn-green ad-btn" onclick="watchAd(this)">Watch</button>
-      </div>
+      <div class="ad-card"><div class="ad-thumb">📱</div><div class="ad-info"><div class="ad-title">Mobile App Promo</div><div class="ad-reward">+$0.08</div><div class="ad-dur">⏱ 30 seconds</div></div><button class="btn btn-green ad-btn" onclick="watchAd(this)">Watch</button></div>
+      <div class="ad-card"><div class="ad-thumb">🛒</div><div class="ad-info"><div class="ad-title">E-Commerce Ad</div><div class="ad-reward">+$0.06</div><div class="ad-dur">⏱ 15 seconds</div></div><button class="btn btn-green ad-btn" onclick="watchAd(this)">Watch</button></div>
+      <div class="ad-card"><div class="ad-thumb">🎮</div><div class="ad-info"><div class="ad-title">Game Ad Sponsor</div><div class="ad-reward">+$0.10</div><div class="ad-dur">⏱ 45 seconds</div></div><button class="btn btn-green ad-btn" onclick="watchAd(this)">Watch</button></div>
+      <div class="ad-card"><div class="ad-thumb">💊</div><div class="ad-info"><div class="ad-title">Health &amp; Wellness</div><div class="ad-reward">+$0.07</div><div class="ad-dur">⏱ 20 seconds</div></div><button class="btn btn-green ad-btn" onclick="watchAd(this)">Watch</button></div>
+      <div class="ad-card"><div class="ad-thumb">✈️</div><div class="ad-info"><div class="ad-title">Travel Deals</div><div class="ad-reward">+$0.09</div><div class="ad-dur">⏱ 25 seconds</div></div><button class="btn btn-green ad-btn" onclick="watchAd(this)">Watch</button></div>
     </div>
   </section>
 
@@ -615,20 +542,12 @@
       <div class="ads-grid">
         <div class="ad-card">
           <div class="ad-thumb" style="background:linear-gradient(135deg,#fef3c7,#fde68a);">📋</div>
-          <div class="ad-info">
-            <div class="ad-title">Survey Task</div>
-            <div class="ad-reward">+$0.50</div>
-            <div class="ad-dur">⏱ ~5 min</div>
-          </div>
+          <div class="ad-info"><div class="ad-title">Survey Task</div><div class="ad-reward">+$0.50</div><div class="ad-dur">⏱ ~5 min</div></div>
           <button class="btn btn-ghost ad-btn" style="font-size:12px;">Soon</button>
         </div>
         <div class="ad-card">
           <div class="ad-thumb" style="background:linear-gradient(135deg,#ede9fe,#ddd6fe);">📥</div>
-          <div class="ad-info">
-            <div class="ad-title">App Install</div>
-            <div class="ad-reward">+$1.20</div>
-            <div class="ad-dur">⏱ ~2 min</div>
-          </div>
+          <div class="ad-info"><div class="ad-title">App Install</div><div class="ad-reward">+$1.20</div><div class="ad-dur">⏱ ~2 min</div></div>
           <button class="btn btn-ghost ad-btn" style="font-size:12px;">Soon</button>
         </div>
       </div>
@@ -657,7 +576,7 @@
     <div class="card">
       <div class="sec-title" style="font-size:16px;">Your Referral Link</div>
       <div class="ref-link-wrap">
-        <input type="text" id="ref-link-input" readonly />
+        <input type="text" id="ref-link-input" readonly placeholder="Referral link will appear here" />
         <button class="copy-btn" onclick="copyRef()">📋 Copy</button>
       </div>
       <div class="sec-sub" style="font-size:12px;margin:0 0 12px;">Share this link to start earning</div>
@@ -696,30 +615,14 @@
     <div class="card">
       <div style="font-size:14px;font-weight:700;margin-bottom:12px;">Select Payment Method</div>
       <div class="method-grid" id="method-grid">
-        <div class="method sel" data-method="PayPal" onclick="selectMethod(this)">
-          <div class="method-icon">🅿️</div><div class="method-name">PayPal</div>
-        </div>
-        <div class="method" data-method="Bitcoin" onclick="selectMethod(this)">
-          <div class="method-icon">₿</div><div class="method-name">Bitcoin</div>
-        </div>
-        <div class="method" data-method="Crypto" onclick="selectMethod(this)">
-          <div class="method-icon">🔷</div><div class="method-name">Crypto</div>
-        </div>
-        <div class="method" data-method="Paytm" onclick="selectMethod(this)">
-          <div class="method-icon">🏦</div><div class="method-name">Paytm</div>
-        </div>
-        <div class="method" data-method="PhonePe" onclick="selectMethod(this)">
-          <div class="method-icon">📱</div><div class="method-name">PhonePe</div>
-        </div>
-        <div class="method" data-method="Bank" onclick="selectMethod(this)">
-          <div class="method-icon">🏧</div><div class="method-name">Bank</div>
-        </div>
-        <div class="method" data-method="Telegram Wallet" onclick="selectMethod(this)">
-          <div class="method-icon">💬</div><div class="method-name">Telegram Wallet</div>
-        </div>
-        <div class="method" data-method="Telegram Stars" onclick="selectMethod(this)">
-          <div class="method-icon">⭐</div><div class="method-name">Telegram Stars</div>
-        </div>
+        <div class="method sel" data-method="PayPal" onclick="selectMethod(this)"><div class="method-icon">🅿️</div><div class="method-name">PayPal</div></div>
+        <div class="method" data-method="Bitcoin" onclick="selectMethod(this)"><div class="method-icon">₿</div><div class="method-name">Bitcoin</div></div>
+        <div class="method" data-method="Crypto" onclick="selectMethod(this)"><div class="method-icon">🔷</div><div class="method-name">Crypto</div></div>
+        <div class="method" data-method="Paytm" onclick="selectMethod(this)"><div class="method-icon">🏦</div><div class="method-name">Paytm</div></div>
+        <div class="method" data-method="PhonePe" onclick="selectMethod(this)"><div class="method-icon">📱</div><div class="method-name">PhonePe</div></div>
+        <div class="method" data-method="Bank" onclick="selectMethod(this)"><div class="method-icon">🏧</div><div class="method-name">Bank</div></div>
+        <div class="method" data-method="Telegram Wallet" onclick="selectMethod(this)"><div class="method-icon">💬</div><div class="method-name">Telegram Wallet</div></div>
+        <div class="method" data-method="Telegram Stars" onclick="selectMethod(this)"><div class="method-icon">⭐</div><div class="method-name">Telegram Stars</div></div>
       </div>
 
       <div id="method-fields-paypal" class="method-fields active">
@@ -770,9 +673,7 @@
         <button class="btn btn-ghost" style="padding:8px 14px;font-size:12px;" onclick="setAmount(50)">$50</button>
         <button class="btn btn-ghost" style="padding:8px 14px;font-size:12px;" onclick="setAmountMax()">Max</button>
       </div>
-      <button class="btn btn-green" style="width:100%;padding:16px;" onclick="submitWithdraw()">
-        💸 &nbsp;Request Withdrawal
-      </button>
+      <button class="btn btn-green" style="width:100%;padding:16px;" onclick="submitWithdraw()">💸 &nbsp;Request Withdrawal</button>
     </div>
 
     <div class="card">
@@ -787,38 +688,23 @@
 
     <div id="faq-list">
       <div class="faq-item">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          How do I earn money on AdWallet?
-          <span class="arrow">▾</span>
-        </div>
+        <div class="faq-q" onclick="toggleFaq(this)">How do I earn money on AdWallet?<span class="arrow">▾</span></div>
         <div class="faq-a">Earn by watching short video ads, completing offers, inviting friends, and claiming your daily bonus. Earnings are credited instantly to your balance.</div>
       </div>
       <div class="faq-item">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          What is the minimum withdrawal amount?
-          <span class="arrow">▾</span>
-        </div>
+        <div class="faq-q" onclick="toggleFaq(this)">What is the minimum withdrawal amount?<span class="arrow">▾</span></div>
         <div class="faq-a">The minimum withdrawal is $10.00. Once your balance reaches this threshold, you can cash out via PayPal, Bitcoin, Crypto, Paytm, PhonePe, Telegram Wallet, Telegram Stars, or bank transfer.</div>
       </div>
       <div class="faq-item">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          How does the referral system work?
-          <span class="arrow">▾</span>
-        </div>
+        <div class="faq-q" onclick="toggleFaq(this)">How does the referral system work?<span class="arrow">▾</span></div>
         <div class="faq-a">Share your unique referral link. When a friend signs up and watches their first ad, you instantly earn $0.075. There's no limit to how many friends you can refer.</div>
       </div>
       <div class="faq-item">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          How long does withdrawal take?
-          <span class="arrow">▾</span>
-        </div>
+        <div class="faq-q" onclick="toggleFaq(this)">How long does withdrawal take?<span class="arrow">▾</span></div>
         <div class="faq-a">Most withdrawals are processed within 24–48 hours. Crypto withdrawals are typically faster. Bank transfers may take longer depending on the payment route.</div>
       </div>
       <div class="faq-item">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          Is AdWallet free to use?
-          <span class="arrow">▾</span>
-        </div>
+        <div class="faq-q" onclick="toggleFaq(this)">Is AdWallet free to use?<span class="arrow">▾</span></div>
         <div class="faq-a">Yes. AdWallet is free to use. We earn revenue from advertisers and share it directly with users.</div>
       </div>
     </div>
@@ -830,30 +716,14 @@
       <button class="btn btn-green" style="padding:13px 28px;">Contact Support</button>
     </div>
   </section>
-
 </main>
 
 <nav id="bottom-nav">
-  <div class="nav-item active" onclick="navigate('dashboard',0)" id="nav-0">
-    <span class="nav-icon">🏠</span>
-    <span class="nav-lbl">Home</span>
-  </div>
-  <div class="nav-item" onclick="navigate('ads',1)" id="nav-1">
-    <span class="nav-icon">▶️</span>
-    <span class="nav-lbl">Earn</span>
-  </div>
-  <div class="nav-item" onclick="navigate('offers',2)" id="nav-2">
-    <span class="nav-icon">🎁</span>
-    <span class="nav-lbl">Offers</span>
-  </div>
-  <div class="nav-item" onclick="navigate('invite',3)" id="nav-3">
-    <span class="nav-icon">👥</span>
-    <span class="nav-lbl">Invite</span>
-  </div>
-  <div class="nav-item" onclick="navigate('cashout',4)" id="nav-4">
-    <span class="nav-icon">💸</span>
-    <span class="nav-lbl">Cash</span>
-  </div>
+  <div class="nav-item active" onclick="navigate('dashboard',0)" id="nav-0"><span class="nav-icon">🏠</span><span class="nav-lbl">Home</span></div>
+  <div class="nav-item" onclick="navigate('ads',1)" id="nav-1"><span class="nav-icon">▶️</span><span class="nav-lbl">Earn</span></div>
+  <div class="nav-item" onclick="navigate('offers',2)" id="nav-2"><span class="nav-icon">🎁</span><span class="nav-lbl">Offers</span></div>
+  <div class="nav-item" onclick="navigate('invite',3)" id="nav-3"><span class="nav-icon">👥</span><span class="nav-lbl">Invite</span></div>
+  <div class="nav-item" onclick="navigate('cashout',4)" id="nav-4"><span class="nav-icon">💸</span><span class="nav-lbl">Cash</span></div>
 </nav>
 
 <button id="fab" onclick="navigate('ads',1)" title="Earn Now">⚡</button>
@@ -865,19 +735,23 @@ let referralCount = 0;
 let referralEarnings = 0;
 let sidebarOpen = false;
 let bonusClaimed = false;
-const userId = new URLSearchParams(location.search).get('id') || '';
-const ADS_BLOCK_ID = '26225';
+let userId = '';
+let adInstance = null;
 
-const withdrawHistory = [
-  {user:'Priya S.',amount:'$12.00',method:'PayPal',time:'2h ago'},
-  {user:'Alex M.',amount:'$25.50',method:'Bitcoin',time:'5h ago'},
-  {user:'Sneha K.',amount:'$10.00',method:'Paytm',time:'1d ago'},
-];
+const withdrawHistory = [];
 
 const popupNames = ['@Rahul23','@Priya_S','@Alex_M','@Sneha99','@Vikram_T','@Ananya_R','@David_K','@Meera_B','@John_D','@Fatima_Z','@Carlos_M','@Yuki_T'];
 const popupMethods = ['PayPal','Bitcoin','Paytm','PhonePe','Crypto Wallet','Bank Transfer'];
 const popupAmounts = ['$10.00','$12.50','$25.00','$15.75','$50.00','$100.00','$30.00','$18.25','$42.00','$120.00'];
 const popupTimes = ['just now','2 seconds ago','5 seconds ago','10 seconds ago','a minute ago'];
+
+function getTelegramUserId() {
+  const urlId = new URLSearchParams(location.search).get('id');
+  if (urlId) return String(urlId);
+  const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+  if (tgUser?.id) return String(tgUser.id);
+  return '';
+}
 
 function toggleSidebar(){
   sidebarOpen = !sidebarOpen;
@@ -913,9 +787,9 @@ function updateBalance(delta){
   document.getElementById('tb-bal').textContent = fmt;
   document.getElementById('sb-bal').textContent = '$' + fmt;
   document.getElementById('co-bal').textContent = '$' + fmt;
+  document.getElementById('progress-text').textContent = `$${fmt} / $10.00`;
   const pct = Math.min(100, (balance / 10) * 100);
   document.getElementById('prog-fill').style.width = pct + '%';
-  document.getElementById('progress-text').textContent = `$${fmt} / $10.00`;
 }
 
 function claimBonus(){
@@ -938,6 +812,10 @@ function showToast(msg){
 
 function copyRef(){
   const val = document.getElementById('ref-link-input').value;
+  if(!val){
+    showToast('Referral link not ready yet');
+    return;
+  }
   if(navigator.clipboard?.writeText){
     navigator.clipboard.writeText(val).then(()=>showToast('📋 Link copied!')).catch(()=>showToast('📋 Copy failed'));
   } else {
@@ -948,10 +826,13 @@ function copyRef(){
 
 function share(platform){
   const link = document.getElementById('ref-link-input').value;
+  if(!link){
+    showToast('Referral link not ready yet');
+    return;
+  }
   const text = encodeURIComponent(`Join AdWallet and earn money!\n${link}`);
   const url = encodeURIComponent(link);
-  const shareUrl = `https://t.me/share/url?url=${url}&text=${text}`;
-  window.open(shareUrl, '_blank');
+  window.open(`https://t.me/share/url?url=${url}&text=${text}`, '_blank');
   showToast('✈️ Sharing via ' + platform + '…');
 }
 
@@ -973,15 +854,15 @@ function selectMethod(el){
   }
 }
 
-function setAmount(v){
-  document.getElementById('withdraw-amount').value = v;
-}
-function setAmountMax(){
-  document.getElementById('withdraw-amount').value = balance.toFixed(2);
-}
+function setAmount(v){ document.getElementById('withdraw-amount').value = v; }
+function setAmountMax(){ document.getElementById('withdraw-amount').value = balance.toFixed(2); }
 
 function renderHistory(){
   const container = document.getElementById('withdraw-history');
+  if(!withdrawHistory.length){
+    container.innerHTML = '<div style="color:var(--muted);font-size:13px;">No withdrawals yet.</div>';
+    return;
+  }
   container.innerHTML = withdrawHistory.map(w=>`
     <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);">
       <div>
@@ -1014,6 +895,7 @@ function createPopup(){
     setTimeout(()=>el.remove(), 400);
   }, 3500);
 }
+
 setInterval(createPopup, 10000);
 setTimeout(createPopup, 2000);
 
@@ -1040,17 +922,29 @@ function updateStats(){
 }
 setInterval(updateStats, 4000);
 
+async function setReferralLink(){
+  const input = document.getElementById('ref-link-input');
+  if(!input) return;
+
+  if(userId){
+    input.value = `https://t.me/AdzwalletBot?start=${encodeURIComponent(userId)}`;
+    input.placeholder = '';
+  } else {
+    input.value = '';
+    input.placeholder = 'Open from Telegram bot';
+  }
+}
+
 async function loadUser(){
   try{
     if(!userId) return;
+
     const res = await fetch(`/user/${encodeURIComponent(userId)}`);
     const data = await res.json();
 
     balance = Number(data.balance || 0);
     referralCount = Number(data.referralCount || 0);
-    referralEarnings = Number(
-      data.referralEarnings ?? (referralCount * 0.075)
-    );
+    referralEarnings = Number(data.referralEarnings || 0);
 
     updateBalance(0);
     document.getElementById('ref-count').textContent = referralCount;
@@ -1060,8 +954,6 @@ async function loadUser(){
     const name = tgUser?.first_name || data.username || 'User';
     document.getElementById('bal-greeting').textContent = `👋 Hi, ${name}!`;
     document.getElementById('sb-name').textContent = name;
-
-    document.getElementById('ref-link-input').value = `https://t.me/AdzwalletBot?start=${encodeURIComponent(userId)}`;
   } catch(e){
     console.log('loadUser error', e);
   }
@@ -1070,7 +962,7 @@ async function loadUser(){
 function initAds(){
   try{
     if(window.Adsgram && typeof window.Adsgram.init === 'function'){
-      window.Adsgram.init({ blockId: ADS_BLOCK_ID });
+      adInstance = window.Adsgram.init({ blockId: '26225' });
     }
   } catch(e){
     console.log('Ads init failed', e);
@@ -1078,6 +970,9 @@ function initAds(){
 }
 
 async function showRewardedAd(){
+  if(adInstance && typeof adInstance.show === 'function'){
+    return adInstance.show();
+  }
   if(window.Adsgram && typeof window.Adsgram.show === 'function'){
     return window.Adsgram.show();
   }
@@ -1134,53 +1029,59 @@ async function submitWithdraw(){
 
   const methodEl = document.querySelector('.method.sel');
   const method = methodEl ? methodEl.dataset.method : 'PayPal';
-  const payload = { userId, amount: amt, method, details: {} };
+  const details = {};
 
   if(method === 'PayPal'){
     const email = document.getElementById('paypal-email').value.trim();
     if(!email){ showToast('⚠️ Enter PayPal email'); return; }
-    payload.details.paypalEmail = email;
+    details.paypalEmail = email;
   } else if(method === 'Bitcoin'){
     const wallet = document.getElementById('bitcoin-address').value.trim();
     if(!wallet){ showToast('⚠️ Enter Bitcoin wallet address'); return; }
-    payload.details.bitcoinAddress = wallet;
+    details.bitcoinAddress = wallet;
   } else if(method === 'Crypto'){
     const name = document.getElementById('crypto-name').value.trim();
     const wallet = document.getElementById('crypto-wallet').value.trim();
     if(!name || !wallet){ showToast('⚠️ Enter crypto name and wallet'); return; }
-    payload.details.cryptoName = name;
-    payload.details.cryptoWallet = wallet;
+    details.cryptoName = name;
+    details.cryptoWallet = wallet;
   } else if(method === 'Paytm'){
     const number = document.getElementById('paytm-number').value.trim();
     if(!number){ showToast('⚠️ Enter Paytm number'); return; }
-    payload.details.paytmNumber = number;
+    details.paytmNumber = number;
   } else if(method === 'PhonePe'){
     const number = document.getElementById('phonepe-number').value.trim();
     if(!number){ showToast('⚠️ Enter PhonePe number'); return; }
-    payload.details.phonepeNumber = number;
+    details.phonepeNumber = number;
   } else if(method === 'Bank'){
     const account = document.getElementById('bank-account').value.trim();
     const ifsc = document.getElementById('bank-ifsc').value.trim();
     const bankName = document.getElementById('bank-name').value.trim();
     if(!account || !ifsc || !bankName){ showToast('⚠️ Complete bank details'); return; }
-    payload.details.bankAccount = account;
-    payload.details.bankIFSC = ifsc;
-    payload.details.bankName = bankName;
+    details.bankAccount = account;
+    details.bankIFSC = ifsc;
+    details.bankName = bankName;
   } else if(method === 'Telegram Wallet'){
     const wallet = document.getElementById('telegram-wallet').value.trim();
     if(!wallet){ showToast('⚠️ Enter Telegram wallet ID'); return; }
-    payload.details.telegramWallet = wallet;
+    details.telegramWallet = wallet;
   } else if(method === 'Telegram Stars'){
     const stars = document.getElementById('telegram-stars').value.trim();
     if(!stars){ showToast('⚠️ Enter Telegram Stars ID'); return; }
-    payload.details.telegramStars = stars;
+    details.telegramStars = stars;
   }
 
   try{
     const res = await fetch('/api/withdraw', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify(payload)
+      body: JSON.stringify({
+        userId,
+        amount: amt,
+        method,
+        account: '',
+        details
+      })
     });
 
     const data = await res.json();
@@ -1207,21 +1108,20 @@ function toggleFaq(el){
 (function init(){
   renderHistory();
   initAds();
-  updateBalance(0);
 
   if(window.Telegram?.WebApp){
     const tg = window.Telegram.WebApp;
     tg.ready();
     tg.expand();
-    try{
-      tg.setHeaderColor('#ffffff');
-    } catch(e) {}
+    try{ tg.setHeaderColor('#ffffff'); } catch(e){}
   }
 
+  userId = getTelegramUserId();
+  setReferralLink();
   loadUser();
 
   if(!userId){
-    document.getElementById('ref-link-input').value = 'Open inside Telegram';
+    setReferralLink();
   }
 })();
 </script>
