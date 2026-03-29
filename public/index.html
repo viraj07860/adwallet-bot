@@ -745,10 +745,10 @@ let adInstance = null;
 
 const withdrawHistory = [];
 
-const popupNames = ['@Rahul23','@Priya_S','@Alex_M','@Sneha99','@Vikram_T','@Ananya_R','@David_K','@Meera_B','@John_D','@Fatima_Z','@Carlos_M','@Yuki_T'];
+const popupNames = ['Rahul23','Priya_S','Alex_M','Sneha99','Vikram_T','Ananya_R','David_K','Meera_B','@John_D','@Fatima_Z','@Carlos_M','@Yuki_T'];
 const popupMethods = ['PayPal','Bitcoin','Paytm','PhonePe','Crypto Wallet','Bank Transfer'];
 const popupAmounts = ['$100.00','$120.50','$250.00','$105.75','$500.00','$100.00','$300.00','$108.25','$402.00','$120.00'];
-const popupTimes = ['just now','2 seconds ago','5 seconds ago','10 seconds ago','a minute ago'];
+const popupTimes = ['just now','2 seconds ago','5 seconds ago','10 seconds ago','a minute ag'Ryan_K','Noah_P','Ethan_J','Liam_T','Lucas_M','Mason_D','Logan_S','Oliver_B','Elijah_R','James_W','Benjamin_H','Jacob_L','Michael_C','Daniel_A','Henry_E','Jackson_G','Sebastian_F','Aiden_V','Matthew_I','Samuel_O','David_U','Joseph_Y','Carter_Z','Wyatt_N','John_X','Owen_Q','Dylan_K','Luke_P','Gabriel_J','Anthony_T','Isaac_M','Grayson_D','Jack_S','Julian_B','Levi_R','Christopher_W','Joshua_H','Andrew_L','Lincoln_C','Mateo_A','Ryan_E','Nathan_G','Adrian_F','Thomas_V','Charles_I','Caleb_O','Christian_U','Hunter_Y','Eli_Z','Jonathan_N','Connor_X','Aaron_Q','Angel_K','Roman_P','Easton_J','Miles_T','Robert_M','Jameson_D','Nolan_S','Greyson_B','Cooper_R','Ian_W','Carson_H','Jaxon_L','Leonardo_C','Nicholas_A','Dominic_E','Austin_G','Everett_F','Brooks_V','Xavier_I','Kai_O','Jose_U','Parker_Y','Adam_Z','Jace_N','Wesley_X','Kayden_Q','Silas_K','Bennett_P','Declan_J','Waylon_T','Weston_M','Evan_D','Emmett_S','Harrison_B','Bryson_R','Kingston_W','Cole_H','Diego_L','Luis_C','Brayden_A','Gavin_E','Max_G','Victor_F','Ryder_V','Asher_I','Theo_O','Zachary_U','George_Y'o'];
 
 function getTelegramUserId() {
   const urlId = new URLSearchParams(location.search).get('id');
@@ -908,7 +908,7 @@ function createPopup(){
   el.innerHTML = `
     <span class="popup-icon">💰</span>
     <div class="popup-text">
-      <div class="popup-main">${name} withdrew ${amount}</div>
+      <div class="popup-main">${name} withdraw ${amount}</div>
       <div class="popup-sub">via ${method} · ${time}</div>
     </div>
   `;
