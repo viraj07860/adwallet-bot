@@ -724,6 +724,7 @@
   <div class="nav-item" onclick="navigate('offers',2)" id="nav-2"><span class="nav-icon">🎁</span><span class="nav-lbl">Offers</span></div>
   <div class="nav-item" onclick="navigate('invite',3)" id="nav-3"><span class="nav-icon">👥</span><span class="nav-lbl">Invite</span></div>
   <div class="nav-item" onclick="navigate('cashout',4)" id="nav-4"><span class="nav-icon">💸</span><span class="nav-lbl">Cash</span></div>
+  <div class="nav-item" onclick="navigate('vip',5)" id="nav-5"><span class="nav-icon">💎<span><span class="nav-lbl">VIP</span></div>
 </nav>
 
 <button id="fab" onclick="navigate('ads',1)" title="Earn Now">⚡</button>
@@ -1112,6 +1113,25 @@ function toggleFaq(el){
   const isOpen = item.classList.contains('open');
   document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));
   if(!isOpen) item.classList.add('open');
+}
+
+function buyVipStars(plan, price) {
+  showToast(`${plan} selected for ${price} Stars`);
+
+  if (window.Telegram?.WebApp) {
+    window.Telegram.WebApp.openTelegramLink('https://t.me/adwalletagent');
+  } else {
+    window.open('https://t.me/adwalletagent', '_blank');
+  }
+}
+
+function buyVipCrypto(plan, price) {
+  const msg = encodeURIComponent(`Hi, I want to buy ${plan} VIP plan for $${price} using crypto.`);
+  if (window.Telegram?.WebApp) {
+    window.Telegram.WebApp.openTelegramLink(`https://t.me/adwalletagent?text=${msg}`);
+  } else {
+    window.open(`https://t.me/adwalletagent?text=${msg}`, '_blank');
+  }
 }
 
 (function init(){
