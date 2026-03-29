@@ -453,15 +453,15 @@
       <div class="progress-wrap">
         <div class="progress-label">
           <span>Earning Progress</span>
-          <span id="progress-text">$0.00 / $10.00</span>
+          <span id="progress-text">$0.00 / $100.00</span>
         </div>
         <div class="progress-bar">
           <div class="progress-fill" id="prog-fill"></div>
         </div>
       </div>
       <div class="bal-actions">
-        <button class="btn btn-white" onclick="navigate('cashout',4)">💸 Cash Out</button>
-        <button class="btn btn-outline" onclick="claimBonus()">🎁 Daily Bonus</button>
+  <button class="btn btn-white" onclick="goCashout()">💸 Cash Out</button>
+  <button class="btn btn-outline" onclick="claimBonus()">🎁 Daily Bonus</button>
       </div>
     </div>
 
@@ -666,11 +666,11 @@
     <div class="card">
       <div style="font-size:14px;font-weight:700;margin-bottom:10px;">Withdrawal Amount</div>
       <input class="amount-input" type="number" placeholder="$0.00" id="withdraw-amount" />
-      <div class="min-note">Minimum withdrawal: <span>$10.00</span> · Your balance: <span id="co-bal">$0.00</span></div>
+      <div class="min-note">Minimum withdrawal: <span>$100.00</span> · Your balance: <span id="co-bal">$0.00</span></div>
       <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
-        <button class="btn btn-ghost" style="padding:8px 14px;font-size:12px;" onclick="setAmount(10)">$10</button>
-        <button class="btn btn-ghost" style="padding:8px 14px;font-size:12px;" onclick="setAmount(25)">$25</button>
-        <button class="btn btn-ghost" style="padding:8px 14px;font-size:12px;" onclick="setAmount(50)">$50</button>
+        <button class="btn btn-ghost" style="padding:8px 14px;font-size:12px;" onclick="setAmount(100)">$100</button>
+        <button class="btn btn-ghost" style="padding:8px 14px;font-size:12px;" onclick="setAmount(250)">$250</button>
+        <button class="btn btn-ghost" style="padding:8px 14px;font-size:12px;" onclick="setAmount(500)">$500</button>
         <button class="btn btn-ghost" style="padding:8px 14px;font-size:12px;" onclick="setAmountMax()">Max</button>
       </div>
       <button class="btn btn-green" style="width:100%;padding:16px;" onclick="submitWithdraw()">💸 &nbsp;Request Withdrawal</button>
@@ -693,7 +693,7 @@
       </div>
       <div class="faq-item">
         <div class="faq-q" onclick="toggleFaq(this)">What is the minimum withdrawal amount?<span class="arrow">▾</span></div>
-        <div class="faq-a">The minimum withdrawal is $10.00. Once your balance reaches this threshold, you can cash out via PayPal, Bitcoin, Crypto, Paytm, PhonePe, Telegram Wallet, Telegram Stars, or bank transfer.</div>
+        <div class="faq-a">The minimum withdrawal is $100.00. Once your balance reaches this threshold, you can cash out via PayPal, Bitcoin, Crypto, Paytm, PhonePe, Telegram Wallet, Telegram Stars, or bank transfer.</div>
       </div>
       <div class="faq-item">
         <div class="faq-q" onclick="toggleFaq(this)">How does the referral system work?<span class="arrow">▾</span></div>
@@ -730,6 +730,11 @@
 <div id="toast"></div>
 
 <script>
+
+function goCashout() {
+  navigate('cashout', 4);
+}
+
 let balance = 0;
 let referralCount = 0;
 let referralEarnings = 0;
@@ -742,7 +747,7 @@ const withdrawHistory = [];
 
 const popupNames = ['@Rahul23','@Priya_S','@Alex_M','@Sneha99','@Vikram_T','@Ananya_R','@David_K','@Meera_B','@John_D','@Fatima_Z','@Carlos_M','@Yuki_T'];
 const popupMethods = ['PayPal','Bitcoin','Paytm','PhonePe','Crypto Wallet','Bank Transfer'];
-const popupAmounts = ['$10.00','$12.50','$25.00','$15.75','$50.00','$100.00','$30.00','$18.25','$42.00','$120.00'];
+const popupAmounts = ['$100.00','$120.50','$250.00','$105.75','$500.00','$100.00','$300.00','$108.25','$402.00','$120.00'];
 const popupTimes = ['just now','2 seconds ago','5 seconds ago','10 seconds ago','a minute ago'];
 
 function getTelegramUserId() {
@@ -770,13 +775,32 @@ function toggleSidebar(){
 
 function navigate(page, idx, sbItem){
   if(sidebarOpen) toggleSidebar();
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById('page-'+page).classList.add('active');
+
+  // switch page
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+
+  const target = document.getElementById('page-' + page);
+  if(target) target.classList.add('active');
+
+  // scroll reset
   document.getElementById('main').scrollTop = 0;
-  document.querySelectorAll('.nav-item').forEach((n,i)=>n.classList.toggle('active', i===idx));
-  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
-  if(sbItem) sbItem.classList.add('active');
-  else document.querySelectorAll('.sb-item')[idx].classList.add('active');
+
+  // bottom nav active
+  document.querySelectorAll('.nav-item').forEach((n,i)=>{
+    n.classList.toggle('active', i === idx);
+  });
+
+  // sidebar active (SAFE FIX)
+  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
+
+  if(sbItem){
+    sbItem.classList.add('active');
+  } else {
+    const sbItems = document.querySelectorAll('.sb-item');
+    if(sbItems[idx]) sbItems[idx].classList.add('active');
+  }
+
+  // vibration
   if(navigator.vibrate) navigator.vibrate(20);
 }
 
@@ -787,8 +811,8 @@ function updateBalance(delta){
   document.getElementById('tb-bal').textContent = fmt;
   document.getElementById('sb-bal').textContent = '$' + fmt;
   document.getElementById('co-bal').textContent = '$' + fmt;
-  document.getElementById('progress-text').textContent = `$${fmt} / $10.00`;
-  const pct = Math.min(100, (balance / 10) * 100);
+  document.getElementById('progress-text').textContent = `$${fmt} / $100.00`;
+  const pct = Math.min(100, (balance / 100) * 100);
   document.getElementById('prog-fill').style.width = pct + '%';
 }
 
@@ -1018,8 +1042,8 @@ function earnNow(){
 async function submitWithdraw(){
   const amt = parseFloat(document.getElementById('withdraw-amount').value) || 0;
 
-  if(amt < 10){
-    showToast('⚠️ Minimum $10');
+  if(amt < 100){
+    showToast('⚠️ Minimum $100');
     return;
   }
   if(amt > balance){
