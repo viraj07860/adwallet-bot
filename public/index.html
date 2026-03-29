@@ -730,11 +730,6 @@
 <div id="toast"></div>
 
 <script>
-
-function goCashout() {
-  navigate('cashout', 4);
-}
-
 let balance = 0;
 let referralCount = 0;
 let referralEarnings = 0;
@@ -792,34 +787,6 @@ function navigate(page, idx, sbItem){
   const sbItems = document.querySelectorAll('.sb-item');
   if(sbItem) sbItem.classList.add('active');
   else if(sbItems[idx]) sbItems[idx].classList.add('active');
-}
-
-  // switch page
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-
-  const target = document.getElementById('page-' + page);
-  if(target) target.classList.add('active');
-
-  // scroll reset
-  document.getElementById('main').scrollTop = 0;
-
-  // bottom nav active
-  document.querySelectorAll('.nav-item').forEach((n,i)=>{
-    n.classList.toggle('active', i === idx);
-  });
-
-  // sidebar active (SAFE FIX)
-  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
-
-  if(sbItem){
-    sbItem.classList.add('active');
-  } else {
-    const sbItems = document.querySelectorAll('.sb-item');
-    if(sbItems[idx]) sbItems[idx].classList.add('active');
-  }
-
-  // vibration
-  if(navigator.vibrate) navigator.vibrate(20);
 }
 
 function updateBalance(delta){
