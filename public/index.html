@@ -1071,6 +1071,10 @@ async function loadUser(){
     referralEarnings = Number(data.referralEarnings || 0);
 
     updateBalance(0);
+
+if(data.vip){
+  document.getElementById('bal-greeting').textContent += ` 👑 ${data.vipPlan}`;
+}
     document.getElementById('ref-count').textContent = referralCount;
     document.getElementById('ref-earnings').textContent = referralEarnings.toFixed(2);
 
@@ -1229,13 +1233,27 @@ function toggleFaq(el){
   if(!isOpen) item.classList.add('open');
 }
 
-function buyVipStars(plan, price) {
-  showToast(`${plan} selected for ${price} Stars`);
+async function buyVipStars(plan, starsPrice) {
+  try {
+    const res = await fetch(`/api/vip-invoice?plan=${plan}&stars=${starsPrice}`);
+    const data = await res.json();
 
-  if (window.Telegram?.WebApp) {
-    window.Telegram.WebApp.openTelegramLink('https://t.me/adwalletagent');
-  } else {
-    window.open('https://t.me/adwalletagent', '_blank');
+    if (!data.ok) {
+      showToast("Invoice error");
+      return;
+    }
+
+    Telegram.WebApp.openInvoice(data.invoiceUrl, async (status) => {
+      if (status === 'paid') {
+        showToast("✅ VIP Activated!");
+        await loadUser();
+      } else {
+        showToast("Payment cancelled");
+      }
+    });
+
+  } catch (e) {
+    showToast("Payment failed");
   }
 }
 
