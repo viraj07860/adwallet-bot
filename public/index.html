@@ -460,7 +460,7 @@
         </div>
       </div>
       <div class="bal-actions">
-        <button class="btn-primary" onclick="goCashout()">💸 Cash Out</button>
+        <button class="btn btn-white" onclick="navigate('cashout',4)">💸 Cash Out</button>
         <button class="btn btn-outline" onclick="claimBonus()">🎁 Daily Bonus</button>
       </div>
     </div>
@@ -730,16 +730,6 @@
 <div id="toast"></div>
 
 <script>
-// DEBUG VERSION - Paste this at the very top of your script
-window.goCashout = function() {
-  alert("Button Clicked! Navigating..."); 
-  if (typeof navigate === 'function') {
-    navigate('cashout', 4);
-  } else {
-    alert("Error: navigate function not found");
-  }
-};
-
 let balance = 0;
 let referralCount = 0;
 let referralEarnings = 0;
@@ -780,32 +770,13 @@ function toggleSidebar(){
 
 function navigate(page, idx, sbItem){
   if(sidebarOpen) toggleSidebar();
-
-  // switch page
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-
-  const target = document.getElementById('page-' + page);
-  if(target) target.classList.add('active');
-
-  // scroll reset
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
   document.getElementById('main').scrollTop = 0;
-
-  // bottom nav active
-  document.querySelectorAll('.nav-item').forEach((n,i)=>{
-    n.classList.toggle('active', i === idx);
-  });
-
-  // sidebar active (SAFE FIX)
-  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
-
-  if(sbItem){
-    sbItem.classList.add('active');
-  } else {
-    const sbItems = document.querySelectorAll('.sb-item');
-    if(sbItems[idx]) sbItems[idx].classList.add('active');
-  }
-
-  // vibration
+  document.querySelectorAll('.nav-item').forEach((n,i)=>n.classList.toggle('active', i===idx));
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  if(sbItem) sbItem.classList.add('active');
+  else document.querySelectorAll('.sb-item')[idx].classList.add('active');
   if(navigator.vibrate) navigator.vibrate(20);
 }
 
