@@ -460,7 +460,7 @@
         </div>
       </div>
       <div class="bal-actions">
-        <button class="btn btn-white" onclick="goCashout()">💸 Cash Out</button>
+        <button class="btn-primary" onclick="goCashout()">💸 Cash Out</button>
         <button class="btn btn-outline" onclick="claimBonus()">🎁 Daily Bonus</button>
       </div>
     </div>
@@ -730,6 +730,16 @@
 <div id="toast"></div>
 
 <script>
+// DEBUG VERSION - Paste this at the very top of your script
+window.goCashout = function() {
+  alert("Button Clicked! Navigating..."); 
+  if (typeof navigate === 'function') {
+    navigate('cashout', 4);
+  } else {
+    alert("Error: navigate function not found");
+  }
+};
+
 let balance = 0;
 let referralCount = 0;
 let referralEarnings = 0;
@@ -797,15 +807,6 @@ function navigate(page, idx, sbItem){
 
   // vibration
   if(navigator.vibrate) navigator.vibrate(20);
-}
-
-function goCashout() {
-  // Select the Cash Out item from the sidebar to keep the UI in sync
-  const sbItems = document.querySelectorAll('.sb-item');
-  const cashoutSidebarItem = sbItems[4]; 
-
-  // Trigger the navigation to the cashout page (index 4)
-  navigate('cashout', 4, cashoutSidebarItem);
 }
 
 function updateBalance(delta){
