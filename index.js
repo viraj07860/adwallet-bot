@@ -12,6 +12,7 @@ const BOT_TOKEN = process.env.BOT_TOKEN;
 const REWARD_SECRET = process.env.REWARD_SECRET || 'adwallet7062';
 const WEBAPP_URL = (process.env.WEBAPP_URL || '').trim().replace(/\/+$/, '');
 const BOT_USERNAME = (process.env.BOT_USERNAME || 'AdzwalletBot').trim();
+const FORCE_CHANNEL = '@AdWalletCommunity';
 
 if (!BOT_TOKEN) {
   console.error('❌ BOT_TOKEN missing');
@@ -74,6 +75,16 @@ function ensureUser(userId, username = 'User') {
 
 function getWebAppUrl(userId) {
   return `${WEBAPP_URL}/?id=${encodeURIComponent(userId)}`;
+}
+
+async function isUserJoined(ctx, userId) {
+  try {
+    const member = await ctx.telegram.getChatMember(FORCE_CHANNEL, userId);
+    return ['member', 'administrator', 'creator'].includes(member.status);
+  } catch (e) {
+    console.log('Join check error:', e.message);
+    return false;
+  }
 }
 
 /* ---------------- ROUTES ---------------- */
@@ -210,8 +221,33 @@ async function handleStart(ctx) {
     const userId = String(ctx.from.id);
     const username = ctx.from.username || ctx.from.first_name || 'User';
     const refId = String(ctx.startPayload || '').trim();
-    const webAppUrl = getWebAppUrl(userId);
 
+    const joined = await isUserJoined(ctx, userId);
+    if (!joined) {
+      return ctx.reply(
+        '🚫 You must join our channel to use AdWallet.',
+        {
+          reply_markup: {
+            inline_keyboard: [
+              [
+                {
+                  text: '📢 Join Channel',
+                  url: 'https://t.me/AdWalletCommunity'
+                }
+              ],
+              [
+                {
+                  text: "✅ I've Joined",
+                  callback_data: 'check_join'
+                }
+              ]
+            ]
+          }
+        }
+      );
+    }
+
+    const webAppUrl = getWebAppUrl(userId);
     const user = ensureUser(userId, username);
 
     if (refId && refId !== userId && !user.referredBy) {
@@ -254,6 +290,35 @@ async function handleStart(ctx) {
 
 bot.start(handleStart);
 bot.command('start', handleStart);
+
+bot.action('check_join', async (ctx) => {
+  try {
+    const userId = String(ctx.from.id);
+    const username = ctx.from.username || ctx.from.first_name || 'User';
+
+    const joined = await isUserJoined(ctx, userId);
+    if (!joined) {
+      return ctx.answerCbQuery('❌ Join the channel first!', { show_alert: true });
+    }
+
+    const webAppUrl = getWebAppUrl(userId);
+    ensureUser(userId, username);
+
+    await ctx.answerCbQuery('✅ Access granted!');
+    await ctx.editMessageText(
+      `✅ Access granted! Open AdWallet below.`,
+      {
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: '💰 Open AdzWallet', web_app: { url: webAppUrl } }]
+          ]
+        }
+      }
+    );
+  } catch (e) {
+    console.error('check_join error:', e);
+  }
+});
 
 bot.on('pre_checkout_query', async (ctx) => {
   try {
