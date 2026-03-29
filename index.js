@@ -25,7 +25,7 @@ if (!WEBAPP_URL) {
 const bot = new Telegraf(BOT_TOKEN);
 
 /* ---------------- DATABASE (TEMP MEMORY) ---------------- */
-const users = {}; // simple storage (replace with DB later)
+const users = {};
 
 /* ---------------- HELPER ---------------- */
 function getWebAppUrl(userId) {
@@ -72,7 +72,14 @@ app.get('/api/reward', (req, res) => {
     };
   }
 
+  // basic anti-spam (5 sec cooldown)
+  const now = Date.now();
+  if (users[userid].lastReward && now - users[userid].lastReward < 5000) {
+    return res.send("TOO_FAST");
+  }
+
   users[userid].balance += 0.08;
+  users[userid].lastReward = now;
 
   return res.send("OK");
 });
@@ -89,8 +96,8 @@ app.post('/api/withdraw', (req, res) => {
     return res.json({ success: false, message: "User not found" });
   }
 
-  if (amount < 10) {
-    return res.json({ success: false, message: "Minimum $10" });
+  if (amount < 100) {
+    return res.json({ success: false, message: "Minimum $100" });
   }
 
   if (amount > users[userId].balance) {
@@ -111,19 +118,36 @@ app.post('/api/withdraw', (req, res) => {
 
 /* ---------------- TELEGRAM BOT ---------------- */
 
-// START COMMAND
+// START COMMAND (WITH REFERRAL SYSTEM)
 bot.start(async (ctx) => {
   try {
     const userId = String(ctx.from.id);
+    const refId = ctx.startPayload;
     const webAppUrl = getWebAppUrl(userId);
 
-    // Create user if not exists
     if (!users[userId]) {
       users[userId] = {
         balance: 0,
         referralCount: 0,
         referralEarnings: 0
       };
+
+      // 🎯 Referral logic
+      if (refId && refId !== userId) {
+        if (!users[refId]) {
+          users[refId] = {
+            balance: 0,
+            referralCount: 0,
+            referralEarnings: 0
+          };
+        }
+
+        users[refId].referralCount += 1;
+        users[refId].referralEarnings += 0.075;
+        users[refId].balance += 0.075;
+
+        console.log(`🎉 Referral: ${refId} invited ${userId}`);
+      }
     }
 
     await ctx.reply(
@@ -154,7 +178,11 @@ app.listen(PORT, async () => {
 
   try {
     await bot.telegram.deleteWebhook();
-    await bot.launch();
+
+    await bot.launch({
+      polling: true
+    });
+
     console.log("🤖 Bot started successfully");
   } catch (err) {
     console.error("Bot launch error:", err);
