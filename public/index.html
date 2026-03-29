@@ -424,7 +424,8 @@
     <div class="sb-item" onclick="navigate('offers',2,this)"><span class="icon">🎁</span> Offer Center</div>
     <div class="sb-item" onclick="navigate('invite',3,this)"><span class="icon">👥</span> Invite Friends</div>
     <div class="sb-item" onclick="navigate('cashout',4,this)"><span class="icon">💸</span> Cash Out</div>
-    <div class="sb-item" onclick="navigate('help',5,this)"><span class="icon">❓</span> Help &amp; FAQ</div>
+    <div class="sb-item" onclick="navigate('vip',5,this)"><span class="icon">💎</span> VIP</div>
+    <div class="sb-item" onclick="navigate('help',6,this)"><span class="icon">❓</span> Help &amp; FAQ</div>
   </div>
   <div class="sb-footer">AdWallet · Made with 💚</div>
 </nav>
@@ -450,6 +451,7 @@
       <div class="bal-greeting" id="bal-greeting">👋 Hi, User!</div>
       <div class="bal-amount">$<span id="bal-main">0.00</span></div>
       <div class="bal-label">Total Earnings</div>
+
       <div class="progress-wrap">
         <div class="progress-label">
           <span>Earning Progress</span>
@@ -459,9 +461,10 @@
           <div class="progress-fill" id="prog-fill"></div>
         </div>
       </div>
+
       <div class="bal-actions">
-  <button class="btn btn-white" onclick="navigate('cashout',4)">💸 Cash Out</button>
-  <button class="btn btn-outline" onclick="claimBonus()">🎁 Daily Bonus</button>
+        <button class="btn btn-white" onclick="navigate('cashout',4)">💸 Cash Out</button>
+        <button class="btn btn-outline" onclick="claimBonus()">🎁 Daily Bonus</button>
       </div>
     </div>
 
@@ -682,6 +685,121 @@
     </div>
   </section>
 
+  <section class="page" id="page-vip">
+    <div class="sec-title">VIP Plans</div>
+    <div class="sec-sub">Boost your earning power with premium plans</div>
+
+    <div class="card" style="background:linear-gradient(135deg,#0f172a,#111827);color:#fff;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+        <div>
+          <div style="font-size:18px;font-weight:800;margin-bottom:6px;">📢 AdWallet Rewards</div>
+          <div style="font-size:13px;opacity:.85;line-height:1.5;">
+            Unlock higher earnings with VIP access, faster rewards, and referral boost.
+          </div>
+        </div>
+        <div style="font-size:42px;">💎</div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:16px;margin-bottom:16px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+        <div>
+          <div style="font-size:14px;font-weight:800;">Your VIP Status</div>
+          <div style="font-size:12px;color:var(--muted);" id="vip-status-text">Not activated yet</div>
+        </div>
+        <div style="font-size:26px;">👑</div>
+      </div>
+    </div>
+
+    <div class="ads-grid">
+      <div class="ad-card" style="align-items:flex-start;">
+        <div class="ad-thumb">🥉</div>
+        <div class="ad-info">
+          <div class="ad-title">Bronze</div>
+          <div class="ad-reward">425 Stars</div>
+          <div class="ad-dur">Earn up to $450</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;min-width:120px;">
+          <button class="btn btn-green ad-btn" onclick="buyVipStars('Bronze')">Pay with Stars</button>
+          <button class="btn btn-ghost ad-btn" onclick="buyVipCrypto('Bronze',425)">Pay with Crypto</button>
+        </div>
+      </div>
+
+      <div class="ad-card" style="align-items:flex-start;">
+        <div class="ad-thumb">🥈</div>
+        <div class="ad-info">
+          <div class="ad-title">Silver</div>
+          <div class="ad-reward">850 Stars</div>
+          <div class="ad-dur">Earn up to $800</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;min-width:120px;">
+          <button class="btn btn-green ad-btn" onclick="buyVipStars('Silver')">Pay with Stars</button>
+          <button class="btn btn-ghost ad-btn" onclick="buyVipCrypto('Silver',850)">Pay with Crypto</button>
+        </div>
+      </div>
+
+      <div class="ad-card" style="align-items:flex-start;">
+        <div class="ad-thumb">🥇</div>
+        <div class="ad-info">
+          <div class="ad-title">Gold</div>
+          <div class="ad-reward">1275 Stars</div>
+          <div class="ad-dur">Earn up to $1600</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;min-width:120px;">
+          <button class="btn btn-green ad-btn" onclick="buyVipStars('Gold')">Pay with Stars</button>
+          <button class="btn btn-ghost ad-btn" onclick="buyVipCrypto('Gold',1275)">Pay with Crypto</button>
+        </div>
+      </div>
+
+      <div class="ad-card" style="align-items:flex-start;">
+        <div class="ad-thumb">💎</div>
+        <div class="ad-info">
+          <div class="ad-title">Platinum</div>
+          <div class="ad-reward">2125 Stars</div>
+          <div class="ad-dur">Earn up to $2400</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;min-width:120px;">
+          <button class="btn btn-green ad-btn" onclick="buyVipStars('Platinum')">Pay with Stars</button>
+          <button class="btn btn-ghost ad-btn" onclick="buyVipCrypto('Platinum',2125)">Pay with Crypto</button>
+        </div>
+      </div>
+
+      <div class="ad-card" style="align-items:flex-start;">
+        <div class="ad-thumb">🚀</div>
+        <div class="ad-info">
+          <div class="ad-title">Diamond</div>
+          <div class="ad-reward">3200 Stars</div>
+          <div class="ad-dur">Earn up to $5000</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;min-width:120px;">
+          <button class="btn btn-green ad-btn" onclick="buyVipStars('Diamond')">Pay with Stars</button>
+          <button class="btn btn-ghost ad-btn" onclick="buyVipCrypto('Diamond',3200)">Pay with Crypto</button>
+        </div>
+      </div>
+
+      <div class="ad-card" style="align-items:flex-start;">
+        <div class="ad-thumb">👑</div>
+        <div class="ad-info">
+          <div class="ad-title">Elite</div>
+          <div class="ad-reward">4250 Stars</div>
+          <div class="ad-dur">Earn up to $10000</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;min-width:120px;">
+          <button class="btn btn-green ad-btn" onclick="buyVipStars('Elite')">Pay with Stars</button>
+          <button class="btn btn-ghost ad-btn" onclick="buyVipCrypto('Elite',4250)">Pay with Crypto</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <div class="sec-title" style="font-size:16px;">Referral Bonus</div>
+      <div class="sec-sub" style="margin-bottom:12px;">Earn 20% bonus when your friend buys a VIP plan.</div>
+      <button class="btn btn-ghost" style="width:100%;" onclick="navigate('invite',3)">
+        👥 Go to Invite
+      </button>
+    </div>
+  </section>
+
   <section class="page" id="page-help">
     <div class="sec-title">Help &amp; FAQ</div>
     <div class="sec-sub">Got questions? We've got answers</div>
@@ -707,129 +825,19 @@
         <div class="faq-q" onclick="toggleFaq(this)">Is AdWallet free to use?<span class="arrow">▾</span></div>
         <div class="faq-a">Yes. AdWallet is free to use. We earn revenue from advertisers and share it directly with users.</div>
       </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Need help with your account?<span class="arrow">▾</span></div>
+        <div class="faq-a">Tap Contact Support below to open @adwalletagent directly in Telegram.</div>
+      </div>
+    </div>
+
     <div class="card" style="text-align:center;margin-top:16px;">
       <div style="font-size:32px;margin-bottom:10px;">💬</div>
       <div style="font-size:16px;font-weight:700;margin-bottom:6px;">Still need help?</div>
       <div style="font-size:13px;color:var(--muted);margin-bottom:14px;">Our support team is available 24/7</div>
-      <button class="btn btn-green" style="padding:13px 28px;">Contact Support</button>
+      <button class="btn btn-green" style="padding:13px 28px;display:block;margin:0 auto;" onclick="contactSupport()">Contact Support</button>
     </div>
   </section>
-
-<section class="page" id="page-vip">
-  <div class="sec-title">VIP Plans</div>
-  <div class="sec-sub">Boost your earning power with premium plans</div>
-
-  <div class="card" style="background:linear-gradient(135deg,#0f172a,#111827);color:#fff;">
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
-      <div>
-        <div style="font-size:18px;font-weight:800;margin-bottom:6px;">📢 AdWallet Rewards</div>
-        <div style="font-size:13px;opacity:.85;line-height:1.5;">
-          Unlock higher earnings with VIP access, faster rewards, and referral boost.
-        </div>
-      </div>
-      <div style="font-size:42px;">💎</div>
-    </div>
-  </div>
-
-  <div class="card" style="padding:16px;margin-bottom:16px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
-      <div>
-        <div style="font-size:14px;font-weight:800;">Your VIP Status</div>
-        <div style="font-size:12px;color:var(--muted);">Not activated yet</div>
-      </div>
-      <div style="font-size:26px;">👑</div>
-    </div>
-  </div>
-
-  <div class="ads-grid">
-
-    <div class="ad-card" style="align-items:flex-start;">
-      <div class="ad-thumb">🥉</div>
-      <div class="ad-info">
-        <div class="ad-title">Bronze</div>
-        <div class="ad-reward">$10</div>
-        <div class="ad-dur">Earn up to $450</div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:8px;min-width:110px;">
-        <button class="btn btn-green ad-btn" onclick="buyVipStars('Bronze',10)">Pay with Stars</button>
-        <button class="btn btn-ghost ad-btn" onclick="buyVipCrypto('Bronze',10)">Pay with Crypto</button>
-      </div>
-    </div>
-
-    <div class="ad-card" style="align-items:flex-start;">
-      <div class="ad-thumb">🥈</div>
-      <div class="ad-info">
-        <div class="ad-title">Silver</div>
-        <div class="ad-reward">$20</div>
-        <div class="ad-dur">Earn up to $800</div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:8px;min-width:110px;">
-        <button class="btn btn-green ad-btn" onclick="buyVipStars('Silver',20)">Pay with Stars</button>
-        <button class="btn btn-ghost ad-btn" onclick="buyVipCrypto('Silver',20)">Pay with Crypto</button>
-      </div>
-    </div>
-
-    <div class="ad-card" style="align-items:flex-start;">
-      <div class="ad-thumb">🥇</div>
-      <div class="ad-info">
-        <div class="ad-title">Gold</div>
-        <div class="ad-reward">$30</div>
-        <div class="ad-dur">Earn up to $1600</div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:8px;min-width:110px;">
-        <button class="btn btn-green ad-btn" onclick="buyVipStars('Gold',30)">Pay with Stars</button>
-        <button class="btn btn-ghost ad-btn" onclick="buyVipCrypto('Gold',30)">Pay with Crypto</button>
-      </div>
-    </div>
-
-    <div class="ad-card" style="align-items:flex-start;">
-      <div class="ad-thumb">💎</div>
-      <div class="ad-info">
-        <div class="ad-title">Platinum</div>
-        <div class="ad-reward">$50</div>
-        <div class="ad-dur">Earn up to $2400</div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:8px;min-width:110px;">
-        <button class="btn btn-green ad-btn" onclick="buyVipStars('Platinum',50)">Pay with Stars</button>
-        <button class="btn btn-ghost ad-btn" onclick="buyVipCrypto('Platinum',50)">Pay with Crypto</button>
-      </div>
-    </div>
-
-    <div class="ad-card" style="align-items:flex-start;">
-      <div class="ad-thumb">🚀</div>
-      <div class="ad-info">
-        <div class="ad-title">Diamond</div>
-        <div class="ad-reward">$75</div>
-        <div class="ad-dur">Earn up to $5000</div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:8px;min-width:110px;">
-        <button class="btn btn-green ad-btn" onclick="buyVipStars('Diamond',75)">Pay with Stars</button>
-        <button class="btn btn-ghost ad-btn" onclick="buyVipCrypto('Diamond',75)">Pay with Crypto</button>
-      </div>
-    </div>
-
-    <div class="ad-card" style="align-items:flex-start;">
-      <div class="ad-thumb">👑</div>
-      <div class="ad-info">
-        <div class="ad-title">Elite</div>
-        <div class="ad-reward">$100</div>
-        <div class="ad-dur">Earn up to $10000</div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:8px;min-width:110px;">
-        <button class="btn btn-green ad-btn" onclick="buyVipStars('Elite',100)">Pay with Stars</button>
-        <button class="btn btn-ghost ad-btn" onclick="buyVipCrypto('Elite',100)">Pay with Crypto</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="card" style="margin-top:16px;">
-    <div class="sec-title" style="font-size:16px;">Referral Bonus</div>
-    <div class="sec-sub" style="margin-bottom:12px;">Earn 20% bonus when your friend buys a VIP plan.</div>
-    <button class="btn btn-ghost" style="width:100%;" onclick="navigate('invite',3)">
-      👥 Go to Invite
-    </button>
-  </div>
-</section>
 </main>
 
 <nav id="bottom-nav">
@@ -838,7 +846,7 @@
   <div class="nav-item" onclick="navigate('offers',2)" id="nav-2"><span class="nav-icon">🎁</span><span class="nav-lbl">Offers</span></div>
   <div class="nav-item" onclick="navigate('invite',3)" id="nav-3"><span class="nav-icon">👥</span><span class="nav-lbl">Invite</span></div>
   <div class="nav-item" onclick="navigate('cashout',4)" id="nav-4"><span class="nav-icon">💸</span><span class="nav-lbl">Cash</span></div>
-  <div class="nav-item" onclick="navigate('vip',5)" id="nav-5"><span class="nav-icon">💎<span><span class="nav-lbl">VIP</span></div>
+  <div class="nav-item" onclick="navigate('vip',5)" id="nav-5"><span class="nav-icon">💎</span><span class="nav-lbl">VIP</span></div>
 </nav>
 
 <button id="fab" onclick="navigate('ads',1)" title="Earn Now">⚡</button>
@@ -855,11 +863,6 @@ let adInstance = null;
 
 const withdrawHistory = [];
 
-const popupNames = ['Rahul23','Priya_S','Alex_M','Sneha99','Vikram_T','Ananya_R','David_K','Meera_B','John_D','Fatima_Z','Carlos_M','Yuki_T'];
-const popupMethods = ['PayPal','Bitcoin','Paytm','PhonePe','Crypto Wallet','Bank Transfer'];
-const popupAmounts = ['$100.00','$120.50','$250.00','$105.75','$500.00','$100.00','$300.00','$108.25','$402.00','$120.00'];
-const popupTimes = ['just now','2 seconds ago','5 seconds ago','10 seconds ago','a minute ago'];
-
 function getTelegramUserId() {
   const urlId = new URLSearchParams(location.search).get('id');
   if (urlId) return String(urlId);
@@ -872,6 +875,7 @@ function toggleSidebar(){
   sidebarOpen = !sidebarOpen;
   document.getElementById('sidebar').classList.toggle('open', sidebarOpen);
   document.getElementById('overlay').classList.toggle('show', sidebarOpen);
+
   const ham = document.getElementById('ham');
   const spans = ham.querySelectorAll('span');
   if(sidebarOpen){
@@ -887,7 +891,6 @@ function navigate(page, idx, sbItem){
   if(sidebarOpen) toggleSidebar();
 
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-
   const target = document.getElementById('page-' + page);
   if(target) target.classList.add('active');
 
@@ -898,10 +901,11 @@ function navigate(page, idx, sbItem){
   });
 
   document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
-
   const sbItems = document.querySelectorAll('.sb-item');
   if(sbItem) sbItem.classList.add('active');
   else if(sbItems[idx]) sbItems[idx].classList.add('active');
+
+  if(navigator.vibrate) navigator.vibrate(20);
 }
 
 function updateBalance(delta){
@@ -960,6 +964,14 @@ function share(platform){
   showToast('✈️ Sharing via ' + platform + '…');
 }
 
+function contactSupport(){
+  if(window.Telegram?.WebApp){
+    window.Telegram.WebApp.openTelegramLink('https://t.me/adwalletagent');
+  } else {
+    window.open('https://t.me/adwalletagent', '_blank');
+  }
+}
+
 function selectMethod(el){
   document.querySelectorAll('.method').forEach(m=>m.classList.remove('sel'));
   el.classList.add('sel');
@@ -999,16 +1011,22 @@ function renderHistory(){
 }
 
 function createPopup(){
+  const popupNames = ['Rahul23','Priya_S','Alex_M','Sneha99','Vikram_T','Ananya_R','David_K','Meera_B','John_D','Fatima_Z','Carlos_M','Yuki_T'];
+  const popupMethods = ['PayPal','Bitcoin','Paytm','PhonePe','Crypto Wallet','Bank Transfer'];
+  const popupAmounts = ['$100.00','$120.50','$250.00','$105.75','$500.00','$100.00','$300.00','$108.25','$402.00','$120.00'];
+  const popupTimes = ['just now','2 seconds ago','5 seconds ago','10 seconds ago','a minute ago'];
+
   const name = popupNames[Math.floor(Math.random()*popupNames.length)];
   const method = popupMethods[Math.floor(Math.random()*popupMethods.length)];
   const amount = popupAmounts[Math.floor(Math.random()*popupAmounts.length)];
   const time = popupTimes[Math.floor(Math.random()*popupTimes.length)];
+
   const el = document.createElement('div');
   el.className = 'popup';
   el.innerHTML = `
     <span class="popup-icon">💰</span>
     <div class="popup-text">
-      <div class="popup-main">${name} withdraw ${amount}</div>
+      <div class="popup-main">${name} withdrew ${amount}</div>
       <div class="popup-sub">via ${method} · ${time}</div>
     </div>
   `;
@@ -1071,16 +1089,18 @@ async function loadUser(){
     referralEarnings = Number(data.referralEarnings || 0);
 
     updateBalance(0);
-
-if(data.vip){
-  document.getElementById('bal-greeting').textContent += ` 👑 ${data.vipPlan}`;
-}
     document.getElementById('ref-count').textContent = referralCount;
     document.getElementById('ref-earnings').textContent = referralEarnings.toFixed(2);
 
     const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
     const name = tgUser?.first_name || data.username || 'User';
     document.getElementById('bal-greeting').textContent = `👋 Hi, ${name}!`;
+
+    const vipStatus = document.getElementById('vip-status-text');
+    if(vipStatus){
+      vipStatus.textContent = data.vip ? `Active: ${data.vipPlan}` : 'Not activated yet';
+    }
+
     document.getElementById('sb-name').textContent = name;
   } catch(e){
     console.log('loadUser error', e);
@@ -1226,44 +1246,48 @@ async function submitWithdraw(){
   }
 }
 
-function toggleFaq(el){
-  const item = el.parentElement;
-  const isOpen = item.classList.contains('open');
-  document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));
-  if(!isOpen) item.classList.add('open');
-}
-
-async function buyVipStars(plan, starsPrice) {
+async function buyVipStars(plan) {
   try {
-    const res = await fetch(`/api/vip-invoice?plan=${plan}&stars=${starsPrice}`);
+    const res = await fetch(`/api/vip-invoice?plan=${encodeURIComponent(plan)}`);
     const data = await res.json();
 
     if (!data.ok) {
-      showToast("Invoice error");
+      showToast(data.error || 'Invoice error');
       return;
     }
 
-    Telegram.WebApp.openInvoice(data.invoiceUrl, async (status) => {
-      if (status === 'paid') {
-        showToast("✅ VIP Activated!");
-        await loadUser();
-      } else {
-        showToast("Payment cancelled");
-      }
-    });
-
+    if (window.Telegram?.WebApp?.openInvoice) {
+      window.Telegram.WebApp.openInvoice(data.invoiceUrl, async (status) => {
+        if (status === 'paid') {
+          showToast(`✅ ${plan} VIP activated!`);
+          await loadUser();
+        } else {
+          showToast('Payment closed');
+        }
+      });
+    } else {
+      showToast('Open inside Telegram');
+    }
   } catch (e) {
-    showToast("Payment failed");
+    console.log(e);
+    showToast('Payment failed');
   }
 }
 
 function buyVipCrypto(plan, price) {
-  const msg = encodeURIComponent(`Hi, I want to buy ${plan} VIP plan for $${price} using crypto.`);
+  const msg = encodeURIComponent(`Hi, I want to buy ${plan} VIP plan for ${price} Stars using crypto.`);
   if (window.Telegram?.WebApp) {
     window.Telegram.WebApp.openTelegramLink(`https://t.me/adwalletagent?text=${msg}`);
   } else {
     window.open(`https://t.me/adwalletagent?text=${msg}`, '_blank');
   }
+}
+
+function toggleFaq(el){
+  const item = el.parentElement;
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));
+  if(!isOpen) item.classList.add('open');
 }
 
 (function init(){

@@ -29,6 +29,24 @@ const bot = new Telegraf(BOT_TOKEN);
 const users = {};
 const withdrawals = [];
 
+/* ---------------- VIP PRICING ---------------- */
+const VIP_PLANS = {
+  Bronze: 425,
+  Silver: 850,
+  Gold: 1275,
+  Platinum: 2125,
+  Diamond: 3200,
+  Elite: 4250
+};
+
+function vipStarsAmount(plan) {
+  return VIP_PLANS[plan] || 425;
+}
+
+function isValidVipPlan(plan) {
+  return Object.prototype.hasOwnProperty.call(VIP_PLANS, plan);
+}
+
 /* ---------------- HELPERS ---------------- */
 function ensureUser(userId, username = 'User') {
   const id = String(userId);
@@ -58,18 +76,6 @@ function getWebAppUrl(userId) {
   return `${WEBAPP_URL}/?id=${encodeURIComponent(userId)}`;
 }
 
-function vipStarsAmount(plan) {
-  const map = {
-    Bronze: 425,
-    Silver: 850,
-    Gold: 1275,
-    Platinum: 2125,
-    Diamond: 3200,
-    Elite: 4250 ,
-  };
-  return map[plan] || 425;
-}
-
 /* ---------------- ROUTES ---------------- */
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -82,6 +88,7 @@ app.get('/health', (req, res) => {
 app.get('/user/:id', (req, res) => {
   const id = req.params.id;
   const user = ensureUser(id);
+
   res.json({
     balance: Number(user.balance || 0),
     tasks: Number(user.tasks || 0),
@@ -121,11 +128,12 @@ app.get('/api/reward', (req, res) => {
 app.get('/api/vip-invoice', async (req, res) => {
   try {
     const plan = String(req.query.plan || '').trim();
-    const amount = Number(req.query.stars || vipStarsAmount(plan));
 
-    if (!plan) {
-      return res.status(400).json({ ok: false, error: 'Missing plan' });
+    if (!isValidVipPlan(plan)) {
+      return res.status(400).json({ ok: false, error: 'Invalid plan' });
     }
+
+    const amount = vipStarsAmount(plan);
 
     const invoiceUrl = await bot.telegram.createInvoiceLink({
       title: `${plan} VIP Plan`,
@@ -138,6 +146,7 @@ app.get('/api/vip-invoice', async (req, res) => {
       ]
     });
 
+    console.log(`💰 Invoice Created: ${plan} → ${amount} Stars`);
     return res.json({ ok: true, invoiceUrl });
   } catch (err) {
     console.error('VIP invoice error:', err);
@@ -259,7 +268,6 @@ bot.on('message', async (ctx, next) => {
 
   const userId = String(ctx.from.id);
   const payload = String(ctx.message.successful_payment.invoice_payload || '');
-
   const user = ensureUser(userId, ctx.from.username || ctx.from.first_name || 'User');
 
   if (payload.startsWith('vip_')) {
