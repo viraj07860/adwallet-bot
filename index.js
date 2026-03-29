@@ -60,14 +60,14 @@ function getWebAppUrl(userId) {
 
 function vipStarsAmount(plan) {
   const map = {
-    Bronze: 10,
-    Silver: 20,
-    Gold: 30,
-    Platinum: 50,
-    Diamond: 75,
-    Elite: 100
+    Bronze: 425,
+    Silver: 850,
+    Gold: 1275,
+    Platinum: 2125,
+    Diamond: 3200,
+    Elite: 4250 ,
   };
-  return map[plan] || 10;
+  return map[plan] || 425;
 }
 
 /* ---------------- ROUTES ---------------- */
