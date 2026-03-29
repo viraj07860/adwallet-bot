@@ -11,10 +11,23 @@ const PORT = process.env.PORT || 8080;
 const CHANNEL = "@AdWalletCommunity";
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
-// ===== DATA STORAGE (Note: Data resets on restart until MongoDB is added) =====
+// ===== DATA =====
 const users = {};
+const withdrawals = [];
 
-// ===== BOT LOGIC =====
+// ===== DAILY LIMIT FUNCTION =====
+function checkDailyLimit(user) {
+  const now = Date.now();
+
+  if (now - user.lastReset > 86400000) {
+    user.dailyAds = 0;
+    user.lastReset = now;
+  }
+
+  return user.dailyAds < 20;
+}
+
+// ===== BOT START =====
 bot.start(async (ctx) => {
   const userId = ctx.from.id;
   const username = ctx.from.username || ctx.from.first_name;
@@ -24,95 +37,127 @@ bot.start(async (ctx) => {
     users[userId] = {
       balance: 0,
       tasks: 0,
-      username: username,
+      username,
       referralList: [],
+      referralCount: 0,
       isSubscribed: false,
-      lastAdTime: 0
+      lastAdTime: 0,
+      dailyAds: 0,
+      lastReset: Date.now()
     };
 
+    // 🎯 Referral reward
     if (startPayload && users[startPayload] && startPayload != userId) {
       users[startPayload].balance += 5;
-      users[startPayload].referralList.push({ username, date: new Date().toLocaleDateString() });
-      ctx.telegram.sendMessage(startPayload, `👥 New Referral! ${username} joined. You earned ₹5!`);
+      users[startPayload].referralList.push({
+        username,
+        date: new Date().toLocaleDateString()
+      });
+      users[startPayload].referralCount += 1;
+
+      ctx.telegram.sendMessage(startPayload,
+        `🎉 New Referral!\n👤 ${username}\n💰 ₹5 added`);
     }
   }
 
-  try {
-    const member = await ctx.telegram.getChatMember(CHANNEL, userId);
-    if (["member", "administrator", "creator"].includes(member.status)) {
-      users[userId].isSubscribed = true;
-      return sendApp(ctx);
-    }
-  } catch (e) { console.log("Sub check error"); }
-
-  ctx.reply(`Welcome ${username}! 🚀\n\nJoin our community to start earning.`, {
-    reply_markup: {
-      inline_keyboard: [
-        [{ text: "📢 Join Channel", url: "https://t.me/AdWalletCommunity" }],
-        [{ text: "✅ I Have Joined", callback_data: "check_sub" }]
-      ]
-    }
-  });
+  return sendApp(ctx);
 });
 
-bot.action("check_sub", async (ctx) => {
-  const userId = ctx.from.id;
-  try {
-    const member = await ctx.telegram.getChatMember(CHANNEL, userId);
-    if (["member", "administrator", "creator"].includes(member.status)) {
-      if (users[userId]) users[userId].isSubscribed = true;
-      return sendApp(ctx);
-    }
-    await ctx.answerCbQuery("❌ Please join @AdWalletCommunity first!", { show_alert: true });
-  } catch (err) { ctx.answerCbQuery("⚠️ Error"); }
-});
-
+// ===== OPEN MINI APP =====
 function sendApp(ctx) {
   const userId = ctx.from.id;
-  // Passing the ID to the Mini App via URL Query
-  const webAppUrl = `https://${process.env.RAILWAY_STATIC_URL || 'your-app-url.up.railway.app'}/?id=${userId}`;
-  
-  return ctx.reply("✨ Access Granted! Start earning now:", {
+  const webAppUrl = `https://${process.env.RAILWAY_STATIC_URL}/?id=${userId}`;
+
+  return ctx.reply("💰 Open AdzWallet:", {
     reply_markup: {
       inline_keyboard: [
-        [{ text: "💰 Open AdzWallet", web_app: { url: webAppUrl } }]
+        [{ text: "🚀 Open App", web_app: { url: webAppUrl } }]
       ]
     }
   });
 }
 
-// ===== API ENDPOINTS =====
+// ===== USER API =====
 app.get('/user/:id', (req, res) => {
-  const id = req.params.id;
-  if (!users[id]) return res.status(404).json({ error: "User not found" });
-  res.json(users[id]);
+  const user = users[req.params.id];
+  if (!user) return res.status(404).json({ error: "User not found" });
+  res.json(user);
 });
 
-app.get('/api/adsgram-reward', (req, res) => {
-  const { userId } = req.query;
-  const now = Date.now();
+// ===== ADSGRAM REWARD (SECURE) =====
+app.get('/api/reward', (req, res) => {
+  const { userid, userId, key } = req.query;
+  const finalUserId = userid || userId;
 
-  if (!userId || !users[userId]) return res.status(400).json({ success: false });
-
-  // 30-second cooldown to prevent spamming the "Earn" button
-  if (users[userId].lastAdTime && (now - users[userId].lastAdTime < 30000)) {
-    return res.status(429).json({ success: false, message: "Wait 30s" });
+  if (key !== process.env.REWARD_SECRET) {
+    return res.send("Unauthorized");
   }
 
-  users[userId].balance += 20;
-  users[userId].tasks += 1;
-  users[userId].lastAdTime = now;
+  const user = users[finalUserId];
+  if (!user) return res.send("User not found");
 
-  res.json({ success: true, balance: users[userId].balance, tasks: users[userId].tasks });
+  const now = Date.now();
+
+  // cooldown
+  if (now - user.lastAdTime < 30000) {
+    return res.send("Cooldown");
+  }
+
+  // daily limit
+  if (!checkDailyLimit(user)) {
+    return res.send("Daily limit reached");
+  }
+
+  user.balance += 20;
+  user.tasks += 1;
+  user.dailyAds += 1;
+  user.lastAdTime = now;
+
+  console.log("✅ Reward:", finalUserId);
+
+  res.send("OK");
 });
 
-// ===== STARTUP & SHUTDOWN =====
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`✅ Server on port ${PORT}`);
-  bot.launch().catch(err => console.error("Bot fail:", err));
+// ===== REFERRALS =====
+app.get('/api/referrals/:id', (req, res) => {
+  const user = users[req.params.id];
+  if (!user) return res.status(404).json({ error: "User not found" });
+
+  res.json({
+    total: user.referralCount,
+    list: user.referralList
+  });
 });
 
-// Prevent 409 Conflicts during Railway redeploys
-process.once('SIGINT', () => { bot.stop('SIGINT'); process.exit(0); });
-process.once('SIGTERM', () => { bot.stop('SIGTERM'); process.exit(0); });
+// ===== WITHDRAW =====
+app.post('/api/withdraw', (req, res) => {
+  const { userId, method, account } = req.body;
 
+  const user = users[userId];
+  if (!user) return res.json({ success: false });
+
+  if (user.balance < 500) {
+    return res.json({ success: false, message: "Min ₹500 required" });
+  }
+
+  withdrawals.push({
+    userId,
+    amount: user.balance,
+    method,
+    account,
+    status: "pending",
+    date: new Date()
+  });
+
+  user.balance = 0;
+
+  console.log("💸 Withdraw:", withdrawals);
+
+  res.json({ success: true });
+});
+
+// ===== START =====
+app.listen(PORT, () => {
+  console.log(`✅ Server running on ${PORT}`);
+  bot.launch();
+});
