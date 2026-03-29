@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin Panel</title>
+<style>
+body { background:#111; color:#fff; font-family:sans-serif; padding:15px; }
+.card { background:#1e1e1e; padding:10px; margin-bottom:10px; border-radius:10px; }
+button { padding:6px 10px; margin:5px; }
+</style>
+</head>
+
+<body>
+
+<h2>Admin Panel</h2>
+
+<input id="key" placeholder="Enter admin key">
+<button onclick="load()">Load Withdrawals</button>
+
+<div id="data"></div>
+
+<script>
+async function load(){
+  const key = document.getElementById('key').value;
+
+  const res = await fetch(`/api/admin/withdrawals?key=${key}`);
+  const data = await res.json();
+
+  const div = document.getElementById('data');
+  div.innerHTML = "";
+
+  data.forEach((w, i) => {
+    const el = document.createElement("div");
+    el.className = "card";
+
+    el.innerHTML = `
+      User: ${w.userId} <br>
+      Amount: ${w.amount} <br>
+      Method: ${w.method} <br>
+      Status: ${w.status} <br>
+
+      <button onclick="approve(${i})">Approve</button>
+      <button onclick="reject(${i})">Reject</button>
+    `;
+
+    div.appendChild(el);
+  });
+}
+
+async function approve(i){
+  const key = document.getElementById('key').value;
+
+  await fetch('/api/admin/approve',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ key, index:i })
+  });
+
+  load();
+}
+
+async function reject(i){
+  const key = document.getElementById('key').value;
+
+  await fetch('/api/admin/reject',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ key, index:i })
+  });
+
+  load();
+}
+</script>
+
+</body>
+</html>

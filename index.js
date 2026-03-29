@@ -175,6 +175,52 @@ app.get('/api/referrals/:id', (req, res) => {
   });
 });
 
+// ===== ADMIN AUTH (simple) =====
+const ADMIN_KEY = "admin7062";
+
+// GET ALL WITHDRAWALS
+app.get('/api/admin/withdrawals', (req, res) => {
+  if (req.query.key !== ADMIN_KEY) {
+    return res.json({ error: "Unauthorized" });
+  }
+
+  res.json(withdrawals);
+});
+
+// APPROVE WITHDRAWAL
+app.post('/api/admin/approve', (req, res) => {
+  const { key, index } = req.body;
+
+  if (key !== ADMIN_KEY) {
+    return res.json({ success: false });
+  }
+
+  if (!withdrawals[index]) {
+    return res.json({ success: false });
+  }
+
+  withdrawals[index].status = "approved";
+
+  res.json({ success: true });
+});
+
+// REJECT WITHDRAWAL
+app.post('/api/admin/reject', (req, res) => {
+  const { key, index } = req.body;
+
+  if (key !== ADMIN_KEY) {
+    return res.json({ success: false });
+  }
+
+  if (!withdrawals[index]) {
+    return res.json({ success: false });
+  }
+
+  withdrawals[index].status = "rejected";
+
+  res.json({ success: true });
+});
+
 // ===== ADMIN (basic) =====
 app.get('/admin/withdrawals', (req, res) => {
   res.json(withdrawals);
