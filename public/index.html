@@ -460,7 +460,7 @@
         </div>
       </div>
       <div class="bal-actions">
-        <button class="btn btn-white" onclick="gocashout()">💸 Cash Out</button>
+        <button class="btn btn-white" onclick="navigate('cashout',4)">💸 Cash Out</button>
         <button class="btn btn-outline" onclick="claimBonus()">🎁 Daily Bonus</button>
       </div>
     </div>
@@ -770,13 +770,32 @@ function toggleSidebar(){
 
 function navigate(page, idx, sbItem){
   if(sidebarOpen) toggleSidebar();
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById('page-'+page).classList.add('active');
+
+  // switch page
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+
+  const target = document.getElementById('page-' + page);
+  if(target) target.classList.add('active');
+
+  // scroll reset
   document.getElementById('main').scrollTop = 0;
-  document.querySelectorAll('.nav-item').forEach((n,i)=>n.classList.toggle('active', i===idx));
-  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
-  if(sbItem) sbItem.classList.add('active');
-  else document.querySelectorAll('.sb-item')[idx].classList.add('active');
+
+  // bottom nav active
+  document.querySelectorAll('.nav-item').forEach((n,i)=>{
+    n.classList.toggle('active', i === idx);
+  });
+
+  // sidebar active (SAFE FIX)
+  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
+
+  if(sbItem){
+    sbItem.classList.add('active');
+  } else {
+    const sbItems = document.querySelectorAll('.sb-item');
+    if(sbItems[idx]) sbItems[idx].classList.add('active');
+  }
+
+  // vibration
   if(navigator.vibrate) navigator.vibrate(20);
 }
 
