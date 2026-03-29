@@ -799,6 +799,15 @@ function navigate(page, idx, sbItem){
   if(navigator.vibrate) navigator.vibrate(20);
 }
 
+function goCashout() {
+  // Select the Cash Out item from the sidebar to keep the UI in sync
+  const sbItems = document.querySelectorAll('.sb-item');
+  const cashoutSidebarItem = sbItems[4]; 
+
+  // Trigger the navigation to the cashout page (index 4)
+  navigate('cashout', 4, cashoutSidebarItem);
+}
+
 function updateBalance(delta){
   balance = Math.max(0, balance + delta);
   const fmt = balance.toFixed(2);
