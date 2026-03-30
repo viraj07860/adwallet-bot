@@ -1,384 +1,237 @@
 require('dotenv').config();
 const express = require('express');
 const { Telegraf } = require('telegraf');
+const mongoose = require('mongoose');
 const path = require('path');
 
 const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+/* ---------------- CONFIGURATION ---------------- */
 const PORT = process.env.PORT || 8080;
 const BOT_TOKEN = process.env.BOT_TOKEN;
+const MONGO_URL = process.env.MONGO_URL;
 const REWARD_SECRET = process.env.REWARD_SECRET || 'adwallet7062';
 const WEBAPP_URL = (process.env.WEBAPP_URL || '').trim().replace(/\/+$/, '');
-const BOT_USERNAME = (process.env.BOT_USERNAME || 'AdzwalletBot').trim();
 const FORCE_CHANNEL = '@AdWalletCommunity';
 
-if (!BOT_TOKEN) {
-  console.error('❌ BOT_TOKEN missing');
+if (!BOT_TOKEN || !MONGO_URL || !WEBAPP_URL) {
+  console.error('❌ Critical Environment Variables Missing!');
   process.exit(1);
 }
 
-if (!WEBAPP_URL) {
-  console.error('❌ WEBAPP_URL missing');
-  process.exit(1);
-}
+/* ---------------- DATABASE SCHEMAS ---------------- */
+const UserSchema = new mongoose.Schema({
+  userId: { type: String, unique: true, required: true },
+  username: { type: String, default: 'User' },
+  balance: { type: Number, default: 0 },
+  tasks: { type: Number, default: 0 },
+  referralCount: { type: Number, default: 0 },
+  referralEarnings: { type: Number, default: 0 },
+  referredBy: { type: String, default: null },
+  lastReward: { type: Number, default: 0 },
+  vip: { type: Boolean, default: false },
+  vipPlan: { type: String, default: null },
+  joinDate: { type: Date, default: Date.now }
+});
 
-const bot = new Telegraf(BOT_TOKEN);
+const WithdrawalSchema = new mongoose.Schema({
+  userId: String,
+  amount: Number,
+  method: String,
+  details: Object,
+  status: { type: String, default: 'pending' },
+  date: { type: Date, default: Date.now }
+});
 
-/* ---------------- TEMP MEMORY STORAGE ---------------- */
-const users = {};
-const withdrawals = [];
-
-/* ---------------- VIP PRICING ---------------- */
-const VIP_PLANS = {
-  Bronze: 425,
-  Silver: 850,
-  Gold: 1275,
-  Platinum: 2125,
-  Diamond: 3200,
-  Elite: 4250
-};
-
-function vipStarsAmount(plan) {
-  return VIP_PLANS[plan] || 425;
-}
-
-function isValidVipPlan(plan) {
-  return Object.prototype.hasOwnProperty.call(VIP_PLANS, plan);
-}
+const User = mongoose.model('User', UserSchema);
+const Withdrawal = mongoose.model('Withdrawal', WithdrawalSchema);
 
 /* ---------------- HELPERS ---------------- */
-function ensureUser(userId, username = 'User') {
-  const id = String(userId);
-
-  if (!users[id]) {
-    users[id] = {
-      userId: id,
-      username,
-      balance: 0,
-      tasks: 0,
-      referralCount: 0,
-      referralEarnings: 0,
-      referralList: [],
-      referredBy: '',
-      lastReward: 0,
-      vip: false,
-      vipPlan: null
-    };
-  } else if (username && users[id].username === 'User') {
-    users[id].username = username;
+async function ensureUser(userId, username = 'User') {
+  let user = await User.findOne({ userId: String(userId) });
+  if (!user) {
+    user = await User.create({ userId: String(userId), username });
+  } else if (username && user.username !== username) {
+    user.username = username;
+    await user.save();
   }
-
-  return users[id];
+  return user;
 }
 
-function getWebAppUrl(userId) {
-  return `${WEBAPP_URL}/?id=${encodeURIComponent(userId)}`;
-}
+const VIP_PLANS = {
+  Bronze: 425, Silver: 850, Gold: 1275, 
+  Platinum: 2125, Diamond: 3200, Elite: 4250
+};
 
-async function isUserJoined(ctx, userId) {
+const VIP_BOOSTS = {
+  Bronze: 1.2, Silver: 1.5, Gold: 2, 
+  Platinum: 2.5, Diamond: 3, Elite: 4
+};
+
+/* ---------------- API ROUTES ---------------- */
+
+// Fetch user data for Mini App
+app.get('/user/:id', async (req, res) => {
   try {
-    const member = await ctx.telegram.getChatMember(FORCE_CHANNEL, userId);
-    return ['member', 'administrator', 'creator'].includes(member.status);
-  } catch (e) {
-    console.log('Join check error:', e.message);
-    return false;
+    const user = await ensureUser(req.params.id);
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: 'DB Error' });
   }
-}
-
-/* ---------------- ROUTES ---------------- */
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.get('/health', (req, res) => {
-  res.json({ ok: true });
-});
+// Reward logic (Secured with REWARD_SECRET)
+app.get('/api/reward', async (req, res) => {
+  const { userid, key } = req.query;
+  if (key !== REWARD_SECRET) return res.status(403).send('INVALID_KEY');
 
-app.get('/user/:id', (req, res) => {
-  const id = req.params.id;
-  const user = ensureUser(id);
-
-  res.json({
-    balance: Number(user.balance || 0),
-    tasks: Number(user.tasks || 0),
-    referralCount: Number(user.referralCount || 0),
-    referralEarnings: Number(user.referralEarnings || 0),
-    vip: Boolean(user.vip),
-    vipPlan: user.vipPlan || null
-  });
-});
-
-app.get('/api/reward', (req, res) => {
-  const { userid, userId, key } = req.query;
-  const id = String(userid || userId || '');
-
-  if (key !== REWARD_SECRET) {
-    return res.status(403).send('INVALID_KEY');
-  }
-
-  if (!id) {
-    return res.status(400).send('NO_USER');
-  }
-
-  const user = ensureUser(id);
-  const now = Date.now();
-
-  if (now - user.lastReward < 5000) {
-    return res.status(429).send('TOO_FAST');
-  }
-
-  // Smart economy
-  let reward = 0.008; // base ad reward
-
-  if (user.vip) {
-    const boost = {
-      Bronze: 1.2,
-      Silver: 1.5,
-      Gold: 2,
-      Platinum: 2.5,
-      Diamond: 3,
-      Elite: 4
-    };
-    reward *= boost[user.vipPlan] || 1;
-  }
-
-  user.balance += reward;
-  user.tasks += 1;
-  user.lastReward = now;
-
-  return res.send('OK');
-});
-
-app.get('/api/vip-invoice', async (req, res) => {
   try {
-    const plan = String(req.query.plan || '').trim();
+    const user = await ensureUser(userid);
+    const now = Date.now();
 
-    if (!isValidVipPlan(plan)) {
-      return res.status(400).json({ ok: false, error: 'Invalid plan' });
+    if (now - user.lastReward < 5000) return res.status(429).send('TOO_FAST');
+
+    let reward = 0.008; // Base
+    if (user.vip && VIP_BOOSTS[user.vipPlan]) {
+      reward *= VIP_BOOSTS[user.vipPlan];
     }
 
-    const amount = vipStarsAmount(plan);
+    user.balance += reward;
+    user.tasks += 1;
+    user.lastReward = now;
+    await user.save();
 
-    const invoiceUrl = await bot.telegram.createInvoiceLink({
-      title: `${plan} VIP Plan`,
-      description: `Activate ${plan} VIP in AdWallet`,
-      payload: `vip_${plan}`,
-      provider_token: '',
-      currency: 'XTR',
-      prices: [
-        { label: `${plan} VIP`, amount }
-      ]
-    });
-
-    console.log(`💰 Invoice Created: ${plan} → ${amount} Stars`);
-    return res.json({ ok: true, invoiceUrl });
+    res.send('OK');
   } catch (err) {
-    console.error('VIP invoice error:', err);
-    return res.status(500).json({ ok: false, error: 'Invoice error' });
+    res.status(500).send('ERROR');
   }
 });
 
-app.post('/api/withdraw', (req, res) => {
+// Create VIP Star Invoice
+app.get('/api/vip-invoice', async (req, res) => {
+  const { plan, userId } = req.query;
+  if (!VIP_PLANS[plan]) return res.status(400).json({ error: 'Invalid plan' });
+
+  try {
+    const invoiceUrl = await bot.telegram.createInvoiceLink({
+      title: `${plan} VIP Upgrade`,
+      description: `Unlock ${VIP_BOOSTS[plan]}x earnings in AdWallet`,
+      payload: `vip_${plan}_${userId}`,
+      provider_token: '', // Empty for Telegram Stars
+      currency: 'XTR',
+      prices: [{ label: `${plan} Plan`, amount: VIP_PLANS[plan] }]
+    });
+    res.json({ ok: true, invoiceUrl });
+  } catch (err) {
+    res.status(500).json({ error: 'Invoice failed' });
+  }
+});
+
+// Handle Withdrawals
+app.post('/api/withdraw', async (req, res) => {
   const { userId, amount, method, details } = req.body;
-  const id = String(userId || '');
-  const amt = Number(amount);
+  const user = await ensureUser(userId);
 
-  if (!id || !Number.isFinite(amt)) {
-    return res.json({ success: false, message: 'Invalid request' });
+  if (amount < 100 || amount > user.balance) {
+    return res.json({ success: false, message: 'Invalid Amount/Balance' });
   }
 
-  const user = ensureUser(id);
+  user.balance -= amount;
+  await user.save();
 
-  if (amt < 100) {
-    return res.json({ success: false, message: 'Minimum $100' });
-  }
-
-  if (amt > user.balance) {
-    return res.json({ success: false, message: 'Insufficient balance' });
-  }
-
-  user.balance -= amt;
-
-  withdrawals.unshift({
-    userId: id,
-    amount: amt,
-    method: method || 'Unknown',
-    details: details || {},
-    status: 'pending',
-    date: new Date().toISOString()
-  });
-
-  console.log('💸 Withdraw Request:', withdrawals[0]);
-  return res.json({ success: true });
-});
-
-app.get('/admin/withdrawals', (req, res) => {
-  res.json(withdrawals);
+  await Withdrawal.create({ userId, amount, method, details });
+  res.json({ success: true });
 });
 
 /* ---------------- TELEGRAM BOT ---------------- */
-bot.use(async (ctx, next) => {
-  console.log('📩 Update:', ctx.updateType, ctx.message?.text || '');
-  return next();
-});
+const bot = new Telegraf(BOT_TOKEN);
 
-bot.catch((err, ctx) => {
-  console.error('❌ Bot error:', err);
-  if (ctx?.update) {
-    console.error('Update:', JSON.stringify(ctx.update, null, 2));
-  }
-});
-
-async function handleStart(ctx) {
+async function checkMembership(ctx, userId) {
   try {
-    const userId = String(ctx.from.id);
-    const username = ctx.from.username || ctx.from.first_name || 'User';
-    const refId = String(ctx.startPayload || '').trim();
-
-    const joined = await isUserJoined(ctx, userId);
-    if (!joined) {
-      return ctx.reply(
-        '🚫 You must join our channel to use AdWallet.',
-        {
-          reply_markup: {
-            inline_keyboard: [
-              [
-                {
-                  text: '📢 Join Channel',
-                  url: 'https://t.me/AdWalletCommunity'
-                }
-              ],
-              [
-                {
-                  text: "✅ I've Joined",
-                  callback_data: 'check_join'
-                }
-              ]
-            ]
-          }
-        }
-      );
-    }
-
-    const webAppUrl = getWebAppUrl(userId);
-    const user = ensureUser(userId, username);
-
-    if (refId && refId !== userId && !user.referredBy) {
-      const referrer = ensureUser(refId);
-      user.referredBy = refId;
-
-      referrer.referralCount += 1;
-      referrer.referralEarnings += 0.01;
-      referrer.balance += 0.01;
-      referrer.referralList.push({
-        username,
-        date: new Date().toLocaleDateString()
-      });
-
-      try {
-        await ctx.telegram.sendMessage(
-          refId,
-          `👥 New referral joined!\n${username} started using AdWallet.\n💰 +$0.01 added`
-        );
-      } catch (e) {
-        console.log('Referral notify failed:', e.message);
-      }
-    }
-
-    await ctx.reply(
-      `🚀 Welcome ${username}!\n\nStart earning by watching ads 💰`,
-      {
-        reply_markup: {
-          inline_keyboard: [
-            [{ text: '💰 Open AdzWallet', web_app: { url: webAppUrl } }]
-          ]
-        }
-      }
-    );
-  } catch (err) {
-    console.error('Start Error:', err);
-    ctx.reply('❌ Something went wrong.');
-  }
+    const member = await ctx.telegram.getChatMember(FORCE_CHANNEL, userId);
+    return ['member', 'administrator', 'creator'].includes(member.status);
+  } catch (e) { return false; }
 }
 
-bot.start(handleStart);
-bot.command('start', handleStart);
+bot.start(async (ctx) => {
+  const userId = String(ctx.from.id);
+  const refId = String(ctx.startPayload || '').trim();
+  
+  const isJoined = await checkMembership(ctx, userId);
+  if (!isJoined) {
+    return ctx.reply(`🚫 Join ${FORCE_CHANNEL} to earn!`, {
+      reply_markup: {
+        inline_keyboard: [[{ text: '📢 Join Now', url: `https://t.me/${FORCE_CHANNEL.replace('@','')}` }],
+        [{ text: '✅ Joined', callback_data: 'check_join' }]]
+      }
+    });
+  }
+
+  const user = await ensureUser(userId, ctx.from.username || ctx.from.first_name);
+
+  // Referral Logic
+  if (refId && refId !== userId && !user.referredBy) {
+    const referrer = await User.findOne({ userId: refId });
+    if (referrer) {
+      user.referredBy = refId;
+      referrer.referralCount += 1;
+      referrer.balance += 0.01;
+      await referrer.save();
+      await user.save();
+      ctx.telegram.sendMessage(refId, `👥 New referral! +$0.01`).catch(() => {});
+    }
+  }
+
+  ctx.reply(`🚀 Welcome to AdWallet!`, {
+    reply_markup: {
+      inline_keyboard: [[{ text: '💰 Open AdWallet', web_app: { url: `${WEBAPP_URL}/?id=${userId}` } }]]
+    }
+  });
+});
 
 bot.action('check_join', async (ctx) => {
-  try {
-    const userId = String(ctx.from.id);
-    const username = ctx.from.username || ctx.from.first_name || 'User';
-
-    const joined = await isUserJoined(ctx, userId);
-    if (!joined) {
-      return ctx.answerCbQuery('❌ Join the channel first!', { show_alert: true });
-    }
-
-    const webAppUrl = getWebAppUrl(userId);
-    ensureUser(userId, username);
-
-    await ctx.answerCbQuery('✅ Access granted!');
-    await ctx.editMessageText(
-      '✅ Access granted! Open AdWallet below.',
-      {
-        reply_markup: {
-          inline_keyboard: [
-            [{ text: '💰 Open AdzWallet', web_app: { url: webAppUrl } }]
-          ]
-        }
-      }
-    );
-  } catch (e) {
-    console.error('check_join error:', e);
+  const isJoined = await checkMembership(ctx, ctx.from.id);
+  if (isJoined) {
+    await ctx.answerCbQuery('✅ Welcome!');
+    await ctx.editMessageText('🎉 Access granted! Click below to start.');
+    // Repeat Start Logic or send WebApp button
+  } else {
+    await ctx.answerCbQuery('❌ You haven\'t joined yet!', { show_alert: true });
   }
 });
 
-bot.on('pre_checkout_query', async (ctx) => {
-  try {
-    await ctx.answerPreCheckoutQuery(true);
-  } catch (e) {
-    console.error('pre_checkout_query error:', e);
+// Handle Star Payments
+bot.on('pre_checkout_query', (ctx) => ctx.answerPreCheckoutQuery(true));
+bot.on('successful_payment', async (ctx) => {
+  const payload = ctx.message.successful_payment.invoice_payload;
+  const parts = payload.split('_'); // vip_PlanName_UserId
+  if (parts[0] === 'vip') {
+    const plan = parts[1];
+    const uid = parts[2];
+    await User.findOneAndUpdate({ userId: uid }, { vip: true, vipPlan: plan });
+    ctx.reply(`✅ ${plan} VIP Activated!`);
   }
 });
 
-bot.on('message', async (ctx, next) => {
-  if (!ctx.message?.successful_payment) return next();
-
-  const userId = String(ctx.from.id);
-  const payload = String(ctx.message.successful_payment.invoice_payload || '');
-  const user = ensureUser(userId, ctx.from.username || ctx.from.first_name || 'User');
-
-  if (payload.startsWith('vip_')) {
-    const plan = payload.replace('vip_', '');
-
-    user.vip = true;
-    user.vipPlan = plan;
-
-    console.log(`✅ VIP Activated: ${userId} → ${plan}`);
-    try {
-      await ctx.reply(`✅ ${plan} VIP activated successfully!`);
-    } catch (e) {}
-    return;
-  }
-
-  return next();
-});
-
-/* ---------------- START SERVER ---------------- */
-app.listen(PORT, async () => {
-  console.log(`✅ Server running on ${PORT}`);
-
+/* ---------------- SERVER START ---------------- */
+const start = async () => {
   try {
-    await bot.telegram.deleteWebhook({ drop_pending_updates: true });
-    await bot.launch({ dropPendingUpdates: true });
-    console.log('🤖 Bot started successfully');
+    await mongoose.connect(MONGO_URL);
+    console.log('✅ MongoDB Connected');
+
+    app.listen(PORT, () => console.log(`✅ Web Server on ${PORT}`));
+
+    await bot.launch();
+    console.log('🤖 Bot Online');
   } catch (err) {
-    console.error('Bot launch error:', err);
+    console.error('Startup Error:', err);
   }
-});
+};
 
-/* ---------------- STOP HANDLERS ---------------- */
+start();
+
 process.once('SIGINT', () => bot.stop('SIGINT'));
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
