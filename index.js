@@ -11,35 +11,29 @@ app.use(express.static(path.join(__dirname, 'public')));
 const PORT = process.env.PORT || 8080;
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const REWARD_SECRET = process.env.REWARD_SECRET || 'adwallet7062';
-// Ensure URL doesn't have trailing slash for consistency
 const WEBAPP_URL = (process.env.WEBAPP_URL || '').trim().replace(/\/+$/, '');
 const FORCE_CHANNEL = '@AdWalletCommunity';
+const ADMIN_ID = process.env.ADMIN_ID; // Optional: Add your Telegram ID here to receive proof alerts
 
-// Error check for environment variables
 if (!BOT_TOKEN || !WEBAPP_URL) {
-  console.error('❌ CRITICAL: BOT_TOKEN or WEBAPP_URL missing in .env');
+  console.error('❌ CRITICAL: BOT_TOKEN or WEBAPP_URL missing');
   process.exit(1);
 }
 
 const bot = new Telegraf(BOT_TOKEN);
 
 /* ---------------- DATA STORAGE (In-Memory) ---------------- */
-// NOTE: On Railway/Render, this resets every time the server restarts.
 const users = {};
 const withdrawals = [];
+const manualRequests = []; 
 
 /* ---------------- ECONOMY SETTINGS ---------------- */
-const AD_REWARD_BASE = 0.05;   // Matches frontend display
-const REF_REWARD = 0.075;      // Matches frontend display
-const DAILY_BONUS = 0.25;     // Matches frontend display
+const AD_REWARD_BASE = 0.05;
+const REF_REWARD = 0.075;
 
 const VIP_PLANS = {
-  Bronze: 425,
-  Silver: 850,
-  Gold: 1275,
-  Platinum: 2125,
-  Diamond: 3200,
-  Elite: 4250
+  Bronze: 425, Silver: 850, Gold: 1275, 
+  Platinum: 2125, Diamond: 3200, Elite: 4250
 };
 
 /* ---------------- HELPERS ---------------- */
@@ -57,10 +51,9 @@ function ensureUser(userId, username = 'User') {
       referredBy: '',
       lastReward: 0,
       vip: false,
-      vipPlan: null
+      vipPlan: null,
+      isWaitingForProof: false
     };
-  } else if (username && (users[id].username === 'User' || !users[id].username)) {
-    users[id].username = username;
   }
   return users[id];
 }
@@ -69,203 +62,162 @@ async function isUserJoined(ctx, userId) {
   try {
     const member = await ctx.telegram.getChatMember(FORCE_CHANNEL, userId);
     return ['member', 'administrator', 'creator'].includes(member.status);
-  } catch (e) {
-    console.log('Join check error:', e.message);
-    return false;
-  }
+  } catch (e) { return false; }
 }
 
 /* ---------------- API ROUTES ---------------- */
 
-// Get user profile data
+// Get User Profile
 app.get('/user/:id', (req, res) => {
-  const id = req.params.id;
-  const user = ensureUser(id);
+  const user = ensureUser(req.params.id);
   res.json({
-    username: user.username,
-    balance: Number(user.balance || 0),
-    tasks: Number(user.tasks || 0),
-    referralCount: Number(user.referralCount || 0),
-    referralEarnings: Number(user.referralEarnings || 0),
-    vip: Boolean(user.vip),
-    vipPlan: user.vipPlan || null
+    balance: Number(user.balance.toFixed(4)),
+    tasks: user.tasks,
+    vip: user.vip,
+    vipPlan: user.vipPlan,
+    referralCount: user.referralCount
   });
 });
 
-// Reward logic for watching ads
+// Reward for Ads
 app.get('/api/reward', (req, res) => {
-  const { userid, userId, key } = req.query;
-  const id = String(userid || userId || '');
-
-  if (key !== REWARD_SECRET) return res.status(403).send('INVALID_KEY');
-  if (!id) return res.status(400).send('NO_USER');
-
-  const user = ensureUser(id);
+  const { userId, key } = req.query;
+  if (key !== REWARD_SECRET) return res.status(403).send('Forbidden');
+  
+  const user = ensureUser(userId);
   const now = Date.now();
-
-  // 5-second cooldown between rewards
-  if (now - user.lastReward < 5000) return res.status(429).send('TOO_FAST');
+  if (now - user.lastReward < 5000) return res.status(429).send('Wait');
 
   let reward = AD_REWARD_BASE;
-
-  // VIP Multipliers
   if (user.vip) {
-    const boost = {
-      Bronze: 1.2, Silver: 1.5, Gold: 2, 
-      Platinum: 2.5, Diamond: 3, Elite: 4
-    };
+    const boost = { Bronze: 1.2, Silver: 1.5, Gold: 2, Platinum: 2.5, Diamond: 3, Elite: 4 };
     reward *= boost[user.vipPlan] || 1;
   }
 
   user.balance += reward;
   user.tasks += 1;
   user.lastReward = now;
-
-  return res.send('OK');
+  res.send('OK');
 });
 
-// Generate Stars Invoice Link
-app.get('/api/vip-invoice', async (req, res) => {
-  try {
-    const plan = req.query.plan;
-    if (!VIP_PLANS[plan]) return res.status(400).json({ ok: false, error: 'Invalid plan' });
-
-    const amount = VIP_PLANS[plan];
-    const invoiceUrl = await bot.telegram.createInvoiceLink({
-      title: `${plan} VIP Plan`,
-      description: `Upgrade to ${plan} for higher ad rewards and bonuses!`,
-      payload: `vip_${plan}`,
-      provider_token: '', // Empty for Telegram Stars (XTR)
-      currency: 'XTR',
-      prices: [{ label: `${plan} VIP`, amount }]
-    });
-
-    res.json({ ok: true, invoiceUrl });
-  } catch (err) {
-    console.error('Invoice Error:', err);
-    res.status(500).json({ ok: false, error: 'Could not create invoice' });
-  }
-});
-
-// Handle Withdrawal Requests
+// Withdrawal Request
 app.post('/api/withdraw', (req, res) => {
   const { userId, amount, method, details } = req.body;
-  const id = String(userId || '');
+  const user = ensureUser(userId);
   const amt = Number(amount);
 
-  if (!id || isNaN(amt)) return res.json({ success: false, message: 'Invalid request' });
-
-  const user = ensureUser(id);
-
-  if (amt < 100) return res.json({ success: false, message: 'Minimum $100 required' });
-  if (amt > user.balance) return res.json({ success: false, message: 'Insufficient balance' });
+  if (amt < 100 || amt > user.balance) return res.json({ success: false, message: 'Invalid Amount' });
 
   user.balance -= amt;
-  withdrawals.unshift({
-    userId: id,
-    username: user.username,
-    amount: amt,
-    method,
-    details,
-    status: 'pending',
-    time: new Date().toLocaleTimeString()
-  });
-
+  withdrawals.unshift({ userId, amount: amt, method, details, status: 'pending', date: new Date() });
   res.json({ success: true });
 });
 
-/* ---------------- TELEGRAM BOT LOGIC ---------------- */
+/* ---------------- BOT LOGIC ---------------- */
 
-async function handleStart(ctx) {
+// /start command
+bot.start(async (ctx) => {
   const userId = String(ctx.from.id);
   const username = ctx.from.username || ctx.from.first_name || 'User';
   const refId = String(ctx.startPayload || '').trim();
 
-  // 1. Check Channel Subscription
   const joined = await isUserJoined(ctx, userId);
   if (!joined) {
-    return ctx.reply(
-      `👋 Hello ${username}!\n\nTo use AdWallet, you must join our official community first.`,
-      {
-        reply_markup: {
-          inline_keyboard: [
-            [{ text: '📢 Join Community', url: `https://t.me/${FORCE_CHANNEL.replace('@','')}` }],
-            [{ text: "✅ I've Joined", callback_data: 'check_join' }]
-          ]
-        }
+    return ctx.reply(`🚫 Please join ${FORCE_CHANNEL} to use this bot.`, {
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: '📢 Join Channel', url: `https://t.me/${FORCE_CHANNEL.replace('@','')}` }],
+          [{ text: '✅ I Have Joined', callback_data: 'check_join' }]
+        ]
       }
-    );
+    });
   }
 
   const user = ensureUser(userId, username);
 
-  // 2. Handle Referral Logic
   if (refId && refId !== userId && !user.referredBy) {
     const referrer = ensureUser(refId);
     user.referredBy = refId;
-    
+    referrer.balance += REF_REWARD;
     referrer.referralCount += 1;
     referrer.referralEarnings += REF_REWARD;
-    referrer.balance += REF_REWARD;
-    referrer.referralList.push({ username, date: new Date().toLocaleDateString() });
-
     try {
-      await ctx.telegram.sendMessage(refId, `👥 New Referral! <b>${username}</b> joined.\n💰 <b>+$${REF_REWARD}</b> added to your balance.`, { parse_mode: 'HTML' });
+      await ctx.telegram.sendMessage(refId, `👥 New Referral: ${username}\n💰 +$${REF_REWARD} added!`);
     } catch (e) {}
   }
 
-  // 3. Welcome Message with WebApp Button
-  await ctx.reply(
-    `🚀 <b>Welcome to AdWallet, ${username}!</b>\n\nWatch ads, complete offers, and earn real money directly to your wallet.`,
-    {
-      parse_mode: 'HTML',
-      reply_markup: {
-        inline_keyboard: [
-          [{ text: '💰 Open AdWallet', web_app: { url: `${WEBAPP_URL}/?id=${userId}` } }],
-          [{ text: '📢 Join Community', url: `https://t.me/${FORCE_CHANNEL.replace('@','')}` }]
-        ]
-      }
+  ctx.reply(`🚀 Welcome to AdWallet!\nEarn money by watching ads.`, {
+    reply_markup: {
+      inline_keyboard: [[{ text: '💰 Open AdWallet', web_app: { url: `${WEBAPP_URL}/?id=${userId}` } }]]
     }
-  );
-}
-
-bot.start(handleStart);
-
-bot.action('check_join', async (ctx) => {
-  const joined = await isUserJoined(ctx, ctx.from.id);
-  if (joined) {
-    await ctx.answerCbQuery('✅ Welcome to AdWallet!');
-    return handleStart(ctx);
-  }
-  await ctx.answerCbQuery('❌ You haven\'t joined @AdWalletCommunity yet!', { show_alert: true });
+  });
 });
 
-// Handle Payments (Telegram Stars)
+// Manual /activate command
+bot.command('activate', async (ctx) => {
+  const userId = String(ctx.from.id);
+  const user = ensureUser(userId);
+  user.isWaitingForProof = true;
+  
+  await ctx.reply(
+    `💎 <b>Manual VIP Activation</b>\n\n1. Send payment to the crypto address in the App.\n2. <b>Send the Screenshot (Photo)</b> of your payment here.\n\nAdmin will verify and activate your account within 24h.`,
+    { parse_mode: 'HTML' }
+  );
+});
+
+// Handling Photos (Screenshots)
+bot.on('photo', async (ctx) => {
+  const userId = String(ctx.from.id);
+  const user = ensureUser(userId);
+
+  if (user.isWaitingForProof) {
+    user.isWaitingForProof = false;
+    const photoId = ctx.message.photo[ctx.message.photo.length - 1].file_id;
+    
+    manualRequests.push({ userId, photoId, status: 'pending' });
+
+    await ctx.reply('✅ Screenshot received! Admin will review your payment shortly.');
+    
+    if (ADMIN_ID) {
+      await ctx.telegram.sendPhoto(ADMIN_ID, photoId, {
+        caption: `🔔 <b>New VIP Proof</b>\nUser: ${user.username}\nID: <code>${userId}</code>`,
+        parse_mode: 'HTML'
+      });
+    }
+  }
+});
+
+// Handle successful Telegram Stars payments
 bot.on('pre_checkout_query', (ctx) => ctx.answerPreCheckoutQuery(true));
 
 bot.on('message', async (ctx) => {
   if (ctx.message.successful_payment) {
     const userId = String(ctx.from.id);
-    const payload = ctx.message.successful_payment.invoice_payload;
+    const plan = ctx.message.successful_payment.invoice_payload.replace('vip_', '');
     const user = ensureUser(userId);
-
-    if (payload.startsWith('vip_')) {
-      const plan = payload.split('_')[1];
-      user.vip = true;
-      user.vipPlan = plan;
-      await ctx.reply(`💎 <b>Payment Received!</b>\nYour <b>${plan} VIP</b> status has been activated. Enjoy boosted rewards!`, { parse_mode: 'HTML' });
-    }
+    user.vip = true;
+    user.vipPlan = plan;
+    await ctx.reply(`✅ Congratulations! Your ${plan} VIP is now active.`);
   }
 });
 
-/* ---------------- SERVER START ---------------- */
+bot.action('check_join', async (ctx) => {
+  const joined = await isUserJoined(ctx, ctx.from.id);
+  if (joined) {
+    await ctx.answerCbQuery('Access Granted!');
+    return ctx.reply('✅ Verified! Use /start to begin.');
+  }
+  await ctx.answerCbQuery('❌ You must join the channel first!', { show_alert: true });
+});
+
+/* ---------------- START SERVER ---------------- */
 app.listen(PORT, async () => {
-  console.log(`✅ Server running on port ${PORT}`);
+  console.log(`✅ Web Server running on port ${PORT}`);
   try {
     await bot.launch();
-    console.log('🤖 Bot is online');
+    console.log('🤖 Telegram Bot connected');
   } catch (err) {
-    console.error('Bot launch failed:', err);
+    console.error('Bot launch error:', err);
   }
 });
 
