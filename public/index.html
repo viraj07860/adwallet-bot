@@ -406,6 +406,65 @@
     #main::-webkit-scrollbar-thumb,.sb-nav::-webkit-scrollbar-thumb{
       background:var(--border);border-radius:4px;
     }
+
+/* Crypto Payment Modal Styles */
+#crypto-modal {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(8px); z-index: 2000;
+  display: none; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.3s ease;
+}
+#crypto-modal.show { opacity: 1; }
+
+.crypto-card {
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  box-shadow: 0 8px 32px var(--green-glow);
+  border-radius: 24px; padding: 24px; width: 92%; max-width: 360px;
+  color: #fff; position: relative;
+  transform: translateY(20px); transition: transform 0.3s ease;
+}
+#crypto-modal.show .crypto-card { transform: translateY(0); }
+
+.crypto-close {
+  position: absolute; top: 16px; right: 16px;
+  background: rgba(255,255,255,0.1); border: none; color: #fff;
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 14px;
+}
+
+.coin-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px;
+}
+.coin-btn {
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+  padding: 12px; border-radius: 14px; color: #fff; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  transition: all 0.2s;
+}
+.coin-btn:hover, .coin-btn:active {
+  background: var(--green-glow); border-color: var(--green);
+}
+.coin-icon { font-size: 24px; }
+.coin-name { font-size: 13px; font-weight: 700; }
+.coin-net { font-size: 10px; color: var(--muted); }
+
+/* Details View */
+#crypto-details { display: none; margin-top: 16px; }
+.copy-box {
+  background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px; padding: 12px; margin-bottom: 12px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.copy-info { flex: 1; overflow: hidden; }
+.copy-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+.copy-value { font-size: 14px; font-weight: 700; word-break: break-all; }
+.copy-action {
+  background: var(--green); color: #fff; border: none;
+  padding: 8px 12px; border-radius: 8px; font-size: 12px;
+  font-weight: bold; cursor: pointer; margin-left: 10px;
+}
   </style>
 </head>
 <body>
@@ -452,7 +511,7 @@
       <div class="bal-amount">$<span id="bal-main">0.00</span></div>
       <div class="bal-label">Total Earnings</div>
 
-      <div class="progress-wrap">
+            <div class="progress-wrap">
         <div class="progress-label">
           <span>Earning Progress</span>
           <span id="progress-text">$0.00 / $100.00</span>
@@ -462,11 +521,12 @@
         </div>
       </div>
 
-      <div class="bal-actions">
-        <button class="btn btn-white" onclick="navigate('cashout',4)">💸 Cash Out</button>
-        <button class="btn btn-outline" onclick="claimBonus()"> 🎁 Daily Bonus</button>
+      <div class="bal-actions" style="position: relative; z-index: 10; pointer-events: auto;">
+        <button class="btn btn-white" style="position: relative; z-index: 11; cursor: pointer;" onclick="navigate('cashout',4)">💸 Cash Out</button>
+        <button class="btn btn-outline" style="position: relative; z-index: 11; cursor: pointer;" onclick="claimBonus()"> 🎁 Daily Bonus</button>
       </div>
     </div>
+
 
     <div class="earn-pills">
       <div class="pill"><span class="pill-icon">🎬</span><span class="pill-val">$0.05–$0.10</span><span class="pill-desc">per ad watched</span></div>
@@ -851,6 +911,83 @@
 
 <button id="fab" onclick="navigate('ads',1)" title="Earn Now">⚡</button>
 <div id="toast"></div>
+
+<div id="crypto-modal">
+  <div class="crypto-card">
+    <button class="crypto-close" onclick="closeCryptoModal()">✕</button>
+    
+    <div style="font-size: 18px; font-weight: 800; text-align: center;">
+      Buy <span id="modal-plan-name" style="color: #22c55e;">VIP</span>
+    </div>
+    <div style="font-size: 13px; color: #94a3b8; text-align: center; margin-top: 4px;" id="modal-subtitle">
+      Select your payment method
+    </div>
+
+    <div class="coin-grid" id="coin-selection">
+      <div class="coin-btn" onclick="selectCoin('USDT')">
+        <span class="coin-icon">💵</span>
+        <span class="coin-name">USDT</span>
+        <span class="coin-net">BEP20</span>
+      </div>
+      <div class="coin-btn" onclick="selectCoin('BNB')">
+        <span class="coin-icon">🟡</span>
+        <span class="coin-name">BNB</span>
+        <span class="coin-net">BEP20</span>
+      </div>
+      <div class="coin-btn" onclick="selectCoin('TRX')">
+        <span class="coin-icon">🔴</span>
+        <span class="coin-name">TRX</span>
+        <span class="coin-net">TRON</span>
+      </div>
+      <div class="coin-btn" onclick="selectCoin('TON')">
+        <span class="coin-icon">💎</span>
+        <span class="coin-name">TON</span>
+        <span class="coin-net">TON</span>
+      </div>
+      <div class="coin-btn" onclick="selectCoin('SOL')">
+        <span class="coin-icon">🟣</span>
+        <span class="coin-name">SOL</span>
+        <span class="coin-net">Solana</span>
+      </div>
+      <div class="coin-btn" onclick="selectCoin('BTC')">
+        <span class="coin-icon">₿</span>
+        <span class="coin-name">BTC</span>
+        <span class="coin-net">Bitcoin</span>
+      </div>
+    </div>
+
+    <div id="crypto-details" style="display: none;">
+      <button class="btn btn-ghost" style="padding: 6px 12px; font-size: 12px; margin-bottom: 16px; width: auto; background: rgba(255,255,255,0.05);" onclick="resetCryptoModal()">
+        ← Back
+      </button>
+      
+      <div class="copy-box">
+        <div class="copy-info">
+          <div class="copy-label">Amount to send</div>
+          <div class="copy-value" id="pay-amount">0.00</div>
+        </div>
+        <button class="copy-action" onclick="copyToClipboard('pay-amount')">Copy</button>
+      </div>
+
+      <div class="copy-box">
+        <div class="copy-info">
+          <div class="copy-label">Wallet Address (<span id="pay-network">Net</span>)</div>
+          <div class="copy-value" style="font-size: 11px;" id="pay-address">0x...</div>
+        </div>
+        <button class="copy-action" onclick="copyToClipboard('pay-address')">Copy</button>
+      </div>
+
+      <div style="background: rgba(34,197,94,0.1); border-left: 3px solid #22c55e; padding: 10px; font-size: 11px; color: #bbf7d0; margin-bottom: 16px; border-radius: 4px; line-height: 1.4;">
+        ⚠️ 1. Send exact amount.<br>
+        2. Close app and send screenshot to @AdzwalletBot.
+      </div>
+
+      <button class="btn btn-green" style="width: 100%; padding: 14px; background: #22c55e; color: #000; font-weight: 800; border-radius: 12px; border: none; cursor: pointer;" onclick="closeAppAndUpload()">
+        📸 I have paid, send screenshot
+      </button>
+    </div>
+  </div>
+</div>
 
 <script>
 let balance = 0;
@@ -1274,12 +1411,88 @@ async function buyVipStars(plan) {
   }
 }
 
-function buyVipCrypto(plan, price) {
-  const msg = encodeURIComponent(`Hi, I want to buy ${plan} VIP plan for ${price} Stars using crypto.`);
-  if (window.Telegram?.WebApp) {
-    window.Telegram.WebApp.openTelegramLink(`https://t.me/adwalletagent?text=${msg}`);
+// --- Crypto Payment Data ---
+const cryptoWallets = {
+  USDT: { address: '0x3e5989c2e42fa96397a1c9c743da6939b13b58b0', network: 'BEP20' },
+  BNB: { address: '0x3e5989c2e42fa96397a1c9c743da6939b13b58b0', network: 'BEP20' },
+  TRX: { address: 'THd6rZRzPKBwn5e2LhmiHPkNTXdLYsxFkj', network: 'TRON' },
+  TON: { address: 'UQBR-ZYfWLu0qu6SHZev7y8PnKSjMBn4eh9KoC7obr7rucew', network: 'TON' },
+  SOL: { address: 'GfB21zL1yqM7SzSh1gEyKPJZgA3CAGo5PxSKmmsxTE6Q', network: 'Solana' },
+  BTC: { address: '1CZ1Z61vGh162pXGNU4q4vGN2hjWxom8rc', network: 'Bitcoin' }
+};
+
+const planPrices = {
+  Bronze:   { USDT: 10.00,  BNB: 0.033, TRX: 77.50,  TON: 10.50,  SOL: 0.071, BTC: 0.00016 },
+  Silver:   { USDT: 20.00,  BNB: 0.066, TRX: 155.00, TON: 21.00,  SOL: 0.142, BTC: 0.00032 },
+  Gold:     { USDT: 30.00,  BNB: 0.099, TRX: 232.50, TON: 31.50,  SOL: 0.213, BTC: 0.00048 },
+  Platinum: { USDT: 50.00,  BNB: 0.165, TRX: 387.50, TON: 52.50,  SOL: 0.355, BTC: 0.00080 },
+  Diamond:  { USDT: 75.00,  BNB: 0.248, TRX: 581.25, TON: 78.75,  SOL: 0.533, BTC: 0.00120 },
+  Elite:    { USDT: 100.00, BNB: 0.330, TRX: 775.00, TON: 105.00, SOL: 0.710, BTC: 0.00160 }
+};
+
+let selectedVipPlan = '';
+
+// --- Modal Functions ---
+function buyVipCrypto(plan, stars) {
+  selectedVipPlan = plan;
+  document.getElementById('modal-plan-name').textContent = plan + ' VIP';
+  resetCryptoModal(); 
+  
+  const modal = document.getElementById('crypto-modal');
+  modal.style.display = 'flex';
+  setTimeout(() => modal.classList.add('show'), 10);
+}
+
+function closeCryptoModal() {
+  const modal = document.getElementById('crypto-modal');
+  modal.classList.remove('show');
+  setTimeout(() => modal.style.display = 'none', 300);
+}
+
+function resetCryptoModal() {
+  document.getElementById('coin-selection').style.display = 'grid';
+  document.getElementById('crypto-details').style.display = 'none';
+  document.getElementById('modal-subtitle').textContent = 'Select your payment method';
+}
+
+function selectCoin(coin) {
+  const price = planPrices[selectedVipPlan][coin];
+  const walletData = cryptoWallets[coin];
+
+  document.getElementById('pay-amount').textContent = `${price} ${coin}`;
+  document.getElementById('pay-network').textContent = walletData.network;
+  document.getElementById('pay-address').textContent = walletData.address;
+
+  document.getElementById('coin-selection').style.display = 'none';
+  document.getElementById('crypto-details').style.display = 'block';
+  document.getElementById('modal-subtitle').textContent = `Pay via ${coin} (${walletData.network})`;
+}
+
+function copyToClipboard(elementId) {
+  let text = document.getElementById(elementId).textContent;
+  if (elementId === 'pay-amount') {
+    text = text.split(' ')[0]; 
+  }
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => showToast('📋 Copied!'));
   } else {
-    window.open(`https://t.me/adwalletagent?text=${msg}`, '_blank');
+    const tempInput = document.createElement("input");
+    tempInput.value = text;
+    document.body.appendChild(tempInput);
+    tempInput.select();
+    document.execCommand("copy");
+    document.body.removeChild(tempInput);
+    showToast('📋 Copied!');
+  }
+}
+
+function closeAppAndUpload() {
+  if (window.Telegram?.WebApp) {
+    window.Telegram.WebApp.close(); 
+  } else {
+    closeCryptoModal();
+    showToast("Please upload your screenshot to the bot chat.");
   }
 }
 
@@ -1304,10 +1517,6 @@ function toggleFaq(el){
   userId = getTelegramUserId();
   setReferralLink();
   loadUser();
-
-  if(!userId){
-    setReferralLink();
-  }
 })();
 </script>
 </body>
