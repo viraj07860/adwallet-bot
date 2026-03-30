@@ -129,7 +129,22 @@ app.get('/api/reward', (req, res) => {
     return res.status(429).send('TOO_FAST');
   }
 
-  user.balance += 0.08;
+  // Smart economy
+  let reward = 0.008; // base ad reward
+
+  if (user.vip) {
+    const boost = {
+      Bronze: 1.2,
+      Silver: 1.5,
+      Gold: 2,
+      Platinum: 2.5,
+      Diamond: 3,
+      Elite: 4
+    };
+    reward *= boost[user.vipPlan] || 1;
+  }
+
+  user.balance += reward;
   user.tasks += 1;
   user.lastReward = now;
 
@@ -255,8 +270,8 @@ async function handleStart(ctx) {
       user.referredBy = refId;
 
       referrer.referralCount += 1;
-      referrer.referralEarnings += 0.075;
-      referrer.balance += 0.075;
+      referrer.referralEarnings += 0.01;
+      referrer.balance += 0.01;
       referrer.referralList.push({
         username,
         date: new Date().toLocaleDateString()
@@ -265,7 +280,7 @@ async function handleStart(ctx) {
       try {
         await ctx.telegram.sendMessage(
           refId,
-          `👥 New referral joined!\n${username} started using AdWallet.\n💰 +$0.075 added`
+          `👥 New referral joined!\n${username} started using AdWallet.\n💰 +$0.01 added`
         );
       } catch (e) {
         console.log('Referral notify failed:', e.message);
@@ -306,7 +321,7 @@ bot.action('check_join', async (ctx) => {
 
     await ctx.answerCbQuery('✅ Access granted!');
     await ctx.editMessageText(
-      `✅ Access granted! Open AdWallet below.`,
+      '✅ Access granted! Open AdWallet below.',
       {
         reply_markup: {
           inline_keyboard: [
