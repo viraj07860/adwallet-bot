@@ -14,14 +14,13 @@ const BOT_TOKEN = process.env.BOT_TOKEN;
 const REWARD_SECRET = process.env.REWARD_SECRET || 'adwallet7062';
 const WEBAPP_URL = (process.env.WEBAPP_URL || '').trim().replace(/\/+$/, '');
 const FORCE_CHANNEL = '@AdWalletCommunity';
-const ADMIN_ID = process.env.ADMIN_ID || '6259396688';
+const ADMIN_ID = process.env.ADMIN_ID || '6259396688';   // Your Admin ID
 const MONGO_URL = process.env.MONGO_URL;
 
 if (!BOT_TOKEN || !WEBAPP_URL || !MONGO_URL) {
   console.error('❌ CRITICAL: BOT_TOKEN, WEBAPP_URL, or MONGO_URL is missing');
   process.exit(1);
-}
-
+}                                                                                       
 const bot = new Telegraf(BOT_TOKEN);
 
 /* ---------------- DATABASE CONNECTION ---------------- */
@@ -38,10 +37,10 @@ const userSchema = new mongoose.Schema({
   referralCount: { type: Number, default: 0 },
   referralEarnings: { type: Number, default: 0 },
   referredBy: { type: String, default: '' },
-  referralCredited: { type: Boolean, default: false },
-  lastReward: { type: Number, default: 0 },
+referralCredited: { type: Boolean, default: false },
+lastReward: { type: Number, default: 0 },
   lastDailyBonus: { type: String, default: '' },
-  welcomeBonusClaimed: { type: Boolean, default: false },
+welcomeBonusClaimed: { type: Boolean, default: false },
   vip: { type: Boolean, default: false },
   vipPlan: { type: String, default: null },
   isWaitingForProof: { type: Boolean, default: false }
@@ -60,21 +59,17 @@ const VIP_PLANS = {
   Platinum: 2125,
   Diamond: 3200,
   Elite: 4250
-};
-
+};                                                                                      
 /* ---------------- HELPERS ---------------- */
 async function ensureUser(userId, username = 'User') {
-  const uid = String(userId);
-  let user = await User.findOne({ userId: uid });
-
+  let user = await User.findOne({ userId: String(userId) });                            
   if (!user) {
-    user = new User({ userId: uid, username });
+    user = new User({ userId: String(userId), username });
     await user.save();
   } else if (username && username !== 'User' && user.username === 'User') {
     user.username = username;
     await user.save();
   }
-
   return user;
 }
 
@@ -88,10 +83,11 @@ async function isUserJoined(ctx, userId) {
 }
 
 /* ---------------- API ROUTES ---------------- */
+
+// Get user data for Mini App
 app.get('/user/:id', async (req, res) => {
-  try {
-    const user = await ensureUser(req.params.id);
-    res.json({
+  const user = await ensureUser(req.params.id);
+
 if (!user.welcomeBonusClaimed) {
   user.balance += 5;
   user.welcomeBonusClaimed = true;
@@ -99,137 +95,85 @@ if (!user.welcomeBonusClaimed) {
 
   console.log(`🎁 Welcome bonus given to ${user.userId}`);
 }
-      balance: Number(user.balance.toFixed(4)),
-      tasks: user.tasks,
-      vip: user.vip,
-      vipPlan: user.vipPlan,
-      referralCount: user.referralCount,
-      referralEarnings: user.referralEarnings
-    });
-  } catch (err) {
-    console.error('GET /user/:id error:', err);
-    res.status(500).json({ error: 'Failed to load user' });
-  }
+
+  res.json({
+    balance: Number(user.balance.toFixed(4)),
+    tasks: user.tasks,
+    vip: user.vip,
+    vipPlan: user.vipPlan,
+    referralCount: user.referralCount
+  });
 });
 
-/* Reward from watching ads */
+// Reward from watching ads
 app.get('/api/reward', async (req, res) => {
-  try {
-    const { userId, key } = req.query;
+  const { userId, key } = req.query;
+  if (key !== REWARD_SECRET) return res.status(403).send('Forbidden');
 
-    if (key !== REWARD_SECRET) {
-      return res.status(403).send('Forbidden');
-    }
+  const user = await ensureUser(userId);
+const now = Date.now();
+if (now - user.lastReward < 5000) return res.status(429).send('Wait');
 
-    if (!userId) {
-      return res.status(400).send('Missing userId');
-    }
+let reward = AD_REWARD_BASE;
+if (user.vip) {
+  const boost = { Bronze: 1.2, Silver: 1.5, Gold: 2, Platinum: 2.5, Diamond: 3, Elite: 4 };
+  reward *= boost[user.vipPlan] || 1;
+}
 
-    const user = await ensureUser(userId);
-    const now = Date.now();
+const isFirstAd = user.tasks === 0;
 
-    if (now - user.lastReward < 5000) {
-      return res.status(429).send('Wait');
-    }
+user.balance += reward;
+user.tasks += 1;
+user.lastReward = now;
 
-    let reward = AD_REWARD_BASE;
-
-    if (user.vip) {
-      const boost = {
-        Bronze: 1.2,
-        Silver: 1.5,
-        Gold: 2,
-        Platinum: 2.5,
-        Diamond: 3,
-        Elite: 4
-      };
-      reward *= boost[user.vipPlan] || 1;
-    }
-
-    const isFirstAd = user.tasks === 0;
-
-    user.balance += reward;
-    user.tasks += 1;
-    user.lastReward = now;
-
-    if (
-      isFirstAd &&
-      user.referredBy &&
-      user.referredBy !== user.userId &&
-      !user.referralCredited
-    ) {
-      const referrer = await User.findOne({ userId: String(user.referredBy) });
-
-      if (referrer) {
-        referrer.balance += REF_REWARD;
-        referrer.referralEarnings += REF_REWARD;
-        referrer.referralCount += 1;
-        await referrer.save();
-      }
-
-      user.referralCredited = true;
-    }
-
-    await user.save();
-    res.send('OK');
-  } catch (err) {
-    console.error('GET /api/reward error:', err);
-    res.status(500).send('Server error');
+if (isFirstAd && user.referredBy && user.referredBy !== user.userId && !user.referralCredited) {
+  const referrer = await User.findOne({ userId: String(user.referredBy) });
+  if (referrer) {
+    referrer.balance += REF_REWARD;
+    referrer.referralEarnings += REF_REWARD;
+    referrer.referralCount += 1;
+    await referrer.save();
   }
-});
+  user.referralCredited = true;
+}
 
-/* Daily Bonus */
+await user.save();
+res.send('OK');
+
+// Daily Bonus (Now saves permanently)
 app.post('/api/claim-daily-bonus', async (req, res) => {
-  try {
-    const { userId } = req.body;
-    if (!userId) {
-      return res.json({ success: false, message: 'Invalid request' });
-    }
+  const { userId } = req.body;
+  if (!userId) return res.json({ success: false, message: 'Invalid request' });
 
-    const user = await ensureUser(userId);
-    const today = new Date().toDateString();
+  const user = await ensureUser(userId);
+  const today = new Date().toDateString();
 
-    if (user.lastDailyBonus === today) {
-      return res.json({ success: false, message: 'Come back tomorrow!' });
-    }
-
-    const bonusAmount = 0.25;
-    user.balance += bonusAmount;
-    user.lastDailyBonus = today;
-    await user.save();
-
-    console.log(`🎁 Daily Bonus Claimed by ${user.username}`);
-    return res.json({ success: true, newBalance: user.balance });
-  } catch (err) {
-    console.error('POST /api/claim-daily-bonus error:', err);
-    return res.json({ success: false, message: 'Server error' });
+  if (user.lastDailyBonus === today) {
+    return res.json({ success: false, message: 'Come back tomorrow!' });
   }
+
+  const bonusAmount = 0.25;
+  user.balance += bonusAmount;
+  user.lastDailyBonus = today;
+  await user.save();
+
+  console.log(`🎁 Daily Bonus Claimed by ${user.username}`);
+  return res.json({ success: true, newBalance: user.balance });
 });
 
-/* Withdrawal */
+// Withdrawal
 app.post('/api/withdraw', async (req, res) => {
-  try {
-    const { userId, amount, method, details } = req.body;
-
-    if (!userId) {
-      return res.json({ success: false, message: 'Invalid user' });
-    }
-
-    const user = await ensureUser(userId);
-    const amt = Number(amount);
-
-    if (amt < 100 || amt > user.balance) {
-      return res.json({ success: false, message: 'Invalid Amount' });
-    }
-
-    user.balance -= amt;
-    await user.save();
-
-    res.json({ success: true });
-  } catch (err) {
-    console.error('POST /api/withdraw error:', err);
-    res.json({ success: false, message: 'Withdraw failed' });
+  const { userId, amount, method, details } = req.body;
+  const user = await ensureUser(userId);
+  const amt = Number(amount);
+                                                                                          if (amt < 100 || amt > user.balance) {
+    return res.json({ success: false, message: 'Invalid Amount' });
   }
+
+  user.balance -= amt;
+  await user.save();
+
+  res.json({ success: true });
 });
 
 /* ---------------- BOT LOGIC ---------------- */
@@ -243,88 +187,76 @@ bot.start(async (ctx) => {
     return ctx.reply(`🚫 Please join ${FORCE_CHANNEL} to use this bot.`, {
       reply_markup: {
         inline_keyboard: [
-          [{ text: '📢 Join Channel', url: `https://t.me/${FORCE_CHANNEL.replace('@', '')}` }],
+          [{ text: '📢 Join Channel', url: `https://t.me/${FORCE_CHANNEL.replace('@','')}` }],
           [{ text: '✅ I Have Joined', callback_data: 'check_join' }]
         ]
       }
     });
   }
 
-  const user = await ensureUser(userId, username);
+  const newUser = await ensureUser(userId, username);
 
-  if (refId && refId !== userId && !user.referredBy) {
-    user.referredBy = refId;
-    await user.save();
+if (refId && refId !== userId) {
+  if (!newUser.referredBy) {
+    newUser.referredBy = refId;
+    await newUser.save();
   }
+}
 
   ctx.reply(`🚀 Welcome to AdWallet!\nEarn money by watching ads.`, {
     reply_markup: {
-      inline_keyboard: [[
-        { text: '💰 Open AdWallet', web_app: { url: `${WEBAPP_URL}/?id=${userId}` } }
-      ]]
+      inline_keyboard: { text: '💰 Open AdWallet', web_app: { url: `${WEBAPP_URL}/?id=${userId}` } }
     }
   });
 });
 
-/* Activate Command (Admin + User) */
+// Activate Command (Admin + User)
 bot.command('activate', async (ctx) => {
   const senderId = String(ctx.from.id);
 
   if (senderId === ADMIN_ID) {
     const args = ctx.message.text.trim().split(/\s+/);
-
     if (args.length !== 3) {
-      return ctx.reply(
-        `⚠️ <b>Usage:</b> <code>/activate UserID Plan</code>\nExample: <code>/activate 123456789 Gold</code>`,
-        { parse_mode: 'HTML' }
-      );
+      return ctx.reply(`⚠️ <b>Usage:</b> <code>/activate UserID Plan</code>\nExample: <code>/activate 123456789 Gold</code>`,
+        { parse_mode: 'HTML' });
     }
 
     const targetUserId = args[1];
     const targetPlan = args[2];
-
-    if (!Object.keys(VIP_PLANS).includes(targetPlan)) {
+                                                                                            if (!Object.keys(VIP_PLANS).includes(targetPlan)) {
       return ctx.reply('❌ Invalid Plan');
     }
-
-    const targetUser = await ensureUser(targetUserId);
+                                                                                            const targetUser = await ensureUser(targetUserId);
     targetUser.vip = true;
     targetUser.vipPlan = targetPlan;
     targetUser.isWaitingForProof = false;
     await targetUser.save();
 
-    await ctx.reply(`✅ User <code>${targetUserId}</code> upgraded to <b>${targetPlan} VIP</b>`, {
-      parse_mode: 'HTML'
-    });
+    await ctx.reply(`✅ User <code>${targetUserId}</code> upgraded to <b>${targetPlan} VIP</b>`, { parse_mode: 'HTML' });
 
     try {
-      await bot.telegram.sendMessage(
-        targetUserId,
+      await bot.telegram.sendMessage(targetUserId,
         `🎉 <b>Congratulations!</b>\nYour <b>${targetPlan} VIP</b> has been activated!`,
         {
           parse_mode: 'HTML',
           reply_markup: {
-            inline_keyboard: [[
-              { text: '🚀 Open App', web_app: { url: `${WEBAPP_URL}/?id=${targetUserId}` } }
-            ]]
+            inline_keyboard: { text: '🚀 Open App', web_app: { url: `${WEBAPP_URL}/?id=${targetUserId}` } }
           }
         }
       );
     } catch (e) {}
-
     return;
   }
 
+  // Normal user
   const user = await ensureUser(senderId);
   user.isWaitingForProof = true;
   await user.save();
 
-  await ctx.reply(`💎 <b>Manual VIP Activation</b>\n\nSend payment screenshot here.`, {
-    parse_mode: 'HTML'
-  });
+  await ctx.reply(`💎 <b>Manual VIP Activation</b>\n\nSend payment screenshot here.`, { parse_mode: 'HTML' });
 });
 
-/* Handle payment screenshots */
+// Handle payment screenshots
 bot.on('photo', async (ctx) => {
   const userId = String(ctx.from.id);
   const user = await ensureUser(userId);
@@ -344,7 +276,7 @@ bot.on('photo', async (ctx) => {
   }
 });
 
-/* Telegram Stars Payment */
+// Telegram Stars Payment
 bot.on('pre_checkout_query', (ctx) => ctx.answerPreCheckoutQuery(true));
 
 bot.on('message', async (ctx) => {
@@ -352,35 +284,29 @@ bot.on('message', async (ctx) => {
     const userId = String(ctx.from.id);
     const plan = ctx.message.successful_payment.invoice_payload.replace('vip_', '');
     const user = await ensureUser(userId);
-
     user.vip = true;
     user.vipPlan = plan;
     await user.save();
-
     await ctx.reply(`✅ Your ${plan} VIP is now active!`);
   }
 });
 
 bot.action('check_join', async (ctx) => {
   const joined = await isUserJoined(ctx, ctx.from.id);
-
   if (joined) {
     await ctx.answerCbQuery('Access Granted!');
     return ctx.reply('✅ Verified! Use /start to begin.');
   }
-
   await ctx.answerCbQuery('❌ You must join the channel first!', { show_alert: true });
 });
 
 /* ---------------- START SERVER ---------------- */
 app.listen(PORT, async () => {
   console.log(`✅ Server running on port ${PORT}`);
-
   try {
     await bot.launch();
     console.log('🤖 Bot started successfully');
-  } catch (err) {
-    console.error('Bot launch error:', err);
+  } catch (err) {                                                                           console.error('Bot launch error:', err);
   }
 });
 
