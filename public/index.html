@@ -990,6 +990,8 @@
 </div>
 
 <script>
+const REWARD_SECRET = "adwallet7062";
+
 let balance = 0;
 let referralCount = 0;
 let referralEarnings = 0;
@@ -1057,15 +1059,42 @@ function updateBalance(delta){
   document.getElementById('prog-fill').style.width = pct + '%';
 }
 
-function claimBonus(){
-  if(bonusClaimed){
-    showToast('✅ Already claimed today!');
+async function claimBonus() {
+  const urlParams = new URLSearchParams(window.location.search);
+  let userId = urlParams.get('id');
+
+  if (!userId && window.Telegram?.WebApp?.initDataUnsafe?.user) {
+    userId = String(window.Telegram.WebApp.initDataUnsafe.user.id);
+  }
+
+  if (!userId) {
+    showToast("⚠️ Cannot identify user");
     return;
   }
-  bonusClaimed = true;
-  updateBalance(0.25);
-  showToast('🎁 +$0.25 Daily Bonus claimed!');
-  if(navigator.vibrate) navigator.vibrate([40,20,40]);
+
+  showToast("⏳ Claiming daily bonus...");
+
+  try {
+    const response = await fetch('/api/claim-daily-bonus', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: userId })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      // Update balance from server
+      document.getElementById('balance').textContent = `$${parseFloat(data.newBalance).toFixed(2)}`;
+      showToast('🎁 +$0.25 Daily Bonus claimed!');
+      if (navigator.vibrate) navigator.vibrate([40, 20, 40]);
+    } else {
+      showToast(`❌ ${data.message || "Already claimed today!"}`);
+    }
+  } catch (error) {
+    console.error(error);
+    showToast("⚠️ Network error. Please try again.");
+  }
 }
 
 function showToast(msg){
@@ -1267,38 +1296,56 @@ async function showRewardedAd(){
   throw new Error('Ads not ready');
 }
 
-async function watchAd(btn){
-  try{
-    if(btn){
+// ====================== WATCH AD FUNCTION ======================
+async function watchAd(btn) {
+  const urlParams = new URLSearchParams(window.location.search);
+  let userId = urlParams.get('id');
+
+  if (!userId && window.Telegram?.WebApp?.initDataUnsafe?.user) {
+    userId = String(window.Telegram.WebApp.initDataUnsafe.user.id);
+  }
+
+  if (!userId) {
+    showToast("⚠️ Cannot identify user");
+    return;
+  }
+
+  try {
+    if (btn) {
       btn.disabled = true;
       btn.textContent = '⏳';
     }
 
-    await showRewardedAd();
+    // Remove or comment this if you don't have real ad integration
+    // await showRewardedAd();
 
-    const res = await fetch(`/api/reward?userid=${encodeURIComponent(userId)}&key=adwallet7062`);
-    const text = await res.text();
+    showToast("⏳ Claiming reward...");
 
-    if(text === 'OK'){
-      showToast('🎬 Reward added!');
-      await loadUser();
+    const res = await fetch(`/api/reward?userId=${userId}&key=${REWARD_SECRET}`);
+    
+    if (res.ok) {
+      showToast("✅ Reward Added Successfully!");
+      await loadUserData();        // Updated to new function
     } else {
+      const text = await res.text();
       showToast(text || '❌ Reward failed');
     }
-  } catch(e){
-    console.log(e);
-    showToast('❌ Ad failed');
+  } catch (e) {
+    console.error(e);
+    showToast('❌ Connection error');
   } finally {
-    if(btn){
+    if (btn) {
       btn.disabled = false;
-      btn.textContent = 'Watch';
+      btn.textContent = 'Watch Ad';
     }
   }
 }
 
-function earnNow(){
-  watchAd();
+// Keep this if you are using it from button onclick
+function earnNow(btn) {
+  watchAd(btn);
 }
+
 
 async function submitWithdraw(){
   const amt = parseFloat(document.getElementById('withdraw-amount').value) || 0;
@@ -1518,6 +1565,35 @@ function toggleFaq(el){
   setReferralLink();
   loadUser();
 })();
+
+// Auto load balance when page opens
+window.addEventListener('load', () => {
+  loadUserData();
+  
+  if (window.Telegram?.WebApp) {
+    window.Telegram.WebApp.ready();
+    window.Telegram.WebApp.expand();
+  }
+});
+
+async function loadUserData() {
+  const urlParams = new URLSearchParams(window.location.search);
+  let userId = urlParams.get('id');
+
+  if (!userId && window.Telegram?.WebApp?.initDataUnsafe?.user) {
+    userId = String(window.Telegram.WebApp.initDataUnsafe.user.id);
+  }
+
+  if (!userId) return;
+
+  try {
+    const res = await fetch(`/user/${userId}`);
+    const data = await res.json();
+    document.getElementById('balance').textContent = `$${parseFloat(data.balance).toFixed(2)}`;
+  } catch (err) {
+    console.error("Failed to load balance");
+  }
+}
 </script>
 </body>
 </html>
