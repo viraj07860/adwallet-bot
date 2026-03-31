@@ -132,7 +132,7 @@ app.post('/api/claim-daily-bonus', async (req, res) => {
     return res.json({ success: false, message: 'Come back tomorrow!' });
   }
 
-  const bonusAmount = 5.00;
+  const bonusAmount = 0.25;
   user.balance += bonusAmount;
   user.lastDailyBonus = today;
   await user.save();
