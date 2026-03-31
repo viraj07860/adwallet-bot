@@ -41,6 +41,7 @@ const userSchema = new mongoose.Schema({
   referralCredited: { type: Boolean, default: false },
   lastReward: { type: Number, default: 0 },
   lastDailyBonus: { type: String, default: '' },
+  welcomeBonusClaimed: { type: Boolean, default: false },
   vip: { type: Boolean, default: false },
   vipPlan: { type: String, default: null },
   isWaitingForProof: { type: Boolean, default: false }
@@ -91,6 +92,13 @@ app.get('/user/:id', async (req, res) => {
   try {
     const user = await ensureUser(req.params.id);
     res.json({
+if (!user.welcomeBonusClaimed) {
+  user.balance += 5;
+  user.welcomeBonusClaimed = true;
+  await user.save();
+
+  console.log(`🎁 Welcome bonus given to ${user.userId}`);
+}
       balance: Number(user.balance.toFixed(4)),
       tasks: user.tasks,
       vip: user.vip,

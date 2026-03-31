@@ -1,75 +1,235 @@
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html><html lang="en">
 <head>
-<title>Admin Panel</title>
-<style>
-body { background:#111; color:#fff; font-family:sans-serif; padding:15px; }
-.card { background:#1e1e1e; padding:10px; margin-bottom:10px; border-radius:10px; }
-button { padding:6px 10px; margin:5px; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }body {
+  background: #0f172a;
+  color: white;
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header h1 {
+  font-size: 28px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.card {
+  background: #1e293b;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.card h2 {
+  font-size: 14px;
+  color: #94a3b8;
+  margin-bottom: 10px;
+}
+
+.card p {
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.table-box {
+  background: #1e293b;
+  border-radius: 16px;
+  padding: 20px;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+th, td {
+  padding: 14px;
+  text-align: left;
+  border-bottom: 1px solid #334155;
+}
+
+th {
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.approve {
+  background: #16a34a;
+  border: none;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-right: 8px;
+}
+
+.reject {
+  background: #dc2626;
+  border: none;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.approve:hover {
+  background: #15803d;
+}
+
+.reject:hover {
+  background: #b91c1c;
+}
+
+.status {
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  display: inline-block;
+}
+
+.pending {
+  background: #f59e0b;
+  color: black;
+}
+
+.approved {
+  background: #16a34a;
+}
+
+.rejected {
+  background: #dc2626;
+}
+
+  </style>
 </head>
+<body>  <div class="header">
+    <h1>Admin Dashboard</h1>
+    <button onclick="loadData()" class="approve">Refresh</button>
+  </div>  <div class="stats">
+    <div class="card">
+      <h2>Total Users</h2>
+      <p id="totalUsers">0</p>
+    </div><div class="card">
+  <h2>Total Balance</h2>
+  <p id="totalBalance">0</p>
+</div>
 
-<body>
+<div class="card">
+  <h2>Pending Withdrawals</h2>
+  <p id="pendingCount">0</p>
+</div>
 
-<h2>Admin Panel</h2>
+<div class="card">
+  <h2>Total Referrals</h2>
+  <p id="totalReferrals">0</p>
+</div>
 
-<input id="key" placeholder="Enter admin key">
-<button onclick="load()">Load Withdrawals</button>
+  </div>  <div class="table-box">
+    <h2 style="margin-bottom:15px;">Pending Withdrawal Requests</h2><table>
+  <thead>
+    <tr>
+      <th>User</th>
+      <th>Amount</th>
+      <th>Method</th>
+      <th>Account</th>
+      <th>Date</th>
+      <th>Status</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody id="withdrawTable"></tbody>
+</table>
 
-<div id="data"></div>
+  </div>  <script>
+    const adminId = new URLSearchParams(window.location.search).get('adminId');
 
-<script>
-async function load(){
-  const key = document.getElementById('key').value;
+    async function loadData() {
+      const stats = await fetch(`/api/admin/stats?adminId=${adminId}`)
+        .then(r => r.json());
 
-  const res = await fetch(`/api/admin/withdrawals?key=${key}`);
-  const data = await res.json();
+      document.getElementById('totalUsers').innerText = stats.totalUsers || 0;
+      document.getElementById('totalBalance').innerText = '$' + (stats.totalBalance || 0);
+      document.getElementById('pendingCount').innerText = stats.pendingWithdrawals || 0;
+      document.getElementById('totalReferrals').innerText = stats.totalReferrals || 0;
 
-  const div = document.getElementById('data');
-  div.innerHTML = "";
+      const data = await fetch(`/api/admin/withdrawals?adminId=${adminId}`)
+        .then(r => r.json());
 
-  data.forEach((w, i) => {
-    const el = document.createElement("div");
-    el.className = "card";
+      const table = document.getElementById('withdrawTable');
 
-    el.innerHTML = `
-      User: ${w.userId} <br>
-      Amount: ${w.amount} <br>
-      Method: ${w.method} <br>
-      Status: ${w.status} <br>
+      if (!data.withdrawals || !data.withdrawals.length) {
+        table.innerHTML = `
+          <tr>
+            <td colspan="7" style="text-align:center;padding:30px;">No pending withdrawals</td>
+          </tr>
+        `;
+        return;
+      }
 
-      <button onclick="approve(${i})">Approve</button>
-      <button onclick="reject(${i})">Reject</button>
-    `;
+      table.innerHTML = data.withdrawals.map(w => `
+        <tr>
+          <td>${w.username} (${w.userId})</td>
+          <td>$${w.amount}</td>
+          <td>${w.method}</td>
+          <td>${w.account}</td>
+          <td>${w.date}</td>
+          <td><span class="status pending">Pending</span></td>
+          <td>
+            <button class="approve" onclick="approveWithdrawal('${w.userId}','${w.txId}')">Approve</button>
+            <button class="reject" onclick="rejectWithdrawal('${w.userId}','${w.txId}')">Reject</button>
+          </td>
+        </tr>
+      `).join('');
+    }
 
-    div.appendChild(el);
-  });
-}
+    async function approveWithdrawal(userId, txId) {
+      const res = await fetch('/api/admin/approve-withdrawal', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ adminId, userId, txId })
+      }).then(r => r.json());
 
-async function approve(i){
-  const key = document.getElementById('key').value;
+      alert(res.message || 'Approved');
+      loadData();
+    }
 
-  await fetch('/api/admin/approve',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ key, index:i })
-  });
+    async function rejectWithdrawal(userId, txId) {
+      const res = await fetch('/api/admin/reject-withdrawal', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ adminId, userId, txId })
+      }).then(r => r.json());
 
-  load();
-}
+      alert(res.message || 'Rejected');
+      loadData();
+    }
 
-async function reject(i){
-  const key = document.getElementById('key').value;
-
-  await fetch('/api/admin/reject',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ key, index:i })
-  });
-
-  load();
-}
-</script>
-
-</body>
+    loadData();
+  </script></body>
 </html>
