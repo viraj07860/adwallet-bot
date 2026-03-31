@@ -728,30 +728,30 @@ bot.on('photo', async (ctx) => {
     user.isWaitingForProof = false;
     await user.save();
 
-    const photoId = ctx.message.photo[ctx.message.photo.length - 1].file_id;
+    const photo = ctx.message.photo[ctx.message.photo.length - 1];
+    const photoId = photo.file_id;
 
     await ctx.reply('✅ Screenshot received! Admin will review it soon.');
 
-    try {
-      console.log('Sending VIP proof to admin:', ADMIN_ID);
+    console.log('Sending proof to admin:', ADMIN_ID);
+    console.log('Photo ID:', photoId);
 
-      await ctx.telegram.sendPhoto(ADMIN_ID, photoId, {
-        caption: `🔔 <b>New VIP Proof</b>\nUser: ${user.username}\nID: <code>${userId}</code>\n\nApprove with:\n/activate ${userId} Gold`,
-        parse_mode: 'HTML'
-      });
-    } catch (err) {
-      console.error('Failed to send proof to admin:', err);
-    }
-  } catch (err) {
-    console.error('photo handler error:', err);
-  }
-});
+    await bot.telegram.sendPhoto(
+      String(ADMIN_ID),
+      photoId,
+      {
+        caption:
+`🔔 New VIP Proof
 
-bot.on('pre_checkout_query', async (ctx) => {
-  try {
-    await ctx.answerPreCheckoutQuery(true);
+👤 User: ${ctx.from.first_name || 'Unknown'}
+🆔 ID: ${userId}
+📛 Username: @${ctx.from.username || 'none'}`,
+      }
+    );
+
+    console.log('Photo sent successfully');
   } catch (err) {
-    console.error('pre_checkout_query error:', err);
+    console.error('PHOTO SEND ERROR:', err);
   }
 });
 
