@@ -230,21 +230,14 @@ async function sendVipInvoice(ctx, plan) {
     return ctx.reply('❌ Invalid VIP plan');
   }
 
-  const title = `${plan} VIP`;
-  const description = `Purchase ${plan} VIP with Telegram Stars`;
-  const payload = `vip_${plan}`;
-  const currency = 'XTR';
-  const prices = [{ label: `${plan} VIP`, amount }];
-
-  await ctx.telegram.sendInvoice(
-    ctx.chat.id,
-    title,
-    description,
-    payload,
-    '',
-    currency,
-    prices
-  );
+  return ctx.telegram.sendInvoice(ctx.chat.id, {
+    title: `${plan} VIP`,
+    description: `Purchase ${plan} VIP with Telegram Stars`,
+    payload: `vip_${plan}`,
+    provider_token: '',
+    currency: 'XTR',
+    prices: [{ label: `${plan} VIP`, amount }]
+  });
 }
 
 /* ---------------- API ROUTES ---------------- */
@@ -528,6 +521,31 @@ app.get('/api/vip-invoice', async (req, res) => {
       'XTR',
       [{ label: `${plan} VIP`, amount: stars[plan] }]
     );
+
+    return res.json({ ok: true, invoiceUrl });
+  } catch (err) {
+    console.error('VIP invoice error:', err);
+    return res.status(500).json({ ok: false, error: 'Could not create invoice' });
+  }
+});
+
+app.get('/api/vip-invoice', async (req, res) => {
+  try {
+    const plan = String(req.query.plan || '');
+
+    const amount = VIP_STARS[plan];
+    if (!amount) {
+      return res.status(400).json({ ok: false, error: 'Invalid VIP plan' });
+    }
+
+    const invoiceUrl = await bot.telegram.createInvoiceLink({
+      title: `${plan} VIP`,
+      description: `Purchase ${plan} VIP with Telegram Stars`,
+      payload: `vip_${plan}`,
+      provider_token: '',
+      currency: 'XTR',
+      prices: [{ label: `${plan} VIP`, amount }]
+    });
 
     return res.json({ ok: true, invoiceUrl });
   } catch (err) {
