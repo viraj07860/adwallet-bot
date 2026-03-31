@@ -509,18 +509,19 @@ app.get('/api/vip-invoice', async (req, res) => {
       Elite: 4250
     };
 
-    if (!stars[plan]) {
+    const amount = stars[plan];
+    if (!amount) {
       return res.status(400).json({ ok: false, error: 'Invalid VIP plan' });
     }
 
-    const invoiceUrl = await bot.telegram.createInvoiceLink(
-      `${plan} VIP`,
-      `Purchase ${plan} VIP with Telegram Stars`,
-      `vip_${plan}`,
-      '',
-      'XTR',
-      [{ label: `${plan} VIP`, amount: stars[plan] }]
-    );
+    const invoiceUrl = await bot.telegram.createInvoiceLink({
+      title: `${plan} VIP`,
+      description: `Purchase ${plan} VIP with Telegram Stars`,
+      payload: `vip_${plan}`,
+      provider_token: '',
+      currency: 'XTR',
+      prices: [{ label: `${plan} VIP`, amount }]
+    });
 
     return res.json({ ok: true, invoiceUrl });
   } catch (err) {
