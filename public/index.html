@@ -990,7 +990,7 @@
 </div>
 
 <script>
-const REWARD_SECRET = "adwallet7062";
+const BOT_USERNAME = 'AdzwalletBot'; // change only if your bot username is different
 
 let balance = 0;
 let referralCount = 0;
@@ -999,243 +999,222 @@ let sidebarOpen = false;
 let bonusClaimed = false;
 let userId = '';
 let adInstance = null;
+let selectedVipPlan = '';
+let withdrawHistory = [];
 
-const withdrawHistory = [];
+const ADSGRAM_BLOCKS = ['26225']; // add more block IDs here later if you create them
+let adBlockPointer = 0;
 
-function getTelegramUserId() {
+const cryptoWallets = {
+  USDT: { address: '0x3e5989c2e42fa96397a1c9c743da6939b13b58b0', network: 'BEP20' },
+  BNB: { address: '0x3e5989c2e42fa96397a1c9c743da6939b13b58b0', network: 'BEP20' },
+  TRX: { address: 'THd6rZRzPKBwn5e2LhmiHPkNTXdLYsxFkj', network: 'TRON' },
+  TON: { address: 'UQBR-ZYfWLu0qu6SHZev7y8PnKSjMBn4eh9KoC7obr7rucew', network: 'TON' },
+  SOL: { address: 'GfB21zL1yqM7SzSh1gEyKPJZgA3CAGo5PxSKmmsxTE6Q', network: 'Solana' },
+  BTC: { address: '1CZ1Z61vGh162pXGNU4q4vGN2hjWxom8rc', network: 'Bitcoin' }
+};
+
+const planPrices = {
+  Bronze:   { USDT: 10.00,  BNB: 0.033, TRX: 77.50,  TON: 10.50,  SOL: 0.071, BTC: 0.00016 },
+  Silver:   { USDT: 20.00,  BNB: 0.066, TRX: 155.00, TON: 21.00,  SOL: 0.142, BTC: 0.00032 },
+  Gold:     { USDT: 30.00,  BNB: 0.099, TRX: 232.50, TON: 31.50,  SOL: 0.213, BTC: 0.00048 },
+  Platinum: { USDT: 50.00,  BNB: 0.165, TRX: 387.50, TON: 52.50,  SOL: 0.355, BTC: 0.00080 },
+  Diamond:  { USDT: 75.00,  BNB: 0.248, TRX: 581.25, TON: 78.75,  SOL: 0.533, BTC: 0.00120 },
+  Elite:    { USDT: 100.00, BNB: 0.330, TRX: 775.00, TON: 105.00, SOL: 0.710, BTC: 0.00160 }
+};
+
+function resolveUserId() {
+  if (userId) return String(userId);
+
   const urlId = new URLSearchParams(location.search).get('id');
   if (urlId) return String(urlId);
+
   const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
   if (tgUser?.id) return String(tgUser.id);
+
   return '';
 }
 
-function toggleSidebar(){
+function getFingerprint() {
+  const parts = [
+    navigator.userAgent || 'ua',
+    screen.width || 0,
+    screen.height || 0,
+    Intl.DateTimeFormat().resolvedOptions().timeZone || 'tz',
+    navigator.language || 'lang'
+  ];
+  return parts.join('|');
+}
+
+function getNextAdBlockId() {
+  if (!ADSGRAM_BLOCKS.length) return '26225';
+  const blockId = ADSGRAM_BLOCKS[adBlockPointer % ADSGRAM_BLOCKS.length];
+  adBlockPointer += 1;
+  return blockId;
+}
+
+function toggleSidebar() {
   sidebarOpen = !sidebarOpen;
   document.getElementById('sidebar').classList.toggle('open', sidebarOpen);
   document.getElementById('overlay').classList.toggle('show', sidebarOpen);
 
   const ham = document.getElementById('ham');
   const spans = ham.querySelectorAll('span');
-  if(sidebarOpen){
-    spans[0].style.transform='rotate(45deg) translate(5px,5px)';
-    spans[1].style.opacity='0';
-    spans[2].style.transform='rotate(-45deg) translate(5px,-5px)';
+
+  if (sidebarOpen) {
+    spans[0].style.transform = 'rotate(45deg) translate(5px,5px)';
+    spans[1].style.opacity = '0';
+    spans[2].style.transform = 'rotate(-45deg) translate(5px,-5px)';
   } else {
-    spans.forEach(s=>{s.style.transform='';s.style.opacity='';});
+    spans.forEach(s => { s.style.transform = ''; s.style.opacity = ''; });
   }
 }
 
-function navigate(page, idx, sbItem){
-  if(sidebarOpen) toggleSidebar();
+function navigate(page, idx, sbItem) {
+  if (sidebarOpen) toggleSidebar();
 
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const target = document.getElementById('page-' + page);
-  if(target) target.classList.add('active');
+  if (target) target.classList.add('active');
 
   document.getElementById('main').scrollTop = 0;
 
-  document.querySelectorAll('.nav-item').forEach((n,i)=>{
+  document.querySelectorAll('.nav-item').forEach((n, i) => {
     n.classList.toggle('active', i === idx);
   });
 
   document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
   const sbItems = document.querySelectorAll('.sb-item');
-  if(sbItem) sbItem.classList.add('active');
-  else if(sbItems[idx]) sbItems[idx].classList.add('active');
+  if (sbItem) sbItem.classList.add('active');
+  else if (sbItems[idx]) sbItems[idx].classList.add('active');
 
-  if(navigator.vibrate) navigator.vibrate(20);
+  if (navigator.vibrate) navigator.vibrate(20);
 }
 
-function updateBalance(delta){
+function updateBalance(delta) {
   balance = Math.max(0, balance + delta);
   const fmt = balance.toFixed(2);
+
   document.getElementById('bal-main').textContent = fmt;
   document.getElementById('tb-bal').textContent = fmt;
   document.getElementById('sb-bal').textContent = '$' + fmt;
   document.getElementById('co-bal').textContent = '$' + fmt;
   document.getElementById('progress-text').textContent = `$${fmt} / $100.00`;
+
   const pct = Math.min(100, (balance / 100) * 100);
   document.getElementById('prog-fill').style.width = pct + '%';
 }
 
-async function claimBonus() {
-  const urlParams = new URLSearchParams(window.location.search);
-  let userId = urlParams.get('id');
-
-  if (!userId && window.Telegram?.WebApp?.initDataUnsafe?.user) {
-    userId = String(window.Telegram.WebApp.initDataUnsafe.user.id);
-  }
-
-  if (!userId) {
-    showToast("⚠️ Cannot identify user");
-    return;
-  }
-
-  showToast("⏳ Claiming daily bonus...");
-
-  try {
-    const response = await fetch('/api/claim-daily-bonus', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: userId })
-    });
-
-    const data = await response.json();
-
-    if (data.success) {
-      // Update balance from server
-      document.getElementById('balance').textContent = `$${parseFloat(data.newBalance).toFixed(2)}`;
-      showToast('🎁 +$0.25 Daily Bonus claimed!');
-      if (navigator.vibrate) navigator.vibrate([40, 20, 40]);
-    } else {
-      showToast(`❌ ${data.message || "Already claimed today!"}`);
-    }
-  } catch (error) {
-    console.error(error);
-    showToast("⚠️ Network error. Please try again.");
-  }
-}
-
-function showToast(msg){
+function showToast(msg) {
   const t = document.getElementById('toast');
+  if (!t) return;
   t.textContent = msg;
   t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 2400);
+  setTimeout(() => t.classList.remove('show'), 2400);
 }
 
-function copyRef(){
+function copyRef() {
   const val = document.getElementById('ref-link-input').value;
-  if(!val){
+  if (!val) {
     showToast('Referral link not ready yet');
     return;
   }
-  if(navigator.clipboard?.writeText){
-    navigator.clipboard.writeText(val).then(()=>showToast('📋 Link copied!')).catch(()=>showToast('📋 Copy failed'));
+
+  if (navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(val)
+      .then(() => showToast('📋 Link copied!'))
+      .catch(() => showToast('📋 Copy failed'));
   } else {
     showToast('📋 ' + val);
   }
-  if(navigator.vibrate) navigator.vibrate(30);
+
+  if (navigator.vibrate) navigator.vibrate(30);
 }
 
-function share(platform){
+function share(platform) {
   const link = document.getElementById('ref-link-input').value;
-  if(!link){
+  if (!link) {
     showToast('Referral link not ready yet');
     return;
   }
+
   const text = encodeURIComponent(`Join AdWallet and earn money!\n${link}`);
   const url = encodeURIComponent(link);
   window.open(`https://t.me/share/url?url=${url}&text=${text}`, '_blank');
   showToast('✈️ Sharing via ' + platform + '…');
 }
 
-function contactSupport(){
-  if(window.Telegram?.WebApp){
-    window.Telegram.WebApp.openTelegramLink('https://t.me/adwalletagent');
+function contactSupport() {
+  const url = 'https://t.me/adwalletagent';
+  if (window.Telegram?.WebApp) {
+    window.Telegram.WebApp.openTelegramLink(url);
   } else {
-    window.open('https://t.me/adwalletagent', '_blank');
+    window.open(url, '_blank');
   }
 }
 
-function selectMethod(el){
-  document.querySelectorAll('.method').forEach(m=>m.classList.remove('sel'));
+function selectMethod(el) {
+  document.querySelectorAll('.method').forEach(m => m.classList.remove('sel'));
   el.classList.add('sel');
 
   const method = el.dataset.method;
-  document.querySelectorAll('.method-fields').forEach(f=>{
+  document.querySelectorAll('.method-fields').forEach(f => {
     f.classList.remove('active');
     f.style.display = 'none';
   });
 
-  const id = 'method-fields-' + method.toLowerCase().replace(/\s+/g,'-');
+  const id = 'method-fields-' + method.toLowerCase().replace(/\s+/g, '-');
   const target = document.getElementById(id);
-  if(target){
+  if (target) {
     target.classList.add('active');
     target.style.display = 'block';
   }
 }
 
-function setAmount(v){ document.getElementById('withdraw-amount').value = v; }
-function setAmountMax(){ document.getElementById('withdraw-amount').value = balance.toFixed(2); }
+function setAmount(v) {
+  document.getElementById('withdraw-amount').value = v;
+}
 
-function renderHistory(){
+function setAmountMax() {
+  document.getElementById('withdraw-amount').value = balance.toFixed(2);
+}
+
+function renderHistory() {
   const container = document.getElementById('withdraw-history');
-  if(!withdrawHistory.length){
+  if (!container) return;
+
+  if (!withdrawHistory.length) {
     container.innerHTML = '<div style="color:var(--muted);font-size:13px;">No withdrawals yet.</div>';
     return;
   }
-  container.innerHTML = withdrawHistory.map(w=>`
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);">
-      <div>
-        <div style="font-size:13px;font-weight:700;">${w.user}</div>
-        <div style="font-size:11px;color:var(--muted);">${w.method} · ${w.time}</div>
+
+  container.innerHTML = withdrawHistory.map(w => {
+    const date = w.date ? new Date(w.date).toLocaleString() : 'Unknown';
+    const status = String(w.status || 'pending');
+    const statusColor =
+      status === 'approved' ? 'var(--green-dark)' :
+      status === 'rejected' ? '#dc2626' : '#f59e0b';
+
+    return `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);gap:10px;">
+        <div style="min-width:0;">
+          <div style="font-size:13px;font-weight:700;">${w.method || 'Withdrawal'}</div>
+          <div style="font-size:11px;color:var(--muted);word-break:break-word;">${date} · ${w.txId || ''}</div>
+          <div style="font-size:11px;color:${statusColor};text-transform:capitalize;">${status}</div>
+        </div>
+        <div style="font-size:14px;font-weight:800;color:var(--green-dark);white-space:nowrap;">$${Number(w.amount || 0).toFixed(2)}</div>
       </div>
-      <div style="font-size:14px;font-weight:800;color:var(--green-dark);">${w.amount}</div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
 
-function createPopup(){
-  const popupNames = ['Rahul23','Priya_S','Alex_M','Sneha99','Vikram_T','Ananya_R','David_K','Meera_B','John_D','Fatima_Z','Carlos_M','Yuki_T'];
-  const popupMethods = ['PayPal','Bitcoin','Paytm','PhonePe','Crypto Wallet','Bank Transfer'];
-  const popupAmounts = ['$100.00','$120.50','$250.00','$105.75','$500.00','$100.00','$300.00','$108.25','$402.00','$120.00'];
-  const popupTimes = ['just now','2 seconds ago','5 seconds ago','10 seconds ago','a minute ago'];
-
-  const name = popupNames[Math.floor(Math.random()*popupNames.length)];
-  const method = popupMethods[Math.floor(Math.random()*popupMethods.length)];
-  const amount = popupAmounts[Math.floor(Math.random()*popupAmounts.length)];
-  const time = popupTimes[Math.floor(Math.random()*popupTimes.length)];
-
-  const el = document.createElement('div');
-  el.className = 'popup';
-  el.innerHTML = `
-    <span class="popup-icon">💰</span>
-    <div class="popup-text">
-      <div class="popup-main">${name} withdrew ${amount}</div>
-      <div class="popup-sub">via ${method} · ${time}</div>
-    </div>
-  `;
-  document.getElementById('popup-container').appendChild(el);
-  requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('show')));
-  setTimeout(()=>{
-    el.classList.remove('show');
-    setTimeout(()=>el.remove(), 400);
-  }, 3500);
-}
-
-setInterval(createPopup, 10000);
-setTimeout(createPopup, 2000);
-
-let statsPayouts = 48312;
-let statsUsers = 12847;
-let statsAds = 3200000;
-let statsToday = 2190;
-
-function updateStats(){
-  statsPayouts += Math.floor(Math.random()*8+1);
-  statsUsers += Math.floor(Math.random()*3);
-  statsAds += Math.floor(Math.random()*50+10);
-  statsToday += Math.floor(Math.random()*5+1);
-
-  const p = document.getElementById('stat-payout');
-  const u = document.getElementById('stat-users');
-  const a = document.getElementById('stat-ads');
-  const t = document.getElementById('stat-today');
-
-  if(p) p.textContent = '$' + statsPayouts.toLocaleString();
-  if(u) u.textContent = statsUsers.toLocaleString();
-  if(a) a.textContent = (statsAds/1000000).toFixed(1) + 'M';
-  if(t) t.textContent = '$' + statsToday.toLocaleString();
-}
-setInterval(updateStats, 4000);
-
-async function setReferralLink(){
+async function setReferralLink() {
   const input = document.getElementById('ref-link-input');
-  if(!input) return;
+  if (!input) return;
 
-  if(userId){
-    input.value = `https://t.me/AdzwalletBot?start=${encodeURIComponent(userId)}`;
+  const uid = resolveUserId();
+  if (uid) {
+    input.value = `https://t.me/${BOT_USERNAME}?start=${encodeURIComponent(uid)}`;
     input.placeholder = '';
   } else {
     input.value = '';
@@ -1243,16 +1222,20 @@ async function setReferralLink(){
   }
 }
 
-async function loadUser(){
-  try{
-    if(!userId) return;
+async function loadUserData() {
+  try {
+    const uid = resolveUserId();
+    if (!uid) return;
 
-    const res = await fetch(`/user/${encodeURIComponent(userId)}`);
+    userId = uid;
+
+    const res = await fetch(`/user/${encodeURIComponent(uid)}`);
     const data = await res.json();
 
     balance = Number(data.balance || 0);
     referralCount = Number(data.referralCount || 0);
     referralEarnings = Number(data.referralEarnings || 0);
+    withdrawHistory = Array.isArray(data.withdrawHistory) ? data.withdrawHistory : [];
 
     updateBalance(0);
     document.getElementById('ref-count').textContent = referralCount;
@@ -1261,52 +1244,61 @@ async function loadUser(){
     const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
     const name = tgUser?.first_name || data.username || 'User';
     document.getElementById('bal-greeting').textContent = `👋 Hi, ${name}!`;
+    document.getElementById('sb-name').textContent = name;
 
     const vipStatus = document.getElementById('vip-status-text');
-    if(vipStatus){
+    if (vipStatus) {
       vipStatus.textContent = data.vip ? `Active: ${data.vipPlan}` : 'Not activated yet';
     }
 
-    document.getElementById('sb-name').textContent = name;
-  } catch(e){
-    console.log('loadUser error', e);
+    renderHistory();
+  } catch (e) {
+    console.log('loadUserData error', e);
   }
 }
 
-function initAds(){
-  try{
-    if(window.Adsgram && typeof window.Adsgram.init === 'function'){
-      adInstance = window.Adsgram.init({ blockId: '26225' });
+async function loadUser() {
+  return loadUserData();
+}
+
+function initAds() {
+  try {
+    if (window.Adsgram && typeof window.Adsgram.init === 'function' && ADSGRAM_BLOCKS.length) {
+      adInstance = window.Adsgram.init({ blockId: ADSGRAM_BLOCKS[0] });
     }
-  } catch(e){
+  } catch (e) {
     console.log('Ads init failed', e);
   }
 }
 
-async function showRewardedAd(){
-  if(adInstance && typeof adInstance.show === 'function'){
+async function showRewardedAd() {
+  if (window.Adsgram && typeof window.Adsgram.init === 'function' && ADSGRAM_BLOCKS.length) {
+    const blockId = getNextAdBlockId();
+    const instance = window.Adsgram.init({ blockId });
+    if (instance && typeof instance.show === 'function') {
+      return instance.show();
+    }
+  }
+
+  if (adInstance && typeof adInstance.show === 'function') {
     return adInstance.show();
   }
-  if(window.Adsgram && typeof window.Adsgram.show === 'function'){
+
+  if (window.Adsgram && typeof window.Adsgram.show === 'function') {
     return window.Adsgram.show();
   }
-  if(typeof window.show_10760190 === 'function'){
+
+  if (typeof window.show_10760190 === 'function') {
     return window.show_10760190('pop');
   }
+
   throw new Error('Ads not ready');
 }
 
-// ====================== WATCH AD FUNCTION ======================
 async function watchAd(btn) {
-  const urlParams = new URLSearchParams(window.location.search);
-  let userId = urlParams.get('id');
-
-  if (!userId && window.Telegram?.WebApp?.initDataUnsafe?.user) {
-    userId = String(window.Telegram.WebApp.initDataUnsafe.user.id);
-  }
-
-  if (!userId) {
-    showToast("⚠️ Cannot identify user");
+  const uid = resolveUserId();
+  if (!uid) {
+    showToast('⚠️ Cannot identify user');
     return;
   }
 
@@ -1318,22 +1310,31 @@ async function watchAd(btn) {
 
     await showRewardedAd();
 
-    showToast("⏳ Claiming reward...");
+    showToast('⏳ Claiming reward...');
 
-    const res = await fetch(`/api/reward?userId=${userId}&key=${REWARD_SECRET}`);
+    const res = await fetch('/api/reward', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId: uid,
+        adCompleted: true,
+        fingerprint: getFingerprint()
+      })
+    });
 
-    if (res.ok) {
-      showToast("✅ Reward Added Successfully!");
+    const data = await res.json();
+
+    if (res.ok && data.success) {
+      showToast(`✅ Reward Added Successfully! +$${Number(data.reward || 0).toFixed(4)}`);
       await loadUserData();
     } else {
-      const text = await res.text();
-      showToast(text || '❌ Reward failed');
+      showToast(data.message || '❌ Reward failed');
     }
   } catch (e) {
     console.error(e);
     const msg = String(e?.message || e || '').toLowerCase();
 
-    if (msg.includes('no ad') || msg.includes('ads not ready')) {
+    if (msg.includes('no ad') || msg.includes('ads not ready') || msg.includes('inventory')) {
       showToast('No ad available right now. Try again later.');
       return;
     }
@@ -1347,20 +1348,57 @@ async function watchAd(btn) {
   }
 }
 
-// Keep this if you are using it from button onclick
 function earnNow(btn) {
   watchAd(btn);
 }
 
+async function claimBonus() {
+  const uid = resolveUserId();
+  if (!uid) {
+    showToast('⚠️ Cannot identify user');
+    return;
+  }
 
-async function submitWithdraw(){
+  showToast('⏳ Claiming daily bonus...');
+
+  try {
+    const response = await fetch('/api/claim-daily-bonus', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: uid })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      balance = Number(data.newBalance || balance);
+      updateBalance(0);
+      showToast('🎁 +$0.25 Daily Bonus claimed!');
+      if (navigator.vibrate) navigator.vibrate([40, 20, 40]);
+    } else {
+      showToast(`❌ ${data.message || 'Already claimed today!'}`);
+    }
+  } catch (error) {
+    console.error(error);
+    showToast('⚠️ Network error. Please try again.');
+  }
+}
+
+async function submitWithdraw() {
+  const uid = resolveUserId();
+  if (!uid) {
+    showToast('⚠️ Cannot identify user');
+    return;
+  }
+
   const amt = parseFloat(document.getElementById('withdraw-amount').value) || 0;
 
-  if(amt < 100){
+  if (amt < 100) {
     showToast('⚠️ Minimum $100');
     return;
   }
-  if(amt > balance){
+
+  if (amt > balance) {
     showToast('⚠️ Insufficient balance');
     return;
   }
@@ -1369,68 +1407,68 @@ async function submitWithdraw(){
   const method = methodEl ? methodEl.dataset.method : 'PayPal';
   const details = {};
 
-  if(method === 'PayPal'){
+  if (method === 'PayPal') {
     const email = document.getElementById('paypal-email').value.trim();
-    if(!email){ showToast('⚠️ Enter PayPal email'); return; }
+    if (!email) { showToast('⚠️ Enter PayPal email'); return; }
     details.paypalEmail = email;
-  } else if(method === 'Bitcoin'){
+  } else if (method === 'Bitcoin') {
     const wallet = document.getElementById('bitcoin-address').value.trim();
-    if(!wallet){ showToast('⚠️ Enter Bitcoin wallet address'); return; }
+    if (!wallet) { showToast('⚠️ Enter Bitcoin wallet address'); return; }
     details.bitcoinAddress = wallet;
-  } else if(method === 'Crypto'){
+  } else if (method === 'Crypto') {
     const name = document.getElementById('crypto-name').value.trim();
     const wallet = document.getElementById('crypto-wallet').value.trim();
-    if(!name || !wallet){ showToast('⚠️ Enter crypto name and wallet'); return; }
+    if (!name || !wallet) { showToast('⚠️ Enter crypto name and wallet'); return; }
     details.cryptoName = name;
     details.cryptoWallet = wallet;
-  } else if(method === 'Paytm'){
+  } else if (method === 'Paytm') {
     const number = document.getElementById('paytm-number').value.trim();
-    if(!number){ showToast('⚠️ Enter Paytm number'); return; }
+    if (!number) { showToast('⚠️ Enter Paytm number'); return; }
     details.paytmNumber = number;
-  } else if(method === 'PhonePe'){
+  } else if (method === 'PhonePe') {
     const number = document.getElementById('phonepe-number').value.trim();
-    if(!number){ showToast('⚠️ Enter PhonePe number'); return; }
+    if (!number) { showToast('⚠️ Enter PhonePe number'); return; }
     details.phonepeNumber = number;
-  } else if(method === 'Bank'){
+  } else if (method === 'Bank') {
     const account = document.getElementById('bank-account').value.trim();
     const ifsc = document.getElementById('bank-ifsc').value.trim();
     const bankName = document.getElementById('bank-name').value.trim();
-    if(!account || !ifsc || !bankName){ showToast('⚠️ Complete bank details'); return; }
+    if (!account || !ifsc || !bankName) { showToast('⚠️ Complete bank details'); return; }
     details.bankAccount = account;
     details.bankIFSC = ifsc;
     details.bankName = bankName;
-  } else if(method === 'Telegram Wallet'){
+  } else if (method === 'Telegram Wallet') {
     const wallet = document.getElementById('telegram-wallet').value.trim();
-    if(!wallet){ showToast('⚠️ Enter Telegram wallet ID'); return; }
+    if (!wallet) { showToast('⚠️ Enter Telegram wallet ID'); return; }
     details.telegramWallet = wallet;
-  } else if(method === 'Telegram Stars'){
+  } else if (method === 'Telegram Stars') {
     const stars = document.getElementById('telegram-stars').value.trim();
-    if(!stars){ showToast('⚠️ Enter Telegram Stars ID'); return; }
+    if (!stars) { showToast('⚠️ Enter Telegram Stars ID'); return; }
     details.telegramStars = stars;
   }
 
-  try{
+  try {
     const res = await fetch('/api/withdraw', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        userId,
+        userId: uid,
         amount: amt,
         method,
-        account: '',
         details
       })
     });
 
     const data = await res.json();
-    if(data.success){
+
+    if (data.success) {
       showToast('✅ Withdraw requested');
       document.getElementById('withdraw-amount').value = '';
-      await loadUser();
+      await loadUserData();
     } else {
       showToast(data.message || 'Withdraw failed');
     }
-  } catch(e){
+  } catch (e) {
     console.log(e);
     showToast('Withdraw failed');
   }
@@ -1450,7 +1488,9 @@ async function buyVipStars(plan) {
       window.Telegram.WebApp.openInvoice(data.invoiceUrl, async (status) => {
         if (status === 'paid') {
           showToast(`✅ ${plan} VIP activated!`);
-          await loadUser();
+          await loadUserData();
+        } else if (status === 'cancelled') {
+          showToast('Payment cancelled');
         } else {
           showToast('Payment closed');
         }
@@ -1464,29 +1504,7 @@ async function buyVipStars(plan) {
   }
 }
 
-// --- Crypto Payment Data ---
-const cryptoWallets = {
-  USDT: { address: '0x3e5989c2e42fa96397a1c9c743da6939b13b58b0', network: 'BEP20' },
-  BNB: { address: '0x3e5989c2e42fa96397a1c9c743da6939b13b58b0', network: 'BEP20' },
-  TRX: { address: 'THd6rZRzPKBwn5e2LhmiHPkNTXdLYsxFkj', network: 'TRON' },
-  TON: { address: 'UQBR-ZYfWLu0qu6SHZev7y8PnKSjMBn4eh9KoC7obr7rucew', network: 'TON' },
-  SOL: { address: 'GfB21zL1yqM7SzSh1gEyKPJZgA3CAGo5PxSKmmsxTE6Q', network: 'Solana' },
-  BTC: { address: '1CZ1Z61vGh162pXGNU4q4vGN2hjWxom8rc', network: 'Bitcoin' }
-};
-
-const planPrices = {
-  Bronze:   { USDT: 10.00,  BNB: 0.033, TRX: 77.50,  TON: 10.50,  SOL: 0.071, BTC: 0.00016 },
-  Silver:   { USDT: 20.00,  BNB: 0.066, TRX: 155.00, TON: 21.00,  SOL: 0.142, BTC: 0.00032 },
-  Gold:     { USDT: 30.00,  BNB: 0.099, TRX: 232.50, TON: 31.50,  SOL: 0.213, BTC: 0.00048 },
-  Platinum: { USDT: 50.00,  BNB: 0.165, TRX: 387.50, TON: 52.50,  SOL: 0.355, BTC: 0.00080 },
-  Diamond:  { USDT: 75.00,  BNB: 0.248, TRX: 581.25, TON: 78.75,  SOL: 0.533, BTC: 0.00120 },
-  Elite:    { USDT: 100.00, BNB: 0.330, TRX: 775.00, TON: 105.00, SOL: 0.710, BTC: 0.00160 }
-};
-
-let selectedVipPlan = '';
-
-// --- Modal Functions ---
-function buyVipCrypto(plan, stars) {
+function buyVipCrypto(plan) {
   selectedVipPlan = plan;
   document.getElementById('modal-plan-name').textContent = plan + ' VIP';
   resetCryptoModal();
@@ -1530,81 +1548,57 @@ function copyToClipboard(elementId) {
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(text).then(() => showToast('📋 Copied!'));
   } else {
-    const tempInput = document.createElement("input");
+    const tempInput = document.createElement('input');
     tempInput.value = text;
     document.body.appendChild(tempInput);
     tempInput.select();
-    document.execCommand("copy");
+    document.execCommand('copy');
     document.body.removeChild(tempInput);
     showToast('📋 Copied!');
   }
 }
 
 function closeAppAndUpload() {
+  const url = `https://t.me/${BOT_USERNAME}`;
   if (window.Telegram?.WebApp) {
-    window.Telegram.WebApp.close();
+    window.Telegram.WebApp.openTelegramLink(url);
+    showToast('Open the bot and send your screenshot there.');
   } else {
-    closeCryptoModal();
-    showToast("Please upload your screenshot to the bot chat.");
+    window.open(url, '_blank');
   }
 }
 
-function toggleFaq(el){
+function toggleFaq(el) {
   const item = el.parentElement;
   const isOpen = item.classList.contains('open');
-  document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));
-  if(!isOpen) item.classList.add('open');
+  document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
 }
 
-(function init(){
+(function init() {
   renderHistory();
   initAds();
 
-  if(window.Telegram?.WebApp){
+  if (window.Telegram?.WebApp) {
     const tg = window.Telegram.WebApp;
-    tg.ready();
-    tg.expand();
-    try{ tg.setHeaderColor('#ffffff'); } catch(e){}
+    try { tg.ready(); } catch (e) {}
+    try { tg.expand(); } catch (e) {}
+    try { tg.setHeaderColor('#ffffff'); } catch (e) {}
   }
 
-  userId = getTelegramUserId();
+  userId = resolveUserId();
   setReferralLink();
-  loadUser();
+  loadUserData();
 })();
 
-// Auto load balance when page opens
 window.addEventListener('load', () => {
   loadUserData();
 
   if (window.Telegram?.WebApp) {
-    window.Telegram.WebApp.ready();
-    window.Telegram.WebApp.expand();
+    try { window.Telegram.WebApp.ready(); } catch (e) {}
+    try { window.Telegram.WebApp.expand(); } catch (e) {}
   }
 });
-
-async function loadUserData() {
-  const urlParams = new URLSearchParams(window.location.search);
-  let userId = urlParams.get('id');
-
-  if (!userId && window.Telegram?.WebApp?.initDataUnsafe?.user) {
-    userId = String(window.Telegram.WebApp.initDataUnsafe.user.id);
-  }
-
-  if (!userId) return;
-
-  try {
-    const res = await fetch(`/user/${userId}`);
-    const data = await res.json();
-    const fmt = Number(data.balance || 0).toFixed(2);
-document.getElementById('bal-main').textContent = fmt;
-document.getElementById('tb-bal').textContent = fmt;
-document.getElementById('sb-bal').textContent = '$' + fmt;
-document.getElementById('co-bal').textContent = '$' + fmt;
-  } catch (err) {
-    console.error("Failed to load balance");
-  }
-}
 </script>
-
 </body>
 </html>
