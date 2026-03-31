@@ -679,7 +679,8 @@ bot.on('photo', async (ctx) => {
     await ctx.reply('✅ Screenshot received! Admin will review it soon.');
 
     try {
-      console.log('Sending VIP proof to admin:', ADMIN_ID);
+      console.log('ADMIN_ID =', ADMIN_ID);
+      console.log('photoId =', photoId);
 
       await ctx.telegram.sendPhoto(ADMIN_ID, photoId, {
         caption: `🔔 <b>New VIP Proof</b>\nUser: ${user.username}\nID: <code>${userId}</code>\n\nApprove with:\n/activate ${userId} Gold`,
