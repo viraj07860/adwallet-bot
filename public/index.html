@@ -915,7 +915,7 @@
 <div id="crypto-modal">
   <div class="crypto-card">
     <button class="crypto-close" onclick="closeCryptoModal()">✕</button>
-    
+
     <div style="font-size: 18px; font-weight: 800; text-align: center;">
       Buy <span id="modal-plan-name" style="color: #22c55e;">VIP</span>
     </div>
@@ -960,7 +960,7 @@
       <button class="btn btn-ghost" style="padding: 6px 12px; font-size: 12px; margin-bottom: 16px; width: auto; background: rgba(255,255,255,0.05);" onclick="resetCryptoModal()">
         ← Back
       </button>
-      
+
       <div class="copy-box">
         <div class="copy-info">
           <div class="copy-label">Amount to send</div>
@@ -1316,22 +1316,28 @@ async function watchAd(btn) {
       btn.textContent = '⏳';
     }
 
-showToast("🎬 Watching ad...");
+    await showRewardedAd();
 
-await showRewardedAd();
+    showToast("⏳ Claiming reward...");
 
-showToast("⏳ Claiming reward...");
-const res = await fetch(`/api/reward?userId=${userId}&key=${REWARD_SECRET}`);
-    
+    const res = await fetch(`/api/reward?userId=${userId}&key=${REWARD_SECRET}`);
+
     if (res.ok) {
       showToast("✅ Reward Added Successfully!");
-      await loadUserData();        // Updated to new function
+      await loadUserData();
     } else {
       const text = await res.text();
       showToast(text || '❌ Reward failed');
     }
   } catch (e) {
     console.error(e);
+    const msg = String(e?.message || e || '').toLowerCase();
+
+    if (msg.includes('no ad') || msg.includes('ads not ready')) {
+      showToast('No ad available right now. Try again later.');
+      return;
+    }
+
     showToast('❌ Connection error');
   } finally {
     if (btn) {
@@ -1483,8 +1489,8 @@ let selectedVipPlan = '';
 function buyVipCrypto(plan, stars) {
   selectedVipPlan = plan;
   document.getElementById('modal-plan-name').textContent = plan + ' VIP';
-  resetCryptoModal(); 
-  
+  resetCryptoModal();
+
   const modal = document.getElementById('crypto-modal');
   modal.style.display = 'flex';
   setTimeout(() => modal.classList.add('show'), 10);
@@ -1518,7 +1524,7 @@ function selectCoin(coin) {
 function copyToClipboard(elementId) {
   let text = document.getElementById(elementId).textContent;
   if (elementId === 'pay-amount') {
-    text = text.split(' ')[0]; 
+    text = text.split(' ')[0];
   }
 
   if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -1536,7 +1542,7 @@ function copyToClipboard(elementId) {
 
 function closeAppAndUpload() {
   if (window.Telegram?.WebApp) {
-    window.Telegram.WebApp.close(); 
+    window.Telegram.WebApp.close();
   } else {
     closeCryptoModal();
     showToast("Please upload your screenshot to the bot chat.");
@@ -1569,7 +1575,7 @@ function toggleFaq(el){
 // Auto load balance when page opens
 window.addEventListener('load', () => {
   loadUserData();
-  
+
   if (window.Telegram?.WebApp) {
     window.Telegram.WebApp.ready();
     window.Telegram.WebApp.expand();
