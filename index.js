@@ -503,6 +503,39 @@ app.post('/api/admin/reject-withdrawal', async (req, res) => {
   }
 });
 
+app.get('/api/vip-invoice', async (req, res) => {
+  try {
+    const plan = String(req.query.plan || '');
+
+    const stars = {
+      Bronze: 425,
+      Silver: 850,
+      Gold: 1275,
+      Platinum: 2125,
+      Diamond: 3200,
+      Elite: 4250
+    };
+
+    if (!stars[plan]) {
+      return res.status(400).json({ ok: false, error: 'Invalid VIP plan' });
+    }
+
+    const invoiceUrl = await bot.telegram.createInvoiceLink(
+      `${plan} VIP`,
+      `Purchase ${plan} VIP with Telegram Stars`,
+      `vip_${plan}`,
+      '',
+      'XTR',
+      [{ label: `${plan} VIP`, amount: stars[plan] }]
+    );
+
+    return res.json({ ok: true, invoiceUrl });
+  } catch (err) {
+    console.error('VIP invoice error:', err);
+    return res.status(500).json({ ok: false, error: 'Could not create invoice' });
+  }
+});
+
 /* ---------------- BOT LOGIC ---------------- */
 bot.start(async (ctx) => {
   const userId = String(ctx.from.id);
