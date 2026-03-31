@@ -20,8 +20,7 @@ const MONGO_URL = process.env.MONGO_URL;
 if (!BOT_TOKEN || !WEBAPP_URL || !MONGO_URL) {
   console.error('❌ CRITICAL: BOT_TOKEN, WEBAPP_URL, or MONGO_URL is missing');
   process.exit(1);
-}
-
+}                                                                                       
 const bot = new Telegraf(BOT_TOKEN);
 
 /* ---------------- DATABASE CONNECTION ---------------- */
@@ -38,7 +37,8 @@ const userSchema = new mongoose.Schema({
   referralCount: { type: Number, default: 0 },
   referralEarnings: { type: Number, default: 0 },
   referredBy: { type: String, default: '' },
-  lastReward: { type: Number, default: 0 },
+referralCredited: { type: Boolean, default: false },
+lastReward: { type: Number, default: 0 },
   lastDailyBonus: { type: String, default: '' },
   vip: { type: Boolean, default: false },
   vipPlan: { type: String, default: null },
@@ -58,12 +58,10 @@ const VIP_PLANS = {
   Platinum: 2125,
   Diamond: 3200,
   Elite: 4250
-};
-
+};                                                                                      
 /* ---------------- HELPERS ---------------- */
 async function ensureUser(userId, username = 'User') {
-  let user = await User.findOne({ userId: String(userId) });
-  
+  let user = await User.findOne({ userId: String(userId) });                            
   if (!user) {
     user = new User({ userId: String(userId), username });
     await user.save();
@@ -78,8 +76,8 @@ async function isUserJoined(ctx, userId) {
   try {
     const member = await ctx.telegram.getChatMember(FORCE_CHANNEL, userId);
     return ['member', 'administrator', 'creator'].includes(member.status);
-  } catch (e) { 
-    return false; 
+  } catch (e) {
+    return false;
   }
 }
 
@@ -103,22 +101,34 @@ app.get('/api/reward', async (req, res) => {
   if (key !== REWARD_SECRET) return res.status(403).send('Forbidden');
 
   const user = await ensureUser(userId);
-  const now = Date.now();
-  if (now - user.lastReward < 5000) return res.status(429).send('Wait');
+const now = Date.now();
+if (now - user.lastReward < 5000) return res.status(429).send('Wait');
 
-  let reward = AD_REWARD_BASE;
-  if (user.vip) {
-    const boost = { Bronze: 1.2, Silver: 1.5, Gold: 2, Platinum: 2.5, Diamond: 3, Elite: 4 };
-    reward *= boost[user.vipPlan] || 1;
+let reward = AD_REWARD_BASE;
+if (user.vip) {
+  const boost = { Bronze: 1.2, Silver: 1.5, Gold: 2, Platinum: 2.5, Diamond: 3, Elite: 4 };
+  reward *= boost[user.vipPlan] || 1;
+}
+
+const isFirstAd = user.tasks === 0;
+
+user.balance += reward;
+user.tasks += 1;
+user.lastReward = now;
+
+if (isFirstAd && user.referredBy && user.referredBy !== user.userId && !user.referralCredited) {
+  const referrer = await User.findOne({ userId: String(user.referredBy) });
+  if (referrer) {
+    referrer.balance += REF_REWARD;
+    referrer.referralEarnings += REF_REWARD;
+    referrer.referralCount += 1;
+    await referrer.save();
   }
+  user.referralCredited = true;
+}
 
-  user.balance += reward;
-  user.tasks += 1;
-  user.lastReward = now;
-  await user.save();
-
-  res.send('OK');
-});
+await user.save();
+res.send('OK');
 
 // Daily Bonus (Now saves permanently)
 app.post('/api/claim-daily-bonus', async (req, res) => {
@@ -146,8 +156,7 @@ app.post('/api/withdraw', async (req, res) => {
   const { userId, amount, method, details } = req.body;
   const user = await ensureUser(userId);
   const amt = Number(amount);
-
-  if (amt < 100 || amt > user.balance) {
+                                                                                          if (amt < 100 || amt > user.balance) {
     return res.json({ success: false, message: 'Invalid Amount' });
   }
 
@@ -175,11 +184,18 @@ bot.start(async (ctx) => {
     });
   }
 
-  await ensureUser(userId, username);
+  const newUser = await ensureUser(userId, username);
+
+if (refId && refId !== userId) {
+  if (!newUser.referredBy) {
+    newUser.referredBy = refId;
+    await newUser.save();
+  }
+}
 
   ctx.reply(`🚀 Welcome to AdWallet!\nEarn money by watching ads.`, {
     reply_markup: {
-      inline_keyboard: [[{ text: '💰 Open AdWallet', web_app: { url: `${WEBAPP_URL}/?id=${userId}` } }]]
+      inline_keyboard: { text: '💰 Open AdWallet', web_app: { url: `${WEBAPP_URL}/?id=${userId}` } }
     }
   });
 });
@@ -191,18 +207,16 @@ bot.command('activate', async (ctx) => {
   if (senderId === ADMIN_ID) {
     const args = ctx.message.text.trim().split(/\s+/);
     if (args.length !== 3) {
-      return ctx.reply(`⚠️ <b>Usage:</b> <code>/activate UserID Plan</code>\nExample: <code>/activate 123456789 Gold</code>`, 
+      return ctx.reply(`⚠️ <b>Usage:</b> <code>/activate UserID Plan</code>\nExample: <code>/activate 123456789 Gold</code>`,
         { parse_mode: 'HTML' });
     }
 
     const targetUserId = args[1];
     const targetPlan = args[2];
-
-    if (!Object.keys(VIP_PLANS).includes(targetPlan)) {
+                                                                                            if (!Object.keys(VIP_PLANS).includes(targetPlan)) {
       return ctx.reply('❌ Invalid Plan');
     }
-
-    const targetUser = await ensureUser(targetUserId);
+                                                                                            const targetUser = await ensureUser(targetUserId);
     targetUser.vip = true;
     targetUser.vipPlan = targetPlan;
     targetUser.isWaitingForProof = false;
@@ -211,12 +225,12 @@ bot.command('activate', async (ctx) => {
     await ctx.reply(`✅ User <code>${targetUserId}</code> upgraded to <b>${targetPlan} VIP</b>`, { parse_mode: 'HTML' });
 
     try {
-      await bot.telegram.sendMessage(targetUserId, 
+      await bot.telegram.sendMessage(targetUserId,
         `🎉 <b>Congratulations!</b>\nYour <b>${targetPlan} VIP</b> has been activated!`,
-        { 
+        {
           parse_mode: 'HTML',
           reply_markup: {
-            inline_keyboard: [[{ text: '🚀 Open App', web_app: { url: `${WEBAPP_URL}/?id=${targetUserId}` } }]]
+            inline_keyboard: { text: '🚀 Open App', web_app: { url: `${WEBAPP_URL}/?id=${targetUserId}` } }
           }
         }
       );
@@ -282,8 +296,7 @@ app.listen(PORT, async () => {
   try {
     await bot.launch();
     console.log('🤖 Bot started successfully');
-  } catch (err) {
-    console.error('Bot launch error:', err);
+  } catch (err) {                                                                           console.error('Bot launch error:', err);
   }
 });
 
