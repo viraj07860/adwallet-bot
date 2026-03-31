@@ -577,7 +577,7 @@
       <div style="font-size:52px;margin-bottom:12px;">🎬</div>
       <div style="font-size:20px;font-weight:800;margin-bottom:6px;">Ready to Earn?</div>
       <div style="font-size:14px;opacity:.7;margin-bottom:20px;">Watch a 15–30s ad and earn instantly</div>
-      <button class="btn btn-green" style="width:100%;padding:16px;font-size:16px;" onclick="earnNow()">▶️ &nbsp;Earn Now</button>
+      <button class="btn btn-green" style="width:100%;padding:16px;font-size:16px;" onclick="earnNow(this)">▶️ &nbsp;Earn Now</button>
     </div>
 
     <div class="ads-grid">
@@ -1316,12 +1316,12 @@ async function watchAd(btn) {
       btn.textContent = '⏳';
     }
 
-    // Remove or comment this if you don't have real ad integration
-    // await showRewardedAd();
+showToast("🎬 Watching ad...");
 
-    showToast("⏳ Claiming reward...");
+await showRewardedAd();
 
-    const res = await fetch(`/api/reward?userId=${userId}&key=${REWARD_SECRET}`);
+showToast("⏳ Claiming reward...");
+const res = await fetch(`/api/reward?userId=${userId}&key=${REWARD_SECRET}`);
     
     if (res.ok) {
       showToast("✅ Reward Added Successfully!");
@@ -1589,11 +1589,16 @@ async function loadUserData() {
   try {
     const res = await fetch(`/user/${userId}`);
     const data = await res.json();
-    document.getElementById('balance').textContent = `$${parseFloat(data.balance).toFixed(2)}`;
+    const fmt = Number(data.balance || 0).toFixed(2);
+document.getElementById('bal-main').textContent = fmt;
+document.getElementById('tb-bal').textContent = fmt;
+document.getElementById('sb-bal').textContent = '$' + fmt;
+document.getElementById('co-bal').textContent = '$' + fmt;
   } catch (err) {
     console.error("Failed to load balance");
   }
 }
 </script>
+
 </body>
 </html>
