@@ -1558,13 +1558,27 @@ function copyToClipboard(elementId) {
   }
 }
 
-function closeAppAndUpload() {
-  const url = `https://t.me/${BOT_USERNAME}`;
-  if (window.Telegram?.WebApp) {
-    window.Telegram.WebApp.openTelegramLink(url);
-    showToast('Open the bot and send your screenshot there.');
-  } else {
-    window.open(url, '_blank');
+async function closeAppAndUpload() {
+  const uid = resolveUserId();
+
+  try {
+    if (uid) {
+      await fetch('/api/start-vip-proof', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: uid })
+      });
+    }
+
+    if (window.Telegram?.WebApp) {
+      window.Telegram.WebApp.close();
+    } else {
+      closeCryptoModal();
+      showToast('Please upload your screenshot to the bot chat.');
+    }
+  } catch (err) {
+    console.error('start-vip-proof error:', err);
+    showToast('Could not start screenshot flow');
   }
 }
 

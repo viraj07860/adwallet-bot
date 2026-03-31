@@ -574,6 +574,24 @@ app.get('/api/vip-invoice', async (req, res) => {
   }
 });
 
+app.post('/api/start-vip-proof', async (req, res) => {
+  try {
+    const { userId } = req.body;
+    if (!userId) {
+      return res.status(400).json({ success: false, message: 'Missing userId' });
+    }
+
+    const user = await ensureUser(userId);
+    user.isWaitingForProof = true;
+    await user.save();
+
+    return res.json({ success: true });
+  } catch (err) {
+    console.error('POST /api/start-vip-proof error:', err);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 /* ---------------- BOT LOGIC ---------------- */
 bot.catch((err, ctx) => {
   console.error(`Bot error for update ${ctx?.updateType}:`, err);
@@ -723,33 +741,24 @@ bot.on('photo', async (ctx) => {
     const userId = String(ctx.from.id);
     const user = await ensureUser(userId);
 
-    if (!user.isWaitingForProof) return;
+    console.log('Photo received from:', userId, 'waiting:', user.isWaitingForProof);
+
+    if (!user.isWaitingForProof) {
+      return ctx.reply('Please tap “I have paid, send screenshot” first.');
+    }
 
     user.isWaitingForProof = false;
     await user.save();
 
-    const photo = ctx.message.photo[ctx.message.photo.length - 1];
-    const photoId = photo.file_id;
+    const photoId = ctx.message.photo[ctx.message.photo.length - 1].file_id;
 
     await ctx.reply('✅ Screenshot received! Admin will review it soon.');
 
-    console.log('Sending proof to admin:', ADMIN_ID);
-    console.log('Photo ID:', photoId);
+    await bot.telegram.sendPhoto(String(ADMIN_ID), photoId, {
+      caption: `🔔 New VIP Proof\n\nUser: ${user.username}\nID: ${userId}\n\nApprove with:\n/activate ${userId} Gold`
+    });
 
-    await bot.telegram.sendPhoto(
-      String(ADMIN_ID),
-      photoId,
-      {
-        caption:
-`🔔 New VIP Proof
-
-👤 User: ${ctx.from.first_name || 'Unknown'}
-🆔 ID: ${userId}
-📛 Username: @${ctx.from.username || 'none'}`,
-      }
-    );
-
-    console.log('Photo sent successfully');
+    console.log('Photo sent to admin successfully');
   } catch (err) {
     console.error('PHOTO SEND ERROR:', err);
   }
