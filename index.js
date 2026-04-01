@@ -81,7 +81,7 @@ const User = mongoose.model('User', userSchema);
 /* ---------------- ECONOMY SETTINGS ---------------- */
 const AD_REWARD_BASE = 0.05;
 const REF_REWARD = 0.075;
-const DAILY_BONUS = 0.25;
+const DAILY_BONUS = 0.20;
 
 const VIP_PLANS = {
   Bronze: 425,
