@@ -55,6 +55,7 @@ const userSchema = new mongoose.Schema({
 
   referralCount: { type: Number, default: 0 },
   referralEarnings: { type: Number, default: 0 },
+  claimedReferralVipRewards: { type: [String], default: [] },
   referredBy: { type: String, default: '' },
   referralCredited: { type: Boolean, default: false },
 
@@ -64,6 +65,7 @@ const userSchema = new mongoose.Schema({
 
   vip: { type: Boolean, default: false },
   vipPlan: { type: String, default: null },
+  pendingVipPlan: { type: String, default: null },
 
   isWaitingForProof: { type: Boolean, default: false },
   isAdmin: { type: Boolean, default: false },
@@ -88,6 +90,24 @@ const VIP_PLANS = {
   Platinum: 2125,
   Diamond: 3200,
   Elite: 4250
+};
+
+const REFERRAL_VIP_REWARDS = {
+  Bronze: 60,
+  Silver: 150,
+  Gold: 300,
+  Platinum: 500,
+  Diamond: 800,
+  Elite: 1200
+};
+
+const VIP_ORDER = {
+  Bronze: 1,
+  Silver: 2,
+  Gold: 3,
+  Platinum: 4,
+  Diamond: 5,
+  Elite: 6
 };
 
 const VIP_REWARD_BOOST = {
@@ -171,10 +191,6 @@ async function createStarsInvoice(plan) {
   return invoiceUrl;
 }
 
-async function findUserWithWithdrawal(txId) {
-  return User.findOne({ 'withdrawHistory.txId': txId });
-}
-
 /* ---------------- API ROUTES ---------------- */
 
 // Get user data for Mini App
@@ -200,7 +216,9 @@ app.get('/user/:id', async (req, res) => {
       referralEarnings: Number(user.referralEarnings.toFixed(4)),
       welcomeBonusClaimed: user.welcomeBonusClaimed,
       isAdmin: user.isAdmin,
-      withdrawHistory: user.withdrawHistory
+      withdrawHistory: user.withdrawHistory,
+      claimedReferralVipRewards: user.claimedReferralVipRewards || [],
+      pendingVipPlan: user.pendingVipPlan || null
     });
   } catch (err) {
     console.error('GET /user/:id error:', err);
@@ -576,18 +594,73 @@ app.get('/api/vip-invoice', async (req, res) => {
 
 app.post('/api/start-vip-proof', async (req, res) => {
   try {
-    const { userId } = req.body;
+    const { userId, plan } = req.body;
+
     if (!userId) {
       return res.status(400).json({ success: false, message: 'Missing userId' });
     }
 
     const user = await ensureUser(userId);
+
+    if (plan && Object.prototype.hasOwnProperty.call(VIP_PLANS, String(plan))) {
+      user.pendingVipPlan = String(plan);
+    }
+
     user.isWaitingForProof = true;
     await user.save();
 
     return res.json({ success: true });
   } catch (err) {
     console.error('POST /api/start-vip-proof error:', err);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+app.post('/api/claim-referral-vip', async (req, res) => {
+  try {
+    const { userId, plan } = req.body;
+
+    if (!userId || !plan || !REFERRAL_VIP_REWARDS[plan]) {
+      return res.status(400).json({ success: false, message: 'Invalid request' });
+    }
+
+    const user = await ensureUser(userId);
+    const requiredReferrals = REFERRAL_VIP_REWARDS[plan];
+
+    if (user.referralCount < requiredReferrals) {
+      return res.json({
+        success: false,
+        message: `You need ${requiredReferrals} referrals to claim ${plan} VIP`
+      });
+    }
+
+    user.claimedReferralVipRewards = user.claimedReferralVipRewards || [];
+
+    if (user.claimedReferralVipRewards.includes(plan)) {
+      return res.json({
+        success: false,
+        message: `${plan} VIP already claimed`
+      });
+    }
+
+    user.claimedReferralVipRewards.push(plan);
+
+    const currentRank = VIP_ORDER[user.vipPlan] || 0;
+    const newRank = VIP_ORDER[plan];
+
+    if (newRank > currentRank) {
+      user.vip = true;
+      user.vipPlan = plan;
+    }
+
+    await user.save();
+
+    return res.json({
+      success: true,
+      message: `${plan} VIP unlocked successfully`
+    });
+  } catch (err) {
+    console.error('POST /api/claim-referral-vip error:', err);
     return res.status(500).json({ success: false, message: 'Server error' });
   }
 });
@@ -658,6 +731,7 @@ bot.command('activate', async (ctx) => {
       const targetUser = await ensureUser(targetUserId);
       targetUser.vip = true;
       targetUser.vipPlan = targetPlan;
+      targetUser.pendingVipPlan = null;
       targetUser.isWaitingForProof = false;
       await targetUser.save();
 
@@ -716,11 +790,6 @@ bot.action(/^vipplan_(.+)$/, async (ctx) => {
 
     const invoiceUrl = await createStarsInvoice(plan);
 
-    if (ctx?.webapp?.openInvoice) {
-      await ctx.webapp.openInvoice(invoiceUrl);
-      return;
-    }
-
     if (ctx.chat?.id) {
       await ctx.reply('Open this invoice inside Telegram:', {
         reply_markup: {
@@ -738,6 +807,8 @@ bot.action(/^vipplan_(.+)$/, async (ctx) => {
 
 bot.on('photo', async (ctx) => {
   try {
+    if (!ctx.message?.photo?.length) return;
+
     const userId = String(ctx.from.id);
     const user = await ensureUser(userId);
 
@@ -747,6 +818,11 @@ bot.on('photo', async (ctx) => {
       return ctx.reply('Please tap “I have paid, send screenshot” first.');
     }
 
+    if (!ADMIN_ID) {
+      console.error('ADMIN_ID missing');
+      return ctx.reply('❌ Admin not configured.');
+    }
+
     user.isWaitingForProof = false;
     await user.save();
 
@@ -754,9 +830,14 @@ bot.on('photo', async (ctx) => {
 
     await ctx.reply('✅ Screenshot received! Admin will review it soon.');
 
+    const planText = user.pendingVipPlan || 'Gold';
+
     await bot.telegram.sendPhoto(String(ADMIN_ID), photoId, {
-      caption: `🔔 New VIP Proof\n\nUser: ${user.username}\nID: ${userId}\n\nApprove with:\n/activate ${userId} Gold`
+      caption: `🔔 New VIP Proof\n\nUser: ${user.username}\nID: ${userId}\nPlan: ${planText}\n\nApprove with:\n/activate ${userId} ${planText}`
     });
+
+    user.pendingVipPlan = null;
+    await user.save();
 
     console.log('Photo sent to admin successfully');
   } catch (err) {
@@ -766,21 +847,22 @@ bot.on('photo', async (ctx) => {
 
 bot.on('message', async (ctx) => {
   try {
-    if (ctx.message?.successful_payment) {
-      const userId = String(ctx.from.id);
-      const payload = String(ctx.message.successful_payment.invoice_payload || '');
-      const plan = payload.replace(/^vip_/, '');
+    if (!ctx.message?.successful_payment) return;
 
-      const user = await ensureUser(userId);
+    const userId = String(ctx.from.id);
+    const payload = String(ctx.message.successful_payment.invoice_payload || '');
+    const plan = payload.replace(/^vip_/, '');
 
-      if (Object.prototype.hasOwnProperty.call(VIP_PLANS, plan)) {
-        user.vip = true;
-        user.vipPlan = plan;
-        await user.save();
-        await ctx.reply(`✅ Your ${plan} VIP is now active!`);
-      } else {
-        await ctx.reply('✅ Payment received, but VIP plan could not be identified.');
-      }
+    const user = await ensureUser(userId);
+
+    if (Object.prototype.hasOwnProperty.call(VIP_PLANS, plan)) {
+      user.vip = true;
+      user.vipPlan = plan;
+      user.pendingVipPlan = null;
+      await user.save();
+      await ctx.reply(`✅ Your ${plan} VIP is now active!`);
+    } else {
+      await ctx.reply('✅ Payment received, but VIP plan could not be identified.');
     }
   } catch (err) {
     console.error('message handler error:', err);

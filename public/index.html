@@ -9,39 +9,38 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <style>
-    :root {
-      --green: #22c55e;
-      --green-dark: #16a34a;
-      --green-light: #bbf7d0;
-      --green-glow: rgba(34,197,94,.35);
-      --white: #ffffff;
-      --bg: #f0fdf4;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #64748b;
-      --border: #e2e8f0;
-      --shadow: 0 4px 24px rgba(0,0,0,.08);
-      --radius: 18px;
-      --nav-h: 68px;
-      --sidebar-w: 280px;
+    :root{
+      --green:#22c55e;
+      --green-dark:#16a34a;
+      --green-light:#bbf7d0;
+      --green-glow:rgba(34,197,94,.35);
+      --white:#fff;
+      --bg:#f0fdf4;
+      --card:#fff;
+      --text:#0f172a;
+      --muted:#64748b;
+      --border:#e2e8f0;
+      --shadow:0 4px 24px rgba(0,0,0,.08);
+      --radius:18px;
+      --nav-h:68px;
+      --sidebar-w:280px;
     }
 
-    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-    html,body{height:100%;overflow:hidden;}
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    html,body{height:100%;overflow:hidden}
     body{
       font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
       background:var(--bg);
       color:var(--text);
-      position:relative;
       overflow:hidden;
     }
 
     #overlay{
       position:fixed;inset:0;background:rgba(0,0,0,.45);
-      opacity:0;pointer-events:none;
-      transition:opacity .3s;z-index:900;backdrop-filter:blur(3px);
+      opacity:0;pointer-events:none;transition:opacity .3s;
+      z-index:900;backdrop-filter:blur(3px)
     }
-    #overlay.show{opacity:1;pointer-events:all;}
+    #overlay.show{opacity:1;pointer-events:all}
 
     #sidebar{
       position:fixed;top:0;left:0;height:100%;width:var(--sidebar-w);
@@ -49,241 +48,226 @@
       box-shadow:8px 0 40px rgba(0,0,0,.18);
       transform:translateX(-100%);
       transition:transform .35s cubic-bezier(.4,0,.2,1);
-      z-index:1000;display:flex;flex-direction:column;overflow:hidden;
+      z-index:1000;display:flex;flex-direction:column;overflow:hidden
     }
-    #sidebar.open{transform:translateX(0);}
+    #sidebar.open{transform:translateX(0)}
 
     .sb-header{
       background:linear-gradient(135deg,var(--green-dark),var(--green));
-      padding:36px 24px 24px;color:#fff;
+      padding:36px 24px 24px;color:#fff
     }
     .sb-avatar{
       width:54px;height:54px;border-radius:50%;
       background:rgba(255,255,255,.25);
       display:flex;align-items:center;justify-content:center;
-      font-size:22px;margin-bottom:10px;border:2px solid rgba(255,255,255,.5);
+      font-size:22px;margin-bottom:10px;border:2px solid rgba(255,255,255,.5)
     }
-    .sb-name{font-size:17px;font-weight:700;}
-    .sb-bal{font-size:13px;opacity:.85;margin-top:3px;}
+    .sb-name{font-size:17px;font-weight:700}
+    .sb-bal{font-size:13px;opacity:.85;margin-top:3px}
 
-    .sb-nav{flex:1;padding:16px 12px;overflow-y:auto;}
+    .sb-nav{flex:1;padding:16px 12px;overflow-y:auto}
     .sb-item{
       display:flex;align-items:center;gap:14px;
       padding:13px 16px;border-radius:14px;
       cursor:pointer;transition:all .2s;margin-bottom:4px;
-      font-size:15px;font-weight:500;color:var(--text);
+      font-size:15px;font-weight:500;color:var(--text)
     }
-    .sb-item:hover{background:var(--green-light);}
-    .sb-item.active{
-      background:var(--green);color:#fff;
-      box-shadow:0 4px 16px var(--green-glow);
-    }
-    .sb-item .icon{font-size:20px;min-width:26px;text-align:center;}
-
+    .sb-item:hover{background:var(--green-light)}
+    .sb-item.active{background:var(--green);color:#fff;box-shadow:0 4px 16px var(--green-glow)}
+    .sb-item .icon{font-size:20px;min-width:26px;text-align:center}
     .sb-footer{
       padding:16px 20px;border-top:1px solid var(--border);
-      font-size:12px;color:var(--muted);text-align:center;
+      font-size:12px;color:var(--muted);text-align:center
     }
 
     #topbar{
       position:fixed;top:0;left:0;right:0;height:60px;
       background:var(--white);display:flex;align-items:center;
       justify-content:space-between;padding:0 16px;
-      box-shadow:0 2px 12px rgba(0,0,0,.06);z-index:800;
+      box-shadow:0 2px 12px rgba(0,0,0,.06);z-index:800
     }
-    .tb-left{display:flex;align-items:center;gap:12px;}
+    .tb-left{display:flex;align-items:center;gap:12px}
     .hamburger{
       width:40px;height:40px;border-radius:12px;
       background:var(--bg);display:flex;flex-direction:column;
       align-items:center;justify-content:center;gap:5px;cursor:pointer;
-      transition:background .2s;
+      transition:background .2s
     }
-    .hamburger:hover{background:var(--green-light);}
+    .hamburger:hover{background:var(--green-light)}
     .hamburger span{
       display:block;width:20px;height:2.5px;
-      background:var(--text);border-radius:4px;transition:all .3s;
+      background:var(--text);border-radius:4px;transition:all .3s
     }
-    .logo{font-size:20px;font-weight:800;color:var(--green-dark);}
-    .logo span{color:var(--green);}
+    .logo{font-size:20px;font-weight:800;color:var(--green-dark)}
+    .logo span{color:var(--green)}
 
-    .tb-right{display:flex;align-items:center;gap:8px;}
+    .tb-right{display:flex;align-items:center;gap:8px}
     .tb-badge{
       background:linear-gradient(135deg,var(--green),var(--green-dark));
       color:#fff;padding:6px 12px;border-radius:20px;
-      font-size:13px;font-weight:700;
+      font-size:13px;font-weight:700
     }
     .tb-notif{
       width:38px;height:38px;border-radius:12px;background:var(--bg);
       display:flex;align-items:center;justify-content:center;
-      font-size:18px;cursor:pointer;position:relative;
+      font-size:18px;cursor:pointer;position:relative
     }
     .notif-dot{
       position:absolute;top:6px;right:6px;width:8px;height:8px;
-      background:#ef4444;border-radius:50%;border:2px solid #fff;
+      background:#ef4444;border-radius:50%;border:2px solid #fff
     }
 
     #main{
       position:fixed;top:60px;bottom:var(--nav-h);left:0;right:0;
       overflow-y:auto;scroll-behavior:smooth;
-      -webkit-overflow-scrolling:touch;
+      -webkit-overflow-scrolling:touch
     }
-    .page{display:none;padding:16px 16px 24px;}
-    .page.active{display:block;}
+    .page{display:none;padding:16px 16px 24px}
+    .page.active{display:block}
 
     .card{
       background:var(--card);border-radius:var(--radius);
       box-shadow:var(--shadow);padding:20px;margin-bottom:16px;
-      border:1px solid var(--border);
+      border:1px solid var(--border)
     }
 
     .balance-card{
       background:linear-gradient(135deg,#16a34a 0%,#22c55e 60%,#4ade80 100%);
       color:#fff;border-radius:24px;padding:26px 22px;
       box-shadow:0 8px 32px var(--green-glow);
-      position:relative;overflow:hidden;margin-bottom:16px;
+      position:relative;overflow:hidden;margin-bottom:16px
     }
     .balance-card::before{
       content:'';position:absolute;top:-40px;right:-40px;
       width:160px;height:160px;border-radius:50%;
-      background:rgba(255,255,255,.1);
+      background:rgba(255,255,255,.1)
     }
     .balance-card::after{
       content:'';position:absolute;bottom:-60px;left:-20px;
       width:200px;height:200px;border-radius:50%;
-      background:rgba(255,255,255,.06);
+      background:rgba(255,255,255,.06)
     }
-    .bal-greeting{font-size:14px;opacity:.9;margin-bottom:4px;}
-    .bal-amount{font-size:42px;font-weight:900;letter-spacing:-1px;line-height:1;}
-    .bal-label{font-size:13px;opacity:.8;margin-top:4px;}
+    .bal-greeting{font-size:14px;opacity:.9;margin-bottom:4px}
+    .bal-amount{font-size:42px;font-weight:900;letter-spacing:-1px;line-height:1}
+    .bal-label{font-size:13px;opacity:.8;margin-top:4px}
 
-    .progress-wrap{margin-top:18px;}
+    .progress-wrap{margin-top:18px}
     .progress-label{
       display:flex;justify-content:space-between;
-      font-size:12px;opacity:.85;margin-bottom:6px;
+      font-size:12px;opacity:.85;margin-bottom:6px
     }
     .progress-bar{
-      height:8px;background:rgba(255,255,255,.25);border-radius:8px;overflow:hidden;
+      height:8px;background:rgba(255,255,255,.25);border-radius:8px;overflow:hidden
     }
     .progress-fill{
       height:100%;width:0%;
       background:#fff;border-radius:8px;
       box-shadow:0 0 10px rgba(255,255,255,.6);
-      transition:width 1s ease;
+      transition:width 1s ease
     }
 
-    .bal-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px;}
+    .bal-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}
     .btn{
       padding:13px 16px;border-radius:14px;
       font-size:14px;font-weight:700;cursor:pointer;
       border:none;outline:none;transition:all .2s;
       display:flex;align-items:center;justify-content:center;gap:7px;
-      text-align:center;
+      text-align:center
     }
-    .btn:active{transform:scale(.95);}
-    .btn-white{background:#fff;color:var(--green-dark);}
-    .btn-white:hover{background:var(--green-light);}
-    .btn-outline{background:rgba(255,255,255,.2);color:#fff;border:1.5px solid rgba(255,255,255,.5);}
-    .btn-outline:hover{background:rgba(255,255,255,.3);}
+    .btn:active{transform:scale(.95)}
+    .btn-white{background:#fff;color:var(--green-dark)}
+    .btn-white:hover{background:var(--green-light)}
+    .btn-outline{background:rgba(255,255,255,.2);color:#fff;border:1.5px solid rgba(255,255,255,.5)}
+    .btn-outline:hover{background:rgba(255,255,255,.3)}
+    .btn-green{background:var(--green);color:#fff;box-shadow:0 4px 14px var(--green-glow)}
+    .btn-green:hover{background:var(--green-dark)}
+    .btn-ghost{background:var(--bg);color:var(--text);border:1.5px solid var(--border)}
+    .btn-ghost:hover{border-color:var(--green);color:var(--green)}
 
-    .btn-green{background:var(--green);color:#fff;box-shadow:0 4px 14px var(--green-glow);}
-    .btn-green:hover{background:var(--green-dark);}
-    .btn-ghost{background:var(--bg);color:var(--text);border:1.5px solid var(--border);}
-    .btn-ghost:hover{border-color:var(--green);color:var(--green);}
-
-    .earn-pills{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+    .earn-pills{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
     .pill{
       background:var(--card);border-radius:var(--radius);padding:16px;
       border:1px solid var(--border);box-shadow:var(--shadow);
-      display:flex;flex-direction:column;gap:4px;
+      display:flex;flex-direction:column;gap:4px
     }
-    .pill-icon{font-size:26px;}
-    .pill-val{font-size:16px;font-weight:800;color:var(--green-dark);}
-    .pill-desc{font-size:12px;color:var(--muted);}
+    .pill-icon{font-size:26px}
+    .pill-val{font-size:16px;font-weight:800;color:var(--green-dark)}
+    .pill-desc{font-size:12px;color:var(--muted)}
 
     .ref-link-wrap{
       display:flex;align-items:center;
       background:var(--bg);border:1.5px solid var(--border);
-      border-radius:12px;overflow:hidden;margin:12px 0;
+      border-radius:12px;overflow:hidden;margin:12px 0
     }
     .ref-link-wrap input{
       flex:1;padding:12px;background:transparent;
-      border:none;outline:none;font-size:13px;color:var(--text);
+      border:none;outline:none;font-size:13px;color:var(--text)
     }
     .copy-btn{
       padding:12px 14px;background:var(--green);color:#fff;
       font-size:13px;font-weight:700;cursor:pointer;
-      transition:background .2s;white-space:nowrap;border:none;
+      transition:background .2s;white-space:nowrap;border:none
     }
-    .copy-btn:hover{background:var(--green-dark);}
+    .copy-btn:hover{background:var(--green-dark)}
 
-    .share-row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;}
+    .share-row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
     .share-btn{
       flex:1;min-width:70px;padding:10px 8px;border-radius:12px;
       font-size:12px;font-weight:600;cursor:pointer;border:none;
       color:#fff;display:flex;align-items:center;justify-content:center;
-      gap:5px;transition:transform .2s,opacity .2s;
+      gap:5px;transition:transform .2s,opacity .2s
     }
-    .share-btn:active{transform:scale(.93);}
-    .sh-tg{background:#0088cc;} .sh-wa{background:#25d366;}
-    .sh-tw{background:#1da1f2;} .sh-fb{background:#1877f2;}
-    .sh-me{background:#0084ff;}
+    .share-btn:active{transform:scale(.93)}
+    .sh-tg{background:#0088cc}.sh-wa{background:#25d366}
+    .sh-tw{background:#1da1f2}.sh-fb{background:#1877f2}
+    .sh-me{background:#0084ff}
 
-    .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     .stat-item{
       background:linear-gradient(135deg,#f0fdf4,#dcfce7);
       border:1px solid #bbf7d0;border-radius:14px;padding:16px;
-      text-align:center;
+      text-align:center
     }
-    .stat-num{font-size:20px;font-weight:800;color:var(--green-dark);}
-    .stat-lbl{font-size:11px;color:var(--muted);margin-top:3px;}
+    .stat-num{font-size:20px;font-weight:800;color:var(--green-dark)}
+    .stat-lbl{font-size:11px;color:var(--muted);margin-top:3px}
     .live-dot{
       display:inline-block;width:7px;height:7px;background:#22c55e;
       border-radius:50%;margin-right:5px;
-      animation:pulse 1.4s ease-in-out infinite;
+      animation:pulse 1.4s ease-in-out infinite
     }
 
-    .ads-grid{display:flex;flex-direction:column;gap:12px;}
+    .ads-grid{display:flex;flex-direction:column;gap:12px}
     .ad-card{
       background:var(--card);border:1px solid var(--border);
       border-radius:var(--radius);padding:16px;
       display:flex;align-items:center;gap:14px;
-      box-shadow:var(--shadow);
+      box-shadow:var(--shadow)
     }
     .ad-thumb{
       width:60px;height:60px;border-radius:12px;
       background:linear-gradient(135deg,#e0f2fe,#bae6fd);
       display:flex;align-items:center;justify-content:center;
-      font-size:26px;flex-shrink:0;
+      font-size:26px;flex-shrink:0
     }
-    .ad-info{flex:1;}
-    .ad-title{font-size:14px;font-weight:700;}
-    .ad-reward{font-size:13px;color:var(--green-dark);font-weight:600;margin-top:3px;}
-    .ad-dur{font-size:11px;color:var(--muted);margin-top:2px;}
-    .ad-btn{padding:9px 18px;font-size:13px;}
+    .ad-info{flex:1}
+    .ad-title{font-size:14px;font-weight:700}
+    .ad-reward{font-size:13px;color:var(--green-dark);font-weight:600;margin-top:3px}
+    .ad-dur{font-size:11px;color:var(--muted);margin-top:2px}
+    .ad-btn{padding:9px 18px;font-size:13px}
 
-    .offer-empty{
-      text-align:center;padding:40px 20px;
-      display:flex;flex-direction:column;align-items:center;gap:12px;
-    }
-    .offer-emoji{font-size:56px;}
-    .offer-title{font-size:18px;font-weight:700;}
-    .offer-sub{font-size:14px;color:var(--muted);}
-
-    .method-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0;}
+    .method-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
     .method{
       background:var(--bg);border:2px solid var(--border);
       border-radius:14px;padding:14px 8px;text-align:center;
-      cursor:pointer;transition:all .2s;
+      cursor:pointer;transition:all .2s
     }
-    .method:hover,.method.sel{
-      border-color:var(--green);background:var(--green-light);
-    }
-    .method.sel{box-shadow:0 0 0 3px var(--green-glow);}
-    .method-icon{font-size:24px;margin-bottom:6px;}
-    .method-name{font-size:12px;font-weight:600;}
+    .method:hover,.method.sel{border-color:var(--green);background:var(--green-light)}
+    .method.sel{box-shadow:0 0 0 3px var(--green-glow)}
+    .method-icon{font-size:24px;margin-bottom:6px}
+    .method-name{font-size:12px;font-weight:600}
 
-    .method-fields{display:none;margin-top:12px;}
-    .method-fields.active{display:block;}
+    .method-fields{display:none;margin-top:12px}
+    .method-fields.active{display:block}
     .field{
       width:100%;
       padding:14px;
@@ -293,62 +277,62 @@
       outline:none;
       background:var(--bg);
       color:var(--text);
-      margin-top:10px;
+      margin-top:10px
     }
-    .field:focus{border-color:var(--green);}
+    .field:focus{border-color:var(--green)}
     .field-row{
       display:grid;
       grid-template-columns:1fr 1fr;
-      gap:10px;
+      gap:10px
     }
 
     .amount-input{
       width:100%;padding:14px;border-radius:14px;
       border:1.5px solid var(--border);font-size:18px;font-weight:700;
       outline:none;background:var(--bg);color:var(--text);
-      transition:border-color .2s;margin-bottom:8px;
+      transition:border-color .2s;margin-bottom:8px
     }
-    .amount-input:focus{border-color:var(--green);}
-    .min-note{font-size:12px;color:var(--muted);margin-bottom:16px;}
-    .min-note span{color:var(--green-dark);font-weight:700;}
+    .amount-input:focus{border-color:var(--green)}
+    .min-note{font-size:12px;color:var(--muted);margin-bottom:16px}
+    .min-note span{color:var(--green-dark);font-weight:700}
 
     .faq-item{
       border:1px solid var(--border);border-radius:14px;
-      overflow:hidden;margin-bottom:10px;
+      overflow:hidden;margin-bottom:10px
     }
     .faq-q{
       padding:16px;font-size:14px;font-weight:600;
       cursor:pointer;display:flex;justify-content:space-between;align-items:center;
-      background:var(--card);transition:background .2s;
+      background:var(--card);transition:background .2s
     }
-    .faq-q:hover{background:var(--green-light);}
-    .faq-q .arrow{transition:transform .3s;font-size:16px;}
+    .faq-q:hover{background:var(--green-light)}
+    .faq-q .arrow{transition:transform .3s;font-size:16px}
     .faq-a{
       max-height:0;overflow:hidden;
       transition:max-height .35s ease,padding .35s;
       background:#f8fff9;font-size:13px;color:var(--muted);line-height:1.6;
-      padding:0 16px;
+      padding:0 16px
     }
-    .faq-item.open .faq-a{max-height:220px;padding:14px 16px;}
-    .faq-item.open .arrow{transform:rotate(180deg);}
+    .faq-item.open .faq-a{max-height:220px;padding:14px 16px}
+    .faq-item.open .arrow{transform:rotate(180deg)}
 
     #bottom-nav{
       position:fixed;bottom:0;left:0;right:0;height:var(--nav-h);
       background:var(--white);
       border-top:1px solid var(--border);
       display:flex;align-items:center;justify-content:space-around;
-      z-index:800;box-shadow:0 -4px 20px rgba(0,0,0,.07);
+      z-index:800;box-shadow:0 -4px 20px rgba(0,0,0,.07)
     }
     .nav-item{
       display:flex;flex-direction:column;align-items:center;gap:4px;
       cursor:pointer;padding:6px 12px;border-radius:12px;
-      transition:all .2s;flex:1;
+      transition:all .2s;flex:1
     }
-    .nav-item .nav-icon{font-size:22px;transition:transform .2s;}
-    .nav-item .nav-lbl{font-size:10px;font-weight:600;color:var(--muted);}
-    .nav-item.active .nav-icon{transform:scale(1.15);}
-    .nav-item.active .nav-lbl{color:var(--green);}
-    .nav-item:active .nav-icon{transform:scale(.9);}
+    .nav-item .nav-icon{font-size:22px;transition:transform .2s}
+    .nav-item .nav-lbl{font-size:10px;font-weight:600;color:var(--muted)}
+    .nav-item.active .nav-icon{transform:scale(1.15)}
+    .nav-item.active .nav-lbl{color:var(--green)}
+    .nav-item:active .nav-icon{transform:scale(.9)}
 
     #fab{
       position:fixed;bottom:calc(var(--nav-h) + 16px);right:18px;
@@ -358,39 +342,10 @@
       display:flex;align-items:center;justify-content:center;
       box-shadow:0 6px 20px var(--green-glow);
       cursor:pointer;z-index:700;transition:transform .2s,box-shadow .2s;
-      border:none;outline:none;
+      border:none;outline:none
     }
-    #fab:hover{transform:scale(1.08);box-shadow:0 8px 28px var(--green-glow);}
-    #fab:active{transform:scale(.95);}
-
-    #popup-container{
-      position:fixed;top:72px;left:16px;right:16px;z-index:1100;
-      pointer-events:none;
-    }
-    .popup{
-      background:var(--white);border-left:4px solid var(--green);
-      border-radius:14px;padding:12px 16px;margin-bottom:8px;
-      box-shadow:0 8px 32px rgba(0,0,0,.15);
-      display:flex;align-items:center;gap:12px;
-      transform:translateY(-20px) scale(.95);opacity:0;
-      transition:all .4s cubic-bezier(.34,1.56,.64,1);
-      pointer-events:all;
-    }
-    .popup.show{transform:translateY(0) scale(1);opacity:1;}
-    .popup-icon{font-size:26px;}
-    .popup-text{flex:1;}
-    .popup-main{font-size:13px;font-weight:700;color:var(--text);}
-    .popup-sub{font-size:11px;color:var(--muted);margin-top:2px;}
-
-    .sec-title{
-      font-size:18px;font-weight:800;margin-bottom:4px;color:var(--text);
-    }
-    .sec-sub{font-size:13px;color:var(--muted);margin-bottom:16px;}
-
-    @keyframes pulse{
-      0%,100%{transform:scale(1);opacity:1;}
-      50%{transform:scale(1.6);opacity:.6;}
-    }
+    #fab:hover{transform:scale(1.08);box-shadow:0 8px 28px var(--green-glow)}
+    #fab:active{transform:scale(.95)}
 
     #toast{
       position:fixed;bottom:calc(var(--nav-h) + 80px);left:50%;
@@ -398,73 +353,84 @@
       background:#0f172a;color:#fff;padding:10px 20px;
       border-radius:24px;font-size:13px;font-weight:600;
       opacity:0;transition:all .3s;z-index:2000;pointer-events:none;
-      white-space:nowrap;
+      white-space:nowrap
     }
-    #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+    #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-    #main::-webkit-scrollbar,.sb-nav::-webkit-scrollbar{width:4px;}
+    #main::-webkit-scrollbar,.sb-nav::-webkit-scrollbar{width:4px}
     #main::-webkit-scrollbar-thumb,.sb-nav::-webkit-scrollbar-thumb{
-      background:var(--border);border-radius:4px;
+      background:var(--border);border-radius:4px
     }
 
-/* Crypto Payment Modal Styles */
-#crypto-modal {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.6);
-  backdrop-filter: blur(8px); z-index: 2000;
-  display: none; align-items: center; justify-content: center;
-  opacity: 0; transition: opacity 0.3s ease;
-}
-#crypto-modal.show { opacity: 1; }
+    @keyframes pulse{
+      0%,100%{transform:scale(1);opacity:1}
+      50%{transform:scale(1.6);opacity:.6}
+    }
 
-.crypto-card {
-  background: linear-gradient(135deg, #0f172a, #1e293b);
-  border: 1px solid rgba(34, 197, 94, 0.3);
-  box-shadow: 0 8px 32px var(--green-glow);
-  border-radius: 24px; padding: 24px; width: 92%; max-width: 360px;
-  color: #fff; position: relative;
-  transform: translateY(20px); transition: transform 0.3s ease;
-}
-#crypto-modal.show .crypto-card { transform: translateY(0); }
+    /* Crypto Payment Modal */
+    #crypto-modal{
+      position:fixed;inset:0;background:rgba(0,0,0,.6);
+      backdrop-filter:blur(8px);z-index:2000;
+      display:none;align-items:center;justify-content:center;
+      opacity:0;transition:opacity .3s ease
+    }
+    #crypto-modal.show{opacity:1}
+    .crypto-card{
+      background:linear-gradient(135deg,#0f172a,#1e293b);
+      border:1px solid rgba(34,197,94,.3);
+      box-shadow:0 8px 32px var(--green-glow);
+      border-radius:24px;padding:24px;width:92%;max-width:360px;
+      color:#fff;position:relative;
+      transform:translateY(20px);transition:transform .3s ease
+    }
+    #crypto-modal.show .crypto-card{transform:translateY(0)}
+    .crypto-close{
+      position:absolute;top:16px;right:16px;
+      background:rgba(255,255,255,.1);border:none;color:#fff;
+      width:30px;height:30px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      cursor:pointer;font-size:14px
+    }
+    .coin-grid{
+      display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px
+    }
+    .coin-btn{
+      background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+      padding:12px;border-radius:14px;color:#fff;cursor:pointer;
+      display:flex;flex-direction:column;align-items:center;gap:6px;
+      transition:all .2s
+    }
+    .coin-btn:hover,.coin-btn:active{
+      background:var(--green-glow);border-color:var(--green)
+    }
+    .coin-icon{font-size:24px}
+    .coin-name{font-size:13px;font-weight:700}
+    .coin-net{font-size:10px;color:var(--muted)}
+    #crypto-details{display:none;margin-top:16px}
+    .copy-box{
+      background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);
+      border-radius:12px;padding:12px;margin-bottom:12px;
+      display:flex;justify-content:space-between;align-items:center
+    }
+    .copy-info{flex:1;overflow:hidden}
+    .copy-label{font-size:11px;color:var(--muted);margin-bottom:4px}
+    .copy-value{font-size:14px;font-weight:700;word-break:break-all}
+    .copy-action{
+      background:var(--green);color:#fff;border:none;
+      padding:8px 12px;border-radius:8px;font-size:12px;
+      font-weight:bold;cursor:pointer;margin-left:10px
+    }
 
-.crypto-close {
-  position: absolute; top: 16px; right: 16px;
-  background: rgba(255,255,255,0.1); border: none; color: #fff;
-  width: 30px; height: 30px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; font-size: 14px;
-}
-
-.coin-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px;
-}
-.coin-btn {
-  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-  padding: 12px; border-radius: 14px; color: #fff; cursor: pointer;
-  display: flex; flex-direction: column; align-items: center; gap: 6px;
-  transition: all 0.2s;
-}
-.coin-btn:hover, .coin-btn:active {
-  background: var(--green-glow); border-color: var(--green);
-}
-.coin-icon { font-size: 24px; }
-.coin-name { font-size: 13px; font-weight: 700; }
-.coin-net { font-size: 10px; color: var(--muted); }
-
-/* Details View */
-#crypto-details { display: none; margin-top: 16px; }
-.copy-box {
-  background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 12px; padding: 12px; margin-bottom: 12px;
-  display: flex; justify-content: space-between; align-items: center;
-}
-.copy-info { flex: 1; overflow: hidden; }
-.copy-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
-.copy-value { font-size: 14px; font-weight: 700; word-break: break-all; }
-.copy-action {
-  background: var(--green); color: #fff; border: none;
-  padding: 8px 12px; border-radius: 8px; font-size: 12px;
-  font-weight: bold; cursor: pointer; margin-left: 10px;
-}
+    .small-note{
+      background:rgba(34,197,94,.1);
+      border-left:3px solid #22c55e;
+      padding:10px;
+      font-size:11px;
+      color:#bbf7d0;
+      margin-bottom:16px;
+      border-radius:4px;
+      line-height:1.4
+    }
   </style>
 </head>
 <body>
@@ -484,7 +450,7 @@
     <div class="sb-item" onclick="navigate('invite',3,this)"><span class="icon">👥</span> Invite Friends</div>
     <div class="sb-item" onclick="navigate('cashout',4,this)"><span class="icon">💸</span> Cash Out</div>
     <div class="sb-item" onclick="navigate('vip',5,this)"><span class="icon">💎</span> VIP</div>
-    <div class="sb-item" onclick="navigate('help',6,this)"><span class="icon">❓</span> Help &amp; FAQ</div>
+    <div class="sb-item" onclick="navigate('help',6,this)"><span class="icon">❓</span> Help & FAQ</div>
   </div>
   <div class="sb-footer">AdWallet · Made with 💚</div>
 </nav>
@@ -502,8 +468,6 @@
   </div>
 </header>
 
-<div id="popup-container"></div>
-
 <main id="main">
   <section class="page active" id="page-dashboard">
     <div class="balance-card">
@@ -511,7 +475,7 @@
       <div class="bal-amount">$<span id="bal-main">0.00</span></div>
       <div class="bal-label">Total Earnings</div>
 
-            <div class="progress-wrap">
+      <div class="progress-wrap">
         <div class="progress-label">
           <span>Earning Progress</span>
           <span id="progress-text">$0.00 / $100.00</span>
@@ -521,12 +485,11 @@
         </div>
       </div>
 
-      <div class="bal-actions" style="position: relative; z-index: 10; pointer-events: auto;">
-        <button class="btn btn-white" style="position: relative; z-index: 11; cursor: pointer;" onclick="navigate('cashout',4)">💸 Cash Out</button>
-        <button class="btn btn-outline" style="position: relative; z-index: 11; cursor: pointer;" onclick="claimBonus()"> 🎁 Daily Bonus</button>
+      <div class="bal-actions" style="position:relative;z-index:10;pointer-events:auto;">
+        <button class="btn btn-white" style="position:relative;z-index:11;cursor:pointer;" onclick="navigate('cashout',4)">💸 Cash Out</button>
+        <button class="btn btn-outline" style="position:relative;z-index:11;cursor:pointer;" onclick="claimBonus()">🎁 Daily Bonus</button>
       </div>
     </div>
-
 
     <div class="earn-pills">
       <div class="pill"><span class="pill-icon">🎬</span><span class="pill-val">$0.05–$0.10</span><span class="pill-desc">per ad watched</span></div>
@@ -540,7 +503,7 @@
       <div class="sec-sub">Start earning immediately</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
         <button class="btn btn-green" onclick="navigate('ads',1)">▶️ Watch Ads</button>
-        <button class="btn btn-ghost" onclick="navigate('offers',2)"> 🎁 Offers</button>
+        <button class="btn btn-ghost" onclick="navigate('offers',2)">🎁 Offers</button>
       </div>
     </div>
 
@@ -590,28 +553,45 @@
   </section>
 
   <section class="page" id="page-offers">
-    <div class="sec-title">Offer Center</div>
-    <div class="sec-sub">Complete tasks for bigger rewards</div>
+    <div class="sec-title">Referral Rewards</div>
+    <div class="sec-sub">Complete referral milestones to unlock VIP for free</div>
+
     <div class="card">
-      <div class="offer-empty">
-        <span class="offer-emoji">🚀</span>
-        <div class="offer-title">Coming Soon!</div>
-        <div class="offer-sub">Exciting offers from top brands are being integrated. Stay tuned for big rewards!</div>
-        <button class="btn btn-green" style="padding:13px 28px;margin-top:8px;">🔔 Notify Me</button>
-      </div>
-    </div>
-    <div class="card">
-      <div class="sec-title" style="font-size:16px;margin-bottom:12px;">Preview Offers</div>
       <div class="ads-grid">
         <div class="ad-card">
-          <div class="ad-thumb" style="background:linear-gradient(135deg,#fef3c7,#fde68a);">📋</div>
-          <div class="ad-info"><div class="ad-title">Survey Task</div><div class="ad-reward">+$0.50</div><div class="ad-dur">⏱ ~5 min</div></div>
-          <button class="btn btn-ghost ad-btn" style="font-size:12px;">Soon</button>
+          <div class="ad-thumb">🥉</div>
+          <div class="ad-info"><div class="ad-title">Bronze VIP</div><div class="ad-reward">60 referrals</div><div class="ad-dur">Unlock free Bronze VIP</div></div>
+          <button class="btn btn-green ad-btn" onclick="claimReferralVIP('Bronze')">Claim</button>
         </div>
+
         <div class="ad-card">
-          <div class="ad-thumb" style="background:linear-gradient(135deg,#ede9fe,#ddd6fe);">📥</div>
-          <div class="ad-info"><div class="ad-title">App Install</div><div class="ad-reward">+$1.20</div><div class="ad-dur">⏱ ~2 min</div></div>
-          <button class="btn btn-ghost ad-btn" style="font-size:12px;">Soon</button>
+          <div class="ad-thumb">🥈</div>
+          <div class="ad-info"><div class="ad-title">Silver VIP</div><div class="ad-reward">150 referrals</div><div class="ad-dur">Unlock free Silver VIP</div></div>
+          <button class="btn btn-green ad-btn" onclick="claimReferralVIP('Silver')">Claim</button>
+        </div>
+
+        <div class="ad-card">
+          <div class="ad-thumb">🥇</div>
+          <div class="ad-info"><div class="ad-title">Gold VIP</div><div class="ad-reward">300 referrals</div><div class="ad-dur">Unlock free Gold VIP</div></div>
+          <button class="btn btn-green ad-btn" onclick="claimReferralVIP('Gold')">Claim</button>
+        </div>
+
+        <div class="ad-card">
+          <div class="ad-thumb">💎</div>
+          <div class="ad-info"><div class="ad-title">Platinum VIP</div><div class="ad-reward">500 referrals</div><div class="ad-dur">Unlock free Platinum VIP</div></div>
+          <button class="btn btn-green ad-btn" onclick="claimReferralVIP('Platinum')">Claim</button>
+        </div>
+
+        <div class="ad-card">
+          <div class="ad-thumb">🚀</div>
+          <div class="ad-info"><div class="ad-title">Diamond VIP</div><div class="ad-reward">800 referrals</div><div class="ad-dur">Unlock free Diamond VIP</div></div>
+          <button class="btn btn-green ad-btn" onclick="claimReferralVIP('Diamond')">Claim</button>
+        </div>
+
+        <div class="ad-card">
+          <div class="ad-thumb">👑</div>
+          <div class="ad-info"><div class="ad-title">Elite VIP</div><div class="ad-reward">1200 referrals</div><div class="ad-dur">Unlock free Elite VIP</div></div>
+          <button class="btn btn-green ad-btn" onclick="claimReferralVIP('Elite')">Claim</button>
         </div>
       </div>
     </div>
@@ -648,7 +628,7 @@
         <button class="share-btn sh-wa" onclick="share('WhatsApp')">💬 WhatsApp</button>
         <button class="share-btn sh-tw" onclick="share('Twitter')">🐦 Twitter</button>
         <button class="share-btn sh-fb" onclick="share('Facebook')">👥 Facebook</button>
-        <button class="share-btn sh-me" onclick="share('Messenger')"> 💌 Messenger</button>
+        <button class="share-btn sh-me" onclick="share('Messenger')">💌 Messenger</button>
       </div>
     </div>
 
@@ -753,9 +733,7 @@
       <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
         <div>
           <div style="font-size:18px;font-weight:800;margin-bottom:6px;">📢 AdWallet Rewards</div>
-          <div style="font-size:13px;opacity:.85;line-height:1.5;">
-            Unlock higher earnings with VIP access, faster rewards, and referral boost.
-          </div>
+          <div style="font-size:13px;opacity:.85;line-height:1.5;">Unlock higher earnings with VIP access, faster rewards, and referral boost.</div>
         </div>
         <div style="font-size:42px;">💎</div>
       </div>
@@ -774,79 +752,55 @@
     <div class="ads-grid">
       <div class="ad-card" style="align-items:flex-start;">
         <div class="ad-thumb">🥉</div>
-        <div class="ad-info">
-          <div class="ad-title">Bronze</div>
-          <div class="ad-reward">425 Stars</div>
-          <div class="ad-dur">Earn up to $450</div>
-        </div>
+        <div class="ad-info"><div class="ad-title">Bronze</div><div class="ad-reward">425 Stars</div><div class="ad-dur">Earn up to $450</div></div>
         <div style="display:flex;flex-direction:column;gap:8px;min-width:120px;">
           <button class="btn btn-green ad-btn" onclick="buyVipStars('Bronze')">Pay with Stars</button>
-          <button class="btn btn-ghost ad-btn" onclick="buyVipCrypto('Bronze',425)">Pay with Crypto</button>
+          <button class="btn btn-ghost ad-btn" onclick="buyVipCrypto('Bronze')">Pay with Crypto</button>
         </div>
       </div>
 
       <div class="ad-card" style="align-items:flex-start;">
         <div class="ad-thumb">🥈</div>
-        <div class="ad-info">
-          <div class="ad-title">Silver</div>
-          <div class="ad-reward">850 Stars</div>
-          <div class="ad-dur">Earn up to $800</div>
-        </div>
+        <div class="ad-info"><div class="ad-title">Silver</div><div class="ad-reward">850 Stars</div><div class="ad-dur">Earn up to $800</div></div>
         <div style="display:flex;flex-direction:column;gap:8px;min-width:120px;">
           <button class="btn btn-green ad-btn" onclick="buyVipStars('Silver')">Pay with Stars</button>
-          <button class="btn btn-ghost ad-btn" onclick="buyVipCrypto('Silver',850)">Pay with Crypto</button>
+          <button class="btn btn-ghost ad-btn" onclick="buyVipCrypto('Silver')">Pay with Crypto</button>
         </div>
       </div>
 
       <div class="ad-card" style="align-items:flex-start;">
         <div class="ad-thumb">🥇</div>
-        <div class="ad-info">
-          <div class="ad-title">Gold</div>
-          <div class="ad-reward">1275 Stars</div>
-          <div class="ad-dur">Earn up to $1600</div>
-        </div>
+        <div class="ad-info"><div class="ad-title">Gold</div><div class="ad-reward">1275 Stars</div><div class="ad-dur">Earn up to $1600</div></div>
         <div style="display:flex;flex-direction:column;gap:8px;min-width:120px;">
           <button class="btn btn-green ad-btn" onclick="buyVipStars('Gold')">Pay with Stars</button>
-          <button class="btn btn-ghost ad-btn" onclick="buyVipCrypto('Gold',1275)">Pay with Crypto</button>
+          <button class="btn btn-ghost ad-btn" onclick="buyVipCrypto('Gold')">Pay with Crypto</button>
         </div>
       </div>
 
       <div class="ad-card" style="align-items:flex-start;">
         <div class="ad-thumb">💎</div>
-        <div class="ad-info">
-          <div class="ad-title">Platinum</div>
-          <div class="ad-reward">2125 Stars</div>
-          <div class="ad-dur">Earn up to $2400</div>
-        </div>
+        <div class="ad-info"><div class="ad-title">Platinum</div><div class="ad-reward">2125 Stars</div><div class="ad-dur">Earn up to $2400</div></div>
         <div style="display:flex;flex-direction:column;gap:8px;min-width:120px;">
           <button class="btn btn-green ad-btn" onclick="buyVipStars('Platinum')">Pay with Stars</button>
-          <button class="btn btn-ghost ad-btn" onclick="buyVipCrypto('Platinum',2125)">Pay with Crypto</button>
+          <button class="btn btn-ghost ad-btn" onclick="buyVipCrypto('Platinum')">Pay with Crypto</button>
         </div>
       </div>
 
       <div class="ad-card" style="align-items:flex-start;">
         <div class="ad-thumb">🚀</div>
-        <div class="ad-info">
-          <div class="ad-title">Diamond</div>
-          <div class="ad-reward">3200 Stars</div>
-          <div class="ad-dur">Earn up to $5000</div>
-        </div>
+        <div class="ad-info"><div class="ad-title">Diamond</div><div class="ad-reward">3200 Stars</div><div class="ad-dur">Earn up to $5000</div></div>
         <div style="display:flex;flex-direction:column;gap:8px;min-width:120px;">
           <button class="btn btn-green ad-btn" onclick="buyVipStars('Diamond')">Pay with Stars</button>
-          <button class="btn btn-ghost ad-btn" onclick="buyVipCrypto('Diamond',3200)">Pay with Crypto</button>
+          <button class="btn btn-ghost ad-btn" onclick="buyVipCrypto('Diamond')">Pay with Crypto</button>
         </div>
       </div>
 
       <div class="ad-card" style="align-items:flex-start;">
         <div class="ad-thumb">👑</div>
-        <div class="ad-info">
-          <div class="ad-title">Elite</div>
-          <div class="ad-reward">4250 Stars</div>
-          <div class="ad-dur">Earn up to $10000</div>
-        </div>
+        <div class="ad-info"><div class="ad-title">Elite</div><div class="ad-reward">4250 Stars</div><div class="ad-dur">Earn up to $10000</div></div>
         <div style="display:flex;flex-direction:column;gap:8px;min-width:120px;">
           <button class="btn btn-green ad-btn" onclick="buyVipStars('Elite')">Pay with Stars</button>
-          <button class="btn btn-ghost ad-btn" onclick="buyVipCrypto('Elite',4250)">Pay with Crypto</button>
+          <button class="btn btn-ghost ad-btn" onclick="buyVipCrypto('Elite')">Pay with Crypto</button>
         </div>
       </div>
     </div>
@@ -854,9 +808,7 @@
     <div class="card" style="margin-top:16px;">
       <div class="sec-title" style="font-size:16px;">Referral Bonus</div>
       <div class="sec-sub" style="margin-bottom:12px;">Earn 20% bonus when your friend buys a VIP plan.</div>
-      <button class="btn btn-ghost" style="width:100%;" onclick="navigate('invite',3)">
-        👥 Go to Invite
-      </button>
+      <button class="btn btn-ghost" style="width:100%;" onclick="navigate('invite',3)">👥 Go to Invite</button>
     </div>
   </section>
 
@@ -916,10 +868,10 @@
   <div class="crypto-card">
     <button class="crypto-close" onclick="closeCryptoModal()">✕</button>
 
-    <div style="font-size: 18px; font-weight: 800; text-align: center;">
-      Buy <span id="modal-plan-name" style="color: #22c55e;">VIP</span>
+    <div style="font-size:18px;font-weight:800;text-align:center;">
+      Buy <span id="modal-plan-name" style="color:#22c55e;">VIP</span>
     </div>
-    <div style="font-size: 13px; color: #94a3b8; text-align: center; margin-top: 4px;" id="modal-subtitle">
+    <div style="font-size:13px;color:#94a3b8;text-align:center;margin-top:4px;" id="modal-subtitle">
       Select your payment method
     </div>
 
@@ -956,10 +908,8 @@
       </div>
     </div>
 
-    <div id="crypto-details" style="display: none;">
-      <button class="btn btn-ghost" style="padding: 6px 12px; font-size: 12px; margin-bottom: 16px; width: auto; background: rgba(255,255,255,0.05);" onclick="resetCryptoModal()">
-        ← Back
-      </button>
+    <div id="crypto-details">
+      <button class="btn btn-ghost" style="padding:6px 12px;font-size:12px;margin-bottom:16px;width:auto;background:rgba(255,255,255,0.05);" onclick="resetCryptoModal()">← Back</button>
 
       <div class="copy-box">
         <div class="copy-info">
@@ -972,17 +922,17 @@
       <div class="copy-box">
         <div class="copy-info">
           <div class="copy-label">Wallet Address (<span id="pay-network">Net</span>)</div>
-          <div class="copy-value" style="font-size: 11px;" id="pay-address">0x...</div>
+          <div class="copy-value" style="font-size:11px;" id="pay-address">0x...</div>
         </div>
         <button class="copy-action" onclick="copyToClipboard('pay-address')">Copy</button>
       </div>
 
-      <div style="background: rgba(34,197,94,0.1); border-left: 3px solid #22c55e; padding: 10px; font-size: 11px; color: #bbf7d0; margin-bottom: 16px; border-radius: 4px; line-height: 1.4;">
+      <div class="small-note">
         ⚠️ 1. Send exact amount.<br>
         2. Close app and send screenshot to @AdzwalletBot.
       </div>
 
-      <button class="btn btn-green" style="width: 100%; padding: 14px; background: #22c55e; color: #000; font-weight: 800; border-radius: 12px; border: none; cursor: pointer;" onclick="closeAppAndUpload()">
+      <button class="btn btn-green" style="width:100%;padding:14px;background:#22c55e;color:#000;font-weight:800;border-radius:12px;border:none;cursor:pointer;" onclick="closeAppAndUpload()">
         📸 I have paid, send screenshot
       </button>
     </div>
@@ -990,13 +940,12 @@
 </div>
 
 <script>
-const BOT_USERNAME = 'AdzwalletBot'; // change only if your bot username is different
+const BOT_USERNAME = 'AdzwalletBot'; // change if your bot username is different
 
 let balance = 0;
 let referralCount = 0;
 let referralEarnings = 0;
 let sidebarOpen = false;
-let bonusClaimed = false;
 let userId = '';
 let adInstance = null;
 let selectedVipPlan = '';
@@ -1023,6 +972,15 @@ const planPrices = {
   Elite:    { USDT: 100.00, BNB: 0.330, TRX: 775.00, TON: 105.00, SOL: 0.710, BTC: 0.00160 }
 };
 
+const REFERRAL_VIP_REWARDS = {
+  Bronze: 60,
+  Silver: 150,
+  Gold: 300,
+  Platinum: 500,
+  Diamond: 800,
+  Elite: 1200
+};
+
 function resolveUserId() {
   if (userId) return String(userId);
 
@@ -1033,6 +991,10 @@ function resolveUserId() {
   if (tgUser?.id) return String(tgUser.id);
 
   return '';
+}
+
+function getTelegramUserId() {
+  return resolveUserId();
 }
 
 function getFingerprint() {
@@ -1208,6 +1170,26 @@ function renderHistory() {
   }).join('');
 }
 
+function applyReferralVipClaims(claimedReferralVipRewards) {
+  document.querySelectorAll('#page-offers .ad-card').forEach(card => {
+    const title = card.querySelector('.ad-title')?.textContent?.trim();
+    const btn = card.querySelector('button');
+
+    if (title && btn) {
+      const plan = title.replace(' VIP', '');
+      if (claimedReferralVipRewards.includes(plan)) {
+        btn.textContent = 'Claimed';
+        btn.disabled = true;
+        btn.classList.remove('btn-green');
+        btn.classList.add('btn-ghost');
+      } else {
+        btn.textContent = 'Claim';
+        btn.disabled = false;
+      }
+    }
+  });
+}
+
 async function setReferralLink() {
   const input = document.getElementById('ref-link-input');
   if (!input) return;
@@ -1236,6 +1218,7 @@ async function loadUserData() {
     referralCount = Number(data.referralCount || 0);
     referralEarnings = Number(data.referralEarnings || 0);
     withdrawHistory = Array.isArray(data.withdrawHistory) ? data.withdrawHistory : [];
+    const claimedReferralVipRewards = Array.isArray(data.claimedReferralVipRewards) ? data.claimedReferralVipRewards : [];
 
     updateBalance(0);
     document.getElementById('ref-count').textContent = referralCount;
@@ -1252,6 +1235,7 @@ async function loadUserData() {
     }
 
     renderHistory();
+    applyReferralVipClaims(claimedReferralVipRewards);
   } catch (e) {
     console.log('loadUserData error', e);
   }
@@ -1589,8 +1573,58 @@ function toggleFaq(el) {
   if (!isOpen) item.classList.add('open');
 }
 
+async function claimReferralVIP(plan) {
+  const uid = getTelegramUserId();
+  if (!uid) {
+    showToast('⚠️ Cannot identify user');
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/claim-referral-vip', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: uid, plan })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      showToast(`✅ ${plan} VIP unlocked!`);
+      await loadUserData();
+    } else {
+      showToast(data.message || 'Claim failed');
+    }
+  } catch (e) {
+    console.error(e);
+    showToast('Claim failed');
+  }
+}
+
+function createPlatformStats() {
+  const p = document.getElementById('stat-payout');
+  const u = document.getElementById('stat-users');
+  const a = document.getElementById('stat-ads');
+  const t = document.getElementById('stat-today');
+
+  if (p) p.textContent = '$48,312';
+  if (u) u.textContent = '12,847';
+  if (a) a.textContent = '3.2M';
+  if (t) t.textContent = '$2,190';
+}
+
+function initAds() {
+  try {
+    if (window.Adsgram && typeof window.Adsgram.init === 'function' && ADSGRAM_BLOCKS.length) {
+      adInstance = window.Adsgram.init({ blockId: ADSGRAM_BLOCKS[0] });
+    }
+  } catch (e) {
+    console.log('Ads init failed', e);
+  }
+}
+
 (function init() {
-  renderHistory();
+  createPlatformStats();
   initAds();
 
   if (window.Telegram?.WebApp) {
@@ -1614,5 +1648,6 @@ window.addEventListener('load', () => {
   }
 });
 </script>
+
 </body>
 </html>
