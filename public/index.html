@@ -1180,26 +1180,6 @@ function renderHistory() {
   }).join('');
 }
 
-function applyReferralVipClaims(claimedReferralVipRewards) {
-  document.querySelectorAll('#page-offers .ad-card').forEach(card => {
-    const title = card.querySelector('.ad-title')?.textContent?.trim();
-    const btn = card.querySelector('button');
-
-    if (title && btn) {
-      const plan = title.replace(' VIP', '');
-      if (claimedReferralVipRewards.includes(plan)) {
-        btn.textContent = 'Claimed';
-        btn.disabled = true;
-        btn.classList.remove('btn-green');
-        btn.classList.add('btn-ghost');
-      } else {
-        btn.textContent = 'Claim';
-        btn.disabled = false;
-      }
-    }
-  });
-}
-
 async function setReferralLink() {
   const input = document.getElementById('ref-link-input');
   if (!input) return;
@@ -1245,7 +1225,6 @@ async function loadUserData() {
     }
 
     renderHistory();
-    applyReferralVipClaims(claimedReferralVipRewards);
   } catch (e) {
     console.log('loadUserData error', e);
   }
@@ -1658,12 +1637,10 @@ window.addEventListener('load', () => {
   }
 });
 
+</script>
+
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-<script src='//libtl.com/sdk.js'
-        data-zone='10760190'
-        data-sdk='show_10760190'></script>
-
+<script src='//libtl.com/sdk.js' data-zone='10760190' data-sdk='show_10760190'></script>
 <script type="text/javascript" src="https://optilinklock.com/script_include.php?id=1887514"></script>
 <script type="text/javascript" src="https://optilinklock.com/script_include.php?id=1887515"></script>
 <script type="text/javascript" src="https://optilinklock.com/script_include.php?id=1887516"></script>
