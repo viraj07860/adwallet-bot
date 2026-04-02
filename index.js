@@ -33,10 +33,6 @@ mongoose
   .then(() => console.log('✅ Connected to MongoDB - Data will persist'))
   .catch((err) => console.error('❌ MongoDB Connection Error:', err));
 
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('✅ Connected to MongoDB'))
-  .catch(err => console.error('❌ MongoDB connection error:', err));
-
 /* ---------------- DATABASE SCHEMA ---------------- */
 const withdrawSchema = new mongoose.Schema(
   {
@@ -54,6 +50,7 @@ const withdrawSchema = new mongoose.Schema(
 const userSchema = new mongoose.Schema({
   userId: { type: String, required: true, unique: true, index: true },
   username: { type: String, default: 'User' },
+
   balance: { type: Number, default: 0 },
   tasks: { type: Number, default: 0 },
 
@@ -85,7 +82,7 @@ const User = mongoose.model('User', userSchema);
 /* ---------------- ECONOMY SETTINGS ---------------- */
 const AD_REWARD_BASE = 0.05;
 const REF_REWARD = 0.075;
-const DAILY_BONUS = 0.20;
+const DAILY_BONUS = 0.25;
 
 const VIP_PLANS = {
   Bronze: 425,
@@ -180,55 +177,19 @@ function getIp(req) {
 }
 
 async function createStarsInvoice(plan) {
-  const price = VIP_PLANS[plan];
-  if (!price) throw new Error('Invalid VIP plan');
+  const amount = VIP_PLANS[plan];
+  if (!amount) throw new Error('Invalid VIP plan');
 
-  const invoiceUrl = await bot.telegram.createInvoiceLink({
-    title: `${plan} VIP`,
-    description: `Purchase ${plan} VIP with Telegram Stars`,
-    payload: `vip_${plan}`,
-    provider_token: '',
-    currency: 'XTR',
-    prices: [{ label: `${plan} VIP`, amount: price }]
-  });
-
-  return invoiceUrl;
+  // Telegram Stars invoice link
+  return bot.telegram.createInvoiceLink(
+    `${plan} VIP`,
+    `Purchase ${plan} VIP with Telegram Stars`,
+    `vip_${plan}`,
+    '',
+    'XTR',
+    [{ label: `${plan} VIP`, amount }]
+  );
 }
-
-/* ---------------- API ROUTES ---------------- */
-
-// Get user data for Mini App
-app.get('/user/:id', async (req, res) => {
-  try {
-    const user = await ensureUser(req.params.id);
-
-    if (!user.welcomeBonusClaimed) {
-      user.balance += 5;
-      user.welcomeBonusClaimed = true;
-      await user.save();
-      console.log(`🎁 Welcome bonus given to ${user.userId}`);
-    }
-
-    res.json({
-      userId: user.userId,
-      username: user.username,
-      balance: Number(user.balance.toFixed(4)),
-      tasks: user.tasks,
-      vip: user.vip,
-      vipPlan: user.vipPlan,
-      referralCount: user.referralCount,
-      referralEarnings: Number(user.referralEarnings.toFixed(4)),
-      welcomeBonusClaimed: user.welcomeBonusClaimed,
-      isAdmin: user.isAdmin,
-      withdrawHistory: user.withdrawHistory,
-      claimedReferralVipRewards: user.claimedReferralVipRewards || [],
-      pendingVipPlan: user.pendingVipPlan || null
-    });
-  } catch (err) {
-    console.error('GET /user/:id error:', err);
-    res.status(500).json({ error: 'Failed to load user' });
-  }
-});
 
 async function handleReward(req, res, payload) {
   try {
@@ -245,9 +206,7 @@ async function handleReward(req, res, payload) {
     }
 
     if (req.method === 'GET') {
-      if (key !== REWARD_SECRET) {
-        return res.status(403).send('Forbidden');
-      }
+      if (key !== REWARD_SECRET) return res.status(403).send('Forbidden');
     } else {
       if (key && key !== REWARD_SECRET) {
         return res.status(403).json({ success: false, message: 'Forbidden' });
@@ -319,11 +278,49 @@ async function handleReward(req, res, payload) {
   }
 }
 
+/* ---------------- API ROUTES ---------------- */
+app.get('/user/:id', async (req, res) => {
+  try {
+    const user = await ensureUser(req.params.id);
+
+    if (!user.welcomeBonusClaimed) {
+      user.balance += 5;
+      user.welcomeBonusClaimed = true;
+      await user.save();
+      console.log(`🎁 Welcome bonus given to ${user.userId}`);
+    }
+
+    res.json({
+      userId: user.userId,
+      username: user.username,
+      balance: Number(user.balance.toFixed(4)),
+      tasks: user.tasks,
+      vip: user.vip,
+      vipPlan: user.vipPlan,
+      pendingVipPlan: user.pendingVipPlan || null,
+      referralCount: user.referralCount,
+      referralEarnings: Number(user.referralEarnings.toFixed(4)),
+      claimedReferralVipRewards: user.claimedReferralVipRewards || [],
+      welcomeBonusClaimed: user.welcomeBonusClaimed,
+      isAdmin: user.isAdmin,
+      withdrawHistory: user.withdrawHistory
+    });
+  } catch (err) {
+    console.error('GET /user/:id error:', err);
+    res.status(500).json({ error: 'Failed to load user' });
+  }
+});
+
 app.get('/api/reward', async (req, res) => {
   await handleReward(req, res, req.query);
 });
 
 app.post('/api/reward', async (req, res) => {
+  await handleReward(req, res, req.body);
+});
+
+// Optional alias for Monetag button flow if you call a separate endpoint
+app.post('/api/reward-monetag', async (req, res) => {
   await handleReward(req, res, req.body);
 });
 
@@ -599,7 +596,6 @@ app.get('/api/vip-invoice', async (req, res) => {
 app.post('/api/start-vip-proof', async (req, res) => {
   try {
     const { userId, plan } = req.body;
-
     if (!userId) {
       return res.status(400).json({ success: false, message: 'Missing userId' });
     }
@@ -701,9 +697,9 @@ bot.start(async (ctx) => {
 
     return ctx.reply('🚀 Welcome to AdWallet!\nEarn money by watching ads.', {
       reply_markup: {
-        inline_keyboard: [
-          [{ text: '💰 Open AdWallet', web_app: { url: `${WEBAPP_URL}/?id=${userId}` } }]
-        ]
+        inline_keyboard: [[
+          { text: '💰 Open AdWallet', web_app: { url: `${WEBAPP_URL}/?id=${userId}` } }
+        ]]
       }
     });
   } catch (err) {
@@ -750,9 +746,9 @@ bot.command('activate', async (ctx) => {
           {
             parse_mode: 'HTML',
             reply_markup: {
-              inline_keyboard: [
-                [{ text: '🚀 Open App', web_app: { url: `${WEBAPP_URL}/?id=${targetUserId}` } }]
-              ]
+              inline_keyboard: [[
+                { text: '🚀 Open App', web_app: { url: `${WEBAPP_URL}/?id=${targetUserId}` } }
+              ]]
             }
           }
         );
@@ -775,9 +771,9 @@ bot.command('activate', async (ctx) => {
 
 bot.command('buyvip', async (ctx) => {
   try {
-    const keyboard = Object.keys(VIP_PLANS).map((plan) => [
+    const keyboard = Object.keys(VIP_PLANS).map((plan) => ([
       { text: `⭐ Buy ${plan} (${VIP_PLANS[plan]} Stars)`, callback_data: `vipplan_${plan}` }
-    ]);
+    ]));
 
     return ctx.reply('Choose a VIP plan:', {
       reply_markup: { inline_keyboard: keyboard }
@@ -797,7 +793,9 @@ bot.action(/^vipplan_(.+)$/, async (ctx) => {
     if (ctx.chat?.id) {
       await ctx.reply('Open this invoice inside Telegram:', {
         reply_markup: {
-          inline_keyboard: [[{ text: `Pay ${plan} VIP`, url: invoiceUrl }]]
+          inline_keyboard: [[
+            { text: `Pay ${plan} VIP`, url: invoiceUrl }
+          ]]
         }
       });
     }
@@ -811,8 +809,6 @@ bot.action(/^vipplan_(.+)$/, async (ctx) => {
 
 bot.on('photo', async (ctx) => {
   try {
-    if (!ctx.message?.photo?.length) return;
-
     const userId = String(ctx.from.id);
     const user = await ensureUser(userId);
 
@@ -820,11 +816,6 @@ bot.on('photo', async (ctx) => {
 
     if (!user.isWaitingForProof) {
       return ctx.reply('Please tap “I have paid, send screenshot” first.');
-    }
-
-    if (!ADMIN_ID) {
-      console.error('ADMIN_ID missing');
-      return ctx.reply('❌ Admin not configured.');
     }
 
     user.isWaitingForProof = false;
@@ -891,7 +882,8 @@ bot.action('check_join', async (ctx) => {
 app.listen(PORT, async () => {
   console.log(`✅ Server running on port ${PORT}`);
   try {
-    await bot.launch();
+    await bot.telegram.deleteWebhook({ drop_pending_updates: true });
+    await bot.launch({ dropPendingUpdates: true });
     console.log('🤖 Bot started successfully');
   } catch (err) {
     console.error('Bot launch error:', err);

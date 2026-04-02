@@ -469,71 +469,71 @@
 </header>
 
 <main id="main">
-  <section class="page active" id="page-dashboard">
-    <div class="balance-card">
-      <div class="bal-greeting" id="bal-greeting">👋 Hi, User!</div>
-      <div class="bal-amount">$<span id="bal-main">0.00</span></div>
-      <div class="bal-label">Total Earnings</div>
+  <section class="page" id="page-dashboard">
+  <div class="balance-card">
+    <div class="bal-greeting" id="bal-greeting">👋 Hi, User!</div>
+    <div class="bal-amount">$<span id="bal-main">0.00</span></div>
+    <div class="bal-label">Total Earnings</div>
 
-      <div class="progress-wrap">
-        <div class="progress-label">
-          <span>Earning Progress</span>
-          <span id="progress-text">$0.00 / $100.00</span>
-        </div>
-        <div class="progress-bar">
-          <div class="progress-fill" id="prog-fill"></div>
-        </div>
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span>Earning Progress</span>
+        <span id="progress-text">$0.00 / $100.00</span>
       </div>
-
-      <div class="bal-actions" style="position:relative;z-index:10;pointer-events:auto;">
-        <button class="btn btn-white" style="position:relative;z-index:11;cursor:pointer;" onclick="navigate('cashout',4)">💸 Cash Out</button>
-        <button class="btn btn-outline" style="position:relative;z-index:11;cursor:pointer;" onclick="claimBonus()">🎁 Daily Bonus</button>
+      <div class="progress-bar">
+        <div class="progress-fill" id="prog-fill"></div>
       </div>
     </div>
 
-    <div class="earn-pills">
-      <div class="pill"><span class="pill-icon">🎬</span><span class="pill-val">$0.05–$0.10</span><span class="pill-desc">per ad watched</span></div>
-      <div class="pill"><span class="pill-icon">👥</span><span class="pill-val">$0.075</span><span class="pill-desc">per referral</span></div>
-      <div class="pill"><span class="pill-icon">✅</span><span class="pill-val">$0.25</span><span class="pill-desc">daily bonus</span></div>
-      <div class="pill"><span class="pill-icon">📦</span><span class="pill-val">$0.50+</span><span class="pill-desc">per offer task</span></div>
+    <div class="bal-actions" style="position: relative; z-index: 10; pointer-events: auto;">
+      <button class="btn btn-white" style="position: relative; z-index: 11; cursor: pointer;" onclick="navigate('cashout',4)">💸 Cash Out</button>
+      <button class="btn btn-outline" style="position: relative; z-index: 11; cursor: pointer;" onclick="claimBonus()">🎁 Daily Bonus</button>
     </div>
+  </div>
 
-    <div class="card">
-      <div class="sec-title"font-size:16px;font-weight:800;>Quick Earn</div>
-      <div class="sec-sub">Start earning immediately</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-        <button class="btn btn-green" onclick="navigate('ads',1)">▶️ Watch Ads</button>
-        <button class="btn btn-ghost" onclick="navigate('offers',2)">🎁 Offers</button>
-      </div>
-    </div>
+  <div class="earn-pills">
+    <div class="pill"><span class="pill-icon">🎬</span><span class="pill-val">$0.05–$0.10</span><span class="pill-desc">per ad watched</span></div>
+    <div class="pill"><span class="pill-icon">👥</span><span class="pill-val">$0.075</span><span class="pill-desc">per referral</span></div>
+    <div class="pill"><span class="pill-icon">✅</span><span class="pill-val">$0.25</span><span class="pill-desc">daily bonus</span></div>
+    <div class="pill"><span class="pill-icon">📦</span><span class="pill-val">$0.50+</span><span class="pill-desc">per offer task</span></div>
+  </div>
 
-    <div class="card">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
-        <span class="live-dot"></span>
-        <span class="sec-title" style="margin:0;font-size:16px;">Live Platform Stats</span>
-      </div>
-      <div class="stats-grid">
-        <div class="stat-item"><div class="stat-num" id="stat-payout">$48,312</div><div class="stat-lbl">Total Payouts</div></div>
-        <div class="stat-item"><div class="stat-num" id="stat-users">12,847</div><div class="stat-lbl">Active Users</div></div>
-        <div class="stat-item"><div class="stat-num" id="stat-ads">3.2M</div><div class="stat-lbl">Ads Watched</div></div>
-        <div class="stat-item"><div class="stat-num" id="stat-today">$2,190</div><div class="stat-lbl">Paid Today</div></div>
-      </div>
+  <div class="card">
+    <div class="sec-title">Quick Earn</div>
+    <div class="sec-sub">Start earning immediately</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <button class="btn btn-green" onclick="navigate('ads',1)">▶️ Watch Ads</button>
+      <button class="btn btn-ghost" onclick="navigate('offers',2)">🎁 Offers</button>
     </div>
+  </div>
 
-    <div class="card" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);">
-      <div style="display:flex;justify-content:space-between;align-items:start;">
-        <div>
-          <div class="sec-title">Invite &amp; Earn</div>
-          <div class="sec-sub" style="margin-bottom:12px;">Get $0.075 per friend you invite</div>
-          <button class="btn btn-green" onclick="navigate('invite',3)" style="padding:11px 20px;">👥 Invite Friends</button>
-        </div>
-        <span style="font-size:52px;opacity:.6;">🎉</span>
-      </div>
+  <div class="card">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+      <span class="live-dot"></span>
+      <span class="sec-title" style="margin:0;font-size:16px;">Live Platform Stats</span>
     </div>
-  </section>
+    <div class="stats-grid">
+      <div class="stat-item"><div class="stat-num" id="stat-payout">$48,312</div><div class="stat-lbl">Total Payouts</div></div>
+      <div class="stat-item"><div class="stat-num" id="stat-users">12,847</div><div class="stat-lbl">Active Users</div></div>
+      <div class="stat-item"><div class="stat-num" id="stat-ads">3.2M</div><div class="stat-lbl">Ads Watched</div></div>
+      <div class="stat-item"><div class="stat-num" id="stat-today">$2,190</div><div class="stat-lbl">Paid Today</div></div>
+    </div>
+  </div>
+
+  <div class="card" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);">
+    <div style="display:flex;justify-content:space-between;align-items:start;">
+      <div>
+        <div class="sec-title">Invite &amp; Earn</div>
+        <div class="sec-sub" style="margin-bottom:12px;">Get $0.075 per friend you invite</div>
+        <button class="btn btn-green" onclick="navigate('invite',3)" style="padding:11px 20px;">👥 Invite Friends</button>
+      </div>
+      <span style="font-size:52px;opacity:.6;">🎉</span>
+    </div>
+  </div>
+</section>
 
   <section class="page" id="page-ads">
-    <div class="sec-title"font-size:16px;font-weight:800;>Watch Ads</div>
+    <div class="sec-title">Watch Ads</div>
     <div class="sec-sub">Earn real money watching short video ads</div>
 
     <div class="card" style="text-align:center;background:linear-gradient(135deg,#0f172a,#1e293b);color:#fff;padding:32px 20px;margin-bottom:16px;">
@@ -553,105 +553,126 @@
   </section>
 
   <section class="page" id="page-offers">
-    <div class="sec-title"font-size:16px;font-weight:800;>Referral Rewards</div>
-    <div class="sec-sub">Complete referral milestones to unlock VIP for free</div>
+  <div class="sec-title">Offer Center</div>
+  <div class="sec-sub">Complete CPA offers for much bigger rewards</div>
 
-    <div class="card">
-      <div class="ads-grid">
-        <div class="ad-card">
-          <div class="ad-thumb">🥉</div>
-          <div class="ad-info"><div class="ad-title">Bronze VIP</div><div class="ad-reward">60 referrals</div><div class="ad-dur">Unlock free Bronze VIP</div></div>
-          <button class="btn btn-green ad-btn" onclick="claimReferralVIP('Bronze')">Claim</button>
-        </div>
+  <div class="card">
+    <div class="sec-title" style="font-size:16px;margin-bottom:12px;">CPAgrip Offers</div>
 
-        <div class="ad-card">
-          <div class="ad-thumb">🥈</div>
-          <div class="ad-info"><div class="ad-title">Silver VIP</div><div class="ad-reward">150 referrals</div><div class="ad-dur">Unlock free Silver VIP</div></div>
-          <button class="btn btn-green ad-btn" onclick="claimReferralVIP('Silver')">Claim</button>
+    <div class="ads-grid">
+      <div class="ad-card">
+        <div class="ad-thumb" style="background:linear-gradient(135deg,#fef3c7,#fde68a);">📲</div>
+        <div class="ad-info">
+          <div class="ad-title">Install &amp; Open App</div>
+          <div class="ad-reward">+$1.20 to +$3.00</div>
+          <div class="ad-dur">⏱ 2–5 min</div>
         </div>
+        <button class="btn btn-green ad-btn" onclick="openCpagripOffer(1)">Start</button>
+      </div>
 
-        <div class="ad-card">
-          <div class="ad-thumb">🥇</div>
-          <div class="ad-info"><div class="ad-title">Gold VIP</div><div class="ad-reward">300 referrals</div><div class="ad-dur">Unlock free Gold VIP</div></div>
-          <button class="btn btn-green ad-btn" onclick="claimReferralVIP('Gold')">Claim</button>
+      <div class="ad-card">
+        <div class="ad-thumb" style="background:linear-gradient(135deg,#dbeafe,#93c5fd);">📝</div>
+        <div class="ad-info">
+          <div class="ad-title">Complete Survey</div>
+          <div class="ad-reward">+$0.50 to +$2.50</div>
+          <div class="ad-dur">⏱ 3–8 min</div>
         </div>
+        <button class="btn btn-green ad-btn" onclick="openCpagripOffer(2)">Start</button>
+      </div>
 
-        <div class="ad-card">
-          <div class="ad-thumb">💎</div>
-          <div class="ad-info"><div class="ad-title">Platinum VIP</div><div class="ad-reward">500 referrals</div><div class="ad-dur">Unlock free Platinum VIP</div></div>
-          <button class="btn btn-green ad-btn" onclick="claimReferralVIP('Platinum')">Claim</button>
+      <div class="ad-card">
+        <div class="ad-thumb" style="background:linear-gradient(135deg,#ede9fe,#c4b5fd);">🎮</div>
+        <div class="ad-info">
+          <div class="ad-title">Play Game Offer</div>
+          <div class="ad-reward">+$2.00 to +$10.00</div>
+          <div class="ad-dur">⏱ 10–30 min</div>
         </div>
-
-        <div class="ad-card">
-          <div class="ad-thumb">🚀</div>
-          <div class="ad-info"><div class="ad-title">Diamond VIP</div><div class="ad-reward">800 referrals</div><div class="ad-dur">Unlock free Diamond VIP</div></div>
-          <button class="btn btn-green ad-btn" onclick="claimReferralVIP('Diamond')">Claim</button>
-        </div>
-
-        <div class="ad-card">
-          <div class="ad-thumb">👑</div>
-          <div class="ad-info"><div class="ad-title">Elite VIP</div><div class="ad-reward">1200 referrals</div><div class="ad-dur">Unlock free Elite VIP</div></div>
-          <button class="btn btn-green ad-btn" onclick="claimReferralVIP('Elite')">Claim</button>
-        </div>
+        <button class="btn btn-green ad-btn" onclick="openCpagripOffer(3)">Start</button>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
   <section class="page" id="page-invite">
-    <div class="sec-title"font-size:16px;font-weight:800;>Invite &amp; Earn</div>
-    <div class="sec-sub">Share your link and earn $0.075 per active referral</div>
+  <div class="sec-title">Invite &amp; Earn</div>
+  <div class="sec-sub">Share your link and earn $0.075 per active referral</div>
 
-    <div class="card" style="background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <div>
-          <div style="font-size:13px;opacity:.85;">Your Referrals</div>
-          <div style="font-size:32px;font-weight:900;" id="ref-count">0</div>
-        </div>
-        <div style="text-align:right;">
-          <div style="font-size:13px;opacity:.85;">Referral Earnings</div>
-          <div style="font-size:26px;font-weight:900;">$<span id="ref-earnings">0.00</span></div>
+  <div class="card" style="margin-top:14px;">
+    <div class="sec-title" style="font-size:16px;margin-bottom:12px;">Invite Rewards</div>
+
+    <div class="ads-grid">
+      <div class="ad-card">
+        <div class="ad-thumb" style="background:linear-gradient(135deg,#fde68a,#f59e0b);">🥉</div>
+        <div class="ad-info">
+          <div class="ad-title">Bronze Plan Free</div>
+          <div class="ad-reward">60 referrals required</div>
+          <div class="ad-dur">Unlock Bronze VIP permanently</div>
         </div>
       </div>
-      <div style="height:1px;background:rgba(255,255,255,.2);margin-bottom:14px;"></div>
-      <div style="font-size:13px;opacity:.85;">🎯 Earn $0.075 for every friend who joins and watches their first ad</div>
-    </div>
 
-    <div class="sec-title" style="font-size:16px;font-weight:800;">Your Referral Link</div>  
-      <div class="ref-link-wrap">
-        <input type="text" id="ref-link-input" readonly placeholder="Referral link will appear here" />
-        <button class="copy-btn" onclick="copyRef()">📋 Copy</button>
+      <div class="ad-card">
+        <div class="ad-thumb" style="background:linear-gradient(135deg,#d1d5db,#9ca3af);">🥈</div>
+        <div class="ad-info">
+          <div class="ad-title">Silver Plan Free</div>
+          <div class="ad-reward">150 referrals required</div>
+          <div class="ad-dur">Unlock Silver VIP permanently</div>
+        </div>
       </div>
-      <div class="sec-sub" style="font-size:12px;margin:0 0 12px;">Share this link to start earning</div>
-      <div class="share-row">
-        <button class="share-btn sh-tg" onclick="share('Telegram')">✈️ Telegram</button>
-        <button class="share-btn sh-wa" onclick="share('WhatsApp')">💬 WhatsApp</button>
-        <button class="share-btn sh-tw" onclick="share('Twitter')">🐦 Twitter</button>
-        <button class="share-btn sh-fb" onclick="share('Facebook')">👥 Facebook</button>
-        <button class="share-btn sh-me" onclick="share('Messenger')">💌 Messenger</button>
-      </div>
-    </div>
 
-    <div class="card">
-      <div class="sec-title" style="font-size:16px;margin-bottom:12px;">How It Works</div>
-      <div style="display:flex;flex-direction:column;gap:14px;">
-        <div style="display:flex;gap:14px;align-items:start;">
-          <div style="width:32px;height:32px;border-radius:10px;background:var(--green-light);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--green-dark);flex-shrink:0;">1</div>
-          <div><div style="font-weight:700;font-size:14px;">Share Your Link</div><div style="font-size:12px;color:var(--muted);">Share your unique referral link with friends</div></div>
+      <div class="ad-card">
+        <div class="ad-thumb" style="background:linear-gradient(135deg,#fef3c7,#facc15);">🥇</div>
+        <div class="ad-info">
+          <div class="ad-title">Gold Plan Free</div>
+          <div class="ad-reward">300 referrals required</div>
+          <div class="ad-dur">Unlock Gold VIP permanently</div>
         </div>
-        <div style="display:flex;gap:14px;align-items:start;">
-          <div style="width:32px;height:32px;border-radius:10px;background:var(--green-light);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--green-dark);flex-shrink:0;">2</div>
-          <div><div style="font-weight:700;font-size:14px;">Friend Joins</div><div style="font-size:12px;color:var(--muted);">They sign up and watch their first ad</div></div>
-        </div>
-        <div style="display:flex;gap:14px;align-items:start;">
-          <div style="width:32px;height:32px;border-radius:10px;background:var(--green-light);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--green-dark);flex-shrink:0;">3</div>
-          <div><div style="font-weight:700;font-size:14px;">You Earn $0.075</div><div style="font-size:12px;color:var(--muted);">Credit added instantly to your balance</div></div>
+      </div>
+
+      <div class="ad-card">
+        <div class="ad-thumb" style="background:linear-gradient(135deg,#c4b5fd,#8b5cf6);">💎</div>
+        <div class="ad-info">
+          <div class="ad-title">Diamond Plan Free</div>
+          <div class="ad-reward">600 referrals required</div>
+          <div class="ad-dur">Unlock Diamond VIP permanently</div>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+
+  <div class="card" style="background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div>
+        <div style="font-size:13px;opacity:.85;">Your Referrals</div>
+        <div style="font-size:32px;font-weight:900;" id="ref-count">0</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:13px;opacity:.85;">Referral Earnings</div>
+        <div style="font-size:26px;font-weight:900;">$<span id="ref-earnings">0.00</span></div>
+      </div>
+    </div>
+    <div style="height:1px;background:rgba(255,255,255,.2);margin-bottom:14px;"></div>
+    <div style="font-size:13px;opacity:.85;">🎯 Earn $0.075 for every friend who joins and watches their first ad</div>
+  </div>
+
+  <div class="card">
+    <div class="sec-title" style="font-size:16px;">Your Referral Link</div>
+    <div class="ref-link-wrap">
+      <input type="text" id="ref-link-input" readonly placeholder="Referral link will appear here" />
+      <button class="copy-btn" onclick="copyRef()">📋 Copy</button>
+    </div>
+    <div class="sec-sub" style="font-size:12px;margin:0 0 12px;">Share this link to start earning</div>
+    <div class="share-row">
+      <button class="share-btn sh-tg" onclick="share('Telegram')">✈️ Telegram</button>
+      <button class="share-btn sh-wa" onclick="share('WhatsApp')">💬 WhatsApp</button>
+      <button class="share-btn sh-tw" onclick="share('Twitter')">🐦 Twitter</button>
+      <button class="share-btn sh-fb" onclick="share('Facebook')">👥 Facebook</button>
+      <button class="share-btn sh-me" onclick="share('Messenger')">💌 Messenger</button>
+    </div>
+  </div>
+</section>
 
   <section class="page" id="page-cashout">
-    <div class="sec-title"font-size:16px;font-weight:800;>Cash Out</div>
+    <div class="sec-title">Cash Out</div>
     <div class="sec-sub">Withdraw your earnings instantly</div>
 
     <div class="card">
@@ -724,92 +745,82 @@
     </div>
   </section>
 
-  <section class="page" id="page-vip">
-    <div class="sec-title"font-size:16px;font-weight:800;>VIP Plans</div>
-    <div class="sec-sub">Boost your earning power with premium plans</div>
+  <section class="page" id="page-ads">
+  <div class="sec-title">Watch Ads</div>
+  <div class="sec-sub">Earn real money watching short video ads</div>
 
-    <div class="card" style="background:linear-gradient(135deg,#0f172a,#111827);color:#fff;">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
-        <div>
-          <div style="font-size:18px;font-weight:800;margin-bottom:6px;">📢 AdWallet Rewards</div>
-          <div style="font-size:13px;opacity:.85;line-height:1.5;">Unlock higher earnings with VIP access, faster rewards, and referral boost.</div>
-        </div>
-        <div style="font-size:42px;">💎</div>
+  <div class="card"
+       style="text-align:center;background:linear-gradient(135deg,#0f172a,#1e293b);color:#fff;padding:32px 20px;margin-bottom:16px;">
+    <div style="font-size:52px;margin-bottom:12px;">🎬</div>
+    <div style="font-size:20px;font-weight:800;margin-bottom:6px;">Ready to Earn?</div>
+    <div style="font-size:14px;opacity:.7;margin-bottom:20px;">Watch a 15–30s ad and earn instantly</div>
+    <button class="btn btn-green" style="width:100%;padding:16px;font-size:16px;" onclick="earnNow(this)">
+      ▶️ &nbsp;Earn Now
+    </button>
+  </div>
+
+  <div class="ads-grid">
+    <div class="ad-card">
+      <div class="ad-thumb">📱</div>
+      <div class="ad-info">
+        <div class="ad-title">Mobile App Promo</div>
+        <div class="ad-reward">+$0.08</div>
+        <div class="ad-dur">⏱ 30 seconds</div>
       </div>
+      <button class="btn btn-green ad-btn" onclick="watchAd(this)">Watch</button>
     </div>
 
-    <div class="card" style="padding:16px;margin-bottom:16px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
-        <div>
-          <div style="font-size:14px;font-weight:800;">Your VIP Status</div>
-          <div style="font-size:12px;color:var(--muted);" id="vip-status-text">Not activated yet</div>
-        </div>
-        <div style="font-size:26px;">👑</div>
+    <div class="ad-card">
+      <div class="ad-thumb">🛒</div>
+      <div class="ad-info">
+        <div class="ad-title">E-Commerce Ad</div>
+        <div class="ad-reward">+$0.06</div>
+        <div class="ad-dur">⏱ 15 seconds</div>
       </div>
+      <button class="btn btn-green ad-btn" onclick="watchAd(this)">Watch</button>
     </div>
 
-    <div class="ads-grid">
-      <div class="ad-card" style="align-items:flex-start;">
-        <div class="ad-thumb">🥉</div>
-        <div class="ad-info"><div class="ad-title">Bronze</div><div class="ad-reward">425 Stars</div><div class="ad-dur">Earn up to $450</div></div>
-        <div style="display:flex;flex-direction:column;gap:8px;min-width:120px;">
-          <button class="btn btn-green ad-btn" onclick="buyVipStars('Bronze')">Pay with Stars</button>
-          <button class="btn btn-ghost ad-btn" onclick="buyVipCrypto('Bronze')">Pay with Crypto</button>
-        </div>
+    <div class="ad-card">
+      <div class="ad-thumb">🎮</div>
+      <div class="ad-info">
+        <div class="ad-title">Game Ad Sponsor</div>
+        <div class="ad-reward">+$0.10</div>
+        <div class="ad-dur">⏱ 45 seconds</div>
       </div>
-
-      <div class="ad-card" style="align-items:flex-start;">
-        <div class="ad-thumb">🥈</div>
-        <div class="ad-info"><div class="ad-title">Silver</div><div class="ad-reward">850 Stars</div><div class="ad-dur">Earn up to $800</div></div>
-        <div style="display:flex;flex-direction:column;gap:8px;min-width:120px;">
-          <button class="btn btn-green ad-btn" onclick="buyVipStars('Silver')">Pay with Stars</button>
-          <button class="btn btn-ghost ad-btn" onclick="buyVipCrypto('Silver')">Pay with Crypto</button>
-        </div>
-      </div>
-
-      <div class="ad-card" style="align-items:flex-start;">
-        <div class="ad-thumb">🥇</div>
-        <div class="ad-info"><div class="ad-title">Gold</div><div class="ad-reward">1275 Stars</div><div class="ad-dur">Earn up to $1600</div></div>
-        <div style="display:flex;flex-direction:column;gap:8px;min-width:120px;">
-          <button class="btn btn-green ad-btn" onclick="buyVipStars('Gold')">Pay with Stars</button>
-          <button class="btn btn-ghost ad-btn" onclick="buyVipCrypto('Gold')">Pay with Crypto</button>
-        </div>
-      </div>
-
-      <div class="ad-card" style="align-items:flex-start;">
-        <div class="ad-thumb">💎</div>
-        <div class="ad-info"><div class="ad-title">Platinum</div><div class="ad-reward">2125 Stars</div><div class="ad-dur">Earn up to $2400</div></div>
-        <div style="display:flex;flex-direction:column;gap:8px;min-width:120px;">
-          <button class="btn btn-green ad-btn" onclick="buyVipStars('Platinum')">Pay with Stars</button>
-          <button class="btn btn-ghost ad-btn" onclick="buyVipCrypto('Platinum')">Pay with Crypto</button>
-        </div>
-      </div>
-
-      <div class="ad-card" style="align-items:flex-start;">
-        <div class="ad-thumb">🚀</div>
-        <div class="ad-info"><div class="ad-title">Diamond</div><div class="ad-reward">3200 Stars</div><div class="ad-dur">Earn up to $5000</div></div>
-        <div style="display:flex;flex-direction:column;gap:8px;min-width:120px;">
-          <button class="btn btn-green ad-btn" onclick="buyVipStars('Diamond')">Pay with Stars</button>
-          <button class="btn btn-ghost ad-btn" onclick="buyVipCrypto('Diamond')">Pay with Crypto</button>
-        </div>
-      </div>
-
-      <div class="ad-card" style="align-items:flex-start;">
-        <div class="ad-thumb">👑</div>
-        <div class="ad-info"><div class="ad-title">Elite</div><div class="ad-reward">4250 Stars</div><div class="ad-dur">Earn up to $10000</div></div>
-        <div style="display:flex;flex-direction:column;gap:8px;min-width:120px;">
-          <button class="btn btn-green ad-btn" onclick="buyVipStars('Elite')">Pay with Stars</button>
-          <button class="btn btn-ghost ad-btn" onclick="buyVipCrypto('Elite')">Pay with Crypto</button>
-        </div>
-      </div>
+      <button class="btn btn-green ad-btn" onclick="watchAd(this)">Watch</button>
     </div>
 
-    <div class="card" style="margin-top:16px;">
-      <div class="sec-title" style="font-size:16px;">Referral Bonus</div>
-      <div class="sec-sub" style="margin-bottom:12px;">Earn 20% bonus when your friend buys a VIP plan.</div>
-      <button class="btn btn-ghost" style="width:100%;" onclick="navigate('invite',3)">👥 Go to Invite</button>
+    <div class="ad-card">
+      <div class="ad-thumb">💊</div>
+      <div class="ad-info">
+        <div class="ad-title">Health &amp; Wellness</div>
+        <div class="ad-reward">+$0.07</div>
+        <div class="ad-dur">⏱ 20 seconds</div>
+      </div>
+      <button class="btn btn-green ad-btn" onclick="watchAd(this)">Watch</button>
     </div>
-  </section>
+
+    <div class="ad-card">
+      <div class="ad-thumb">✈️</div>
+      <div class="ad-info">
+        <div class="ad-title">Travel Deals</div>
+        <div class="ad-reward">+$0.09</div>
+        <div class="ad-dur">⏱ 25 seconds</div>
+      </div>
+      <button class="btn btn-green ad-btn" onclick="watchAd(this)">Watch</button>
+    </div>
+
+    <div class="ad-card">
+      <div class="ad-thumb" style="background:linear-gradient(135deg,#fca5a5,#ef4444);">💰</div>
+      <div class="ad-info">
+        <div class="ad-title">Monetag Rewarded Ad</div>
+        <div class="ad-reward">+$0.04</div>
+        <div class="ad-dur">⏱ Instant after view</div>
+      </div>
+      <button class="btn btn-green ad-btn" onclick="showMonetagAd(this)">Watch</button>
+    </div>
+  </div>
+</section>
 
   <section class="page" id="page-help">
     <div class="sec-title">Help &amp; FAQ</div>
@@ -1649,6 +1660,20 @@ window.addEventListener('load', () => {
 
 </script>
 
-<script src="/index.js?v=2"></script>
+    <!-- Telegram Web App API -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <!-- Monetag SDK -->
+    <script src='//libtl.com/sdk.js'
+            data-zone='10760190'
+            data-sdk='show_10760190'></script>
+
+    <!-- CPAgrip / OptiLink scripts -->
+    <script type="text/javascript" src="https://optilinklock.com/script_include.php?id=1887514"></script>
+    <script type="text/javascript" src="https://optilinklock.com/script_include.php?id=1887515"></script>
+    <script type="text/javascript" src="https://optilinklock.com/script_include.php?id=1887516"></script>
+
+    <!-- Your main JavaScript file -->
+    <script src="index.js"></script>
 </body>
 </html>
