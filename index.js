@@ -180,7 +180,6 @@ async function createStarsInvoice(plan) {
   const amount = VIP_PLANS[plan];
   if (!amount) throw new Error('Invalid VIP plan');
 
-  // Telegram Stars invoice link
   return bot.telegram.createInvoiceLink(
     `${plan} VIP`,
     `Purchase ${plan} VIP with Telegram Stars`,
@@ -319,7 +318,6 @@ app.post('/api/reward', async (req, res) => {
   await handleReward(req, res, req.body);
 });
 
-// Optional alias for Monetag button flow if you call a separate endpoint
 app.post('/api/reward-monetag', async (req, res) => {
   await handleReward(req, res, req.body);
 });
