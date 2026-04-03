@@ -2,8 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>AdWallet – Earn While You Watch</title>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+  />
+  <title>AdWallet Elite</title>
 
   <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -12,1637 +15,2853 @@
     :root{
       --green:#22c55e;
       --green-dark:#16a34a;
-      --green-light:#bbf7d0;
-      --green-glow:rgba(34,197,94,.35);
+      --green-soft:#dcfce7;
+      --green-glow:rgba(34,197,94,.28);
       --white:#fff;
-      --bg:#f0fdf4;
+      --bg:#f6fff8;
       --card:#fff;
       --text:#0f172a;
       --muted:#64748b;
       --border:#e2e8f0;
-      --shadow:0 4px 24px rgba(0,0,0,.08);
-      --radius:18px;
-      --nav-h:68px;
-      --sidebar-w:280px;
+      --shadow:0 10px 32px rgba(15,23,42,.08);
+      --radius:22px;
+      --nav-h:74px;
+      --sidebar-w:290px;
+      --danger:#ef4444;
+      --warn:#f59e0b;
+      --blue:#3b82f6;
+      --dark:#0f172a;
     }
 
-    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-    html,body{height:100%;overflow:hidden}
-    body{
-      font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
-      background:var(--bg);
-      color:var(--text);
+    *{
+      box-sizing:border-box;
+      margin:0;
+      padding:0;
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    html,body{
+      height:100%;
       overflow:hidden;
     }
 
-    #overlay{
-      position:fixed;inset:0;background:rgba(0,0,0,.45);
-      opacity:0;pointer-events:none;transition:opacity .3s;
-      z-index:900;backdrop-filter:blur(3px)
+    body{
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      background:
+        radial-gradient(circle at top right, rgba(34,197,94,.10), transparent 28%),
+        linear-gradient(180deg, #fbfffc 0%, #f4fff8 100%);
+      color:var(--text);
     }
-    #overlay.show{opacity:1;pointer-events:all}
+
+    button,input,select,textarea{
+      font:inherit;
+    }
+
+    a{
+      color:inherit;
+      text-decoration:none;
+    }
+
+    .hidden{
+      display:none !important;
+    }
+
+    #overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(2,6,23,.38);
+      backdrop-filter:blur(3px);
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .25s ease;
+      z-index:950;
+    }
+
+    #overlay.show{
+      opacity:1;
+      pointer-events:auto;
+    }
 
     #sidebar{
-      position:fixed;top:0;left:0;height:100%;width:var(--sidebar-w);
-      background:var(--white);border-radius:0 28px 28px 0;
-      box-shadow:8px 0 40px rgba(0,0,0,.18);
-      transform:translateX(-100%);
-      transition:transform .35s cubic-bezier(.4,0,.2,1);
-      z-index:1000;display:flex;flex-direction:column;overflow:hidden
+      position:fixed;
+      top:0;
+      left:0;
+      width:var(--sidebar-w);
+      height:100%;
+      background:rgba(255,255,255,.96);
+      backdrop-filter:blur(10px);
+      box-shadow:16px 0 40px rgba(15,23,42,.16);
+      border-radius:0 28px 28px 0;
+      transform:translateX(-102%);
+      transition:transform .28s ease;
+      z-index:1000;
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
     }
-    #sidebar.open{transform:translateX(0)}
+
+    #sidebar.open{
+      transform:translateX(0);
+    }
 
     .sb-header{
-      background:linear-gradient(135deg,var(--green-dark),var(--green));
-      padding:36px 24px 24px;color:#fff
+      padding:28px 22px 24px;
+      color:#fff;
+      background:
+        radial-gradient(circle at top right, rgba(255,255,255,.18), transparent 35%),
+        linear-gradient(135deg, #15803d 0%, #22c55e 65%, #4ade80 100%);
     }
-    .sb-avatar{
-      width:54px;height:54px;border-radius:50%;
-      background:rgba(255,255,255,.25);
-      display:flex;align-items:center;justify-content:center;
-      font-size:22px;margin-bottom:10px;border:2px solid rgba(255,255,255,.5)
-    }
-    .sb-name{font-size:17px;font-weight:700}
-    .sb-bal{font-size:13px;opacity:.85;margin-top:3px}
 
-    .sb-nav{flex:1;padding:16px 12px;overflow-y:auto}
-    .sb-item{
-      display:flex;align-items:center;gap:14px;
-      padding:13px 16px;border-radius:14px;
-      cursor:pointer;transition:all .2s;margin-bottom:4px;
-      font-size:15px;font-weight:500;color:var(--text)
+    .sb-avatar{
+      width:58px;
+      height:58px;
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:rgba(255,255,255,.22);
+      border:2px solid rgba(255,255,255,.5);
+      font-size:24px;
+      margin-bottom:12px;
     }
-    .sb-item:hover{background:var(--green-light)}
-    .sb-item.active{background:var(--green);color:#fff;box-shadow:0 4px 16px var(--green-glow)}
-    .sb-item .icon{font-size:20px;min-width:26px;text-align:center}
+
+    .sb-name{
+      font-size:18px;
+      font-weight:800;
+      line-height:1.1;
+    }
+
+    .sb-bal{
+      margin-top:6px;
+      font-size:13px;
+      opacity:.95;
+    }
+
+    .sb-nav{
+      flex:1;
+      overflow-y:auto;
+      padding:14px 12px 10px;
+    }
+
+    .sb-item{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      padding:14px 16px;
+      margin-bottom:6px;
+      border-radius:16px;
+      cursor:pointer;
+      color:var(--text);
+      transition:all .18s ease;
+      font-size:15px;
+      font-weight:600;
+    }
+
+    .sb-item:hover{
+      background:var(--green-soft);
+    }
+
+    .sb-item.active{
+      color:#fff;
+      background:linear-gradient(135deg, var(--green-dark), var(--green));
+      box-shadow:0 10px 20px var(--green-glow);
+    }
+
+    .sb-item .icon{
+      min-width:24px;
+      text-align:center;
+      font-size:20px;
+    }
+
     .sb-footer{
-      padding:16px 20px;border-top:1px solid var(--border);
-      font-size:12px;color:var(--muted);text-align:center
+      padding:16px 18px;
+      border-top:1px solid var(--border);
+      font-size:12px;
+      color:var(--muted);
+      text-align:center;
+      background:#fff;
     }
 
     #topbar{
-      position:fixed;top:0;left:0;right:0;height:60px;
-      background:var(--white);display:flex;align-items:center;
-      justify-content:space-between;padding:0 16px;
-      box-shadow:0 2px 12px rgba(0,0,0,.06);z-index:800
+      position:fixed;
+      top:0;
+      left:0;
+      right:0;
+      height:64px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:0 16px;
+      background:rgba(255,255,255,.88);
+      backdrop-filter:blur(10px);
+      box-shadow:0 4px 20px rgba(15,23,42,.05);
+      z-index:900;
     }
-    .tb-left{display:flex;align-items:center;gap:12px}
-    .hamburger{
-      width:40px;height:40px;border-radius:12px;
-      background:var(--bg);display:flex;flex-direction:column;
-      align-items:center;justify-content:center;gap:5px;cursor:pointer;
-      transition:background .2s
-    }
-    .hamburger:hover{background:var(--green-light)}
-    .hamburger span{
-      display:block;width:20px;height:2.5px;
-      background:var(--text);border-radius:4px;transition:all .3s
-    }
-    .logo{font-size:20px;font-weight:800;color:var(--green-dark)}
-    .logo span{color:var(--green)}
 
-    .tb-right{display:flex;align-items:center;gap:8px}
-    .tb-badge{
-      background:linear-gradient(135deg,var(--green),var(--green-dark));
-      color:#fff;padding:6px 12px;border-radius:20px;
-      font-size:13px;font-weight:700
+    .tb-left,.tb-right{
+      display:flex;
+      align-items:center;
+      gap:10px;
     }
-    .tb-notif{
-      width:38px;height:38px;border-radius:12px;background:var(--bg);
-      display:flex;align-items:center;justify-content:center;
-      font-size:18px;cursor:pointer;position:relative
+
+    .hamburger{
+      width:42px;
+      height:42px;
+      border-radius:14px;
+      background:#f2fff5;
+      border:1px solid #e9f9ee;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:5px;
+      cursor:pointer;
     }
-    .notif-dot{
-      position:absolute;top:6px;right:6px;width:8px;height:8px;
-      background:#ef4444;border-radius:50%;border:2px solid #fff
+
+    .hamburger span{
+      display:block;
+      width:20px;
+      height:2.5px;
+      background:var(--text);
+      border-radius:5px;
+      transition:all .25s ease;
+    }
+
+    .logo{
+      font-size:21px;
+      font-weight:900;
+      letter-spacing:-.5px;
+      color:var(--green-dark);
+    }
+
+    .logo span{
+      color:var(--green);
+    }
+
+    .pill-badge{
+      height:38px;
+      border-radius:14px;
+      padding:0 14px;
+      background:linear-gradient(135deg, var(--green), var(--green-dark));
+      color:#fff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:13px;
+      font-weight:800;
+      box-shadow:0 10px 18px var(--green-glow);
+    }
+
+    .tb-action{
+      width:38px;
+      height:38px;
+      border-radius:14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:#f6fff8;
+      border:1px solid #eaf6ee;
+      font-size:18px;
     }
 
     #main{
-      position:fixed;top:60px;bottom:var(--nav-h);left:0;right:0;
-      overflow-y:auto;scroll-behavior:smooth;
-      -webkit-overflow-scrolling:touch
+      position:fixed;
+      top:64px;
+      left:0;
+      right:0;
+      bottom:var(--nav-h);
+      overflow-y:auto;
+      -webkit-overflow-scrolling:touch;
+      padding-bottom:18px;
     }
-    .page{display:none;padding:16px 16px 24px}
-    .page.active{display:block}
+
+    .page{
+      display:none;
+      padding:16px 16px 8px;
+    }
+
+    .page.active{
+      display:block;
+    }
+
+    .sec-title{
+      font-size:22px;
+      font-weight:900;
+      line-height:1.1;
+      letter-spacing:-.4px;
+      margin-bottom:6px;
+    }
+
+    .sec-sub{
+      color:var(--muted);
+      font-size:13px;
+      margin-bottom:16px;
+      line-height:1.5;
+    }
 
     .card{
-      background:var(--card);border-radius:var(--radius);
-      box-shadow:var(--shadow);padding:20px;margin-bottom:16px;
-      border:1px solid var(--border)
+      background:rgba(255,255,255,.96);
+      border:1px solid rgba(226,232,240,.9);
+      border-radius:var(--radius);
+      padding:18px;
+      box-shadow:var(--shadow);
+      margin-bottom:14px;
     }
 
     .balance-card{
-      background:linear-gradient(135deg,#16a34a 0%,#22c55e 60%,#4ade80 100%);
-      color:#fff;border-radius:24px;padding:26px 22px;
-      box-shadow:0 8px 32px var(--green-glow);
-      position:relative;overflow:hidden;margin-bottom:16px
+      position:relative;
+      overflow:hidden;
+      padding:24px 20px 20px;
+      border-radius:28px;
+      background:
+        radial-gradient(circle at top right, rgba(255,255,255,.22), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(255,255,255,.12), transparent 28%),
+        linear-gradient(135deg, #15803d 0%, #22c55e 65%, #4ade80 100%);
+      color:#fff;
+      box-shadow:0 20px 40px rgba(34,197,94,.24);
+      margin-bottom:16px;
     }
+
     .balance-card::before{
-      content:'';position:absolute;top:-40px;right:-40px;
-      width:160px;height:160px;border-radius:50%;
-      background:rgba(255,255,255,.1)
+      content:"";
+      position:absolute;
+      width:180px;
+      height:180px;
+      right:-50px;
+      top:-50px;
+      border-radius:50%;
+      background:rgba(255,255,255,.08);
     }
+
     .balance-card::after{
-      content:'';position:absolute;bottom:-60px;left:-20px;
-      width:200px;height:200px;border-radius:50%;
-      background:rgba(255,255,255,.06)
+      content:"";
+      position:absolute;
+      width:220px;
+      height:220px;
+      left:-40px;
+      bottom:-100px;
+      border-radius:50%;
+      background:rgba(255,255,255,.05);
     }
-    .bal-greeting{font-size:14px;opacity:.9;margin-bottom:4px}
-    .bal-amount{font-size:42px;font-weight:900;letter-spacing:-1px;line-height:1}
-    .bal-label{font-size:13px;opacity:.8;margin-top:4px}
 
-    .progress-wrap{margin-top:18px}
-    .progress-label{
-      display:flex;justify-content:space-between;
-      font-size:12px;opacity:.85;margin-bottom:6px
+    .balance-inner{
+      position:relative;
+      z-index:2;
     }
+
+    .bal-greeting{
+      font-size:14px;
+      opacity:.95;
+      margin-bottom:4px;
+    }
+
+    .bal-amount{
+      font-size:44px;
+      font-weight:900;
+      line-height:1;
+      letter-spacing:-1px;
+    }
+
+    .bal-label{
+      font-size:13px;
+      opacity:.88;
+      margin-top:6px;
+    }
+
+    .mini-row{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+      margin-top:16px;
+    }
+
+    .mini-stat{
+      padding:12px 10px;
+      border-radius:16px;
+      background:rgba(255,255,255,.16);
+      border:1px solid rgba(255,255,255,.18);
+      backdrop-filter:blur(4px);
+    }
+
+    .mini-stat .k{
+      font-size:11px;
+      opacity:.9;
+      margin-bottom:4px;
+    }
+
+    .mini-stat .v{
+      font-size:16px;
+      font-weight:800;
+    }
+
+    .progress-wrap{
+      margin-top:18px;
+    }
+
+    .progress-top{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      font-size:12px;
+      opacity:.95;
+      margin-bottom:6px;
+    }
+
     .progress-bar{
-      height:8px;background:rgba(255,255,255,.25);border-radius:8px;overflow:hidden
+      height:9px;
+      border-radius:999px;
+      overflow:hidden;
+      background:rgba(255,255,255,.24);
     }
+
     .progress-fill{
-      height:100%;width:0%;
-      background:#fff;border-radius:8px;
-      box-shadow:0 0 10px rgba(255,255,255,.6);
-      transition:width 1s ease
+      width:0%;
+      height:100%;
+      background:#fff;
+      border-radius:999px;
+      box-shadow:0 0 12px rgba(255,255,255,.65);
+      transition:width .25s ease;
     }
 
-    .bal-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}
-    .btn{
-      padding:13px 16px;border-radius:14px;
-      font-size:14px;font-weight:700;cursor:pointer;
-      border:none;outline:none;transition:all .2s;
-      display:flex;align-items:center;justify-content:center;gap:7px;
-      text-align:center
-    }
-    .btn:active{transform:scale(.95)}
-    .btn-white{background:#fff;color:var(--green-dark)}
-    .btn-white:hover{background:var(--green-light)}
-    .btn-outline{background:rgba(255,255,255,.2);color:#fff;border:1.5px solid rgba(255,255,255,.5)}
-    .btn-outline:hover{background:rgba(255,255,255,.3)}
-    .btn-green{background:var(--green);color:#fff;box-shadow:0 4px 14px var(--green-glow)}
-    .btn-green:hover{background:var(--green-dark)}
-    .btn-ghost{background:var(--bg);color:var(--text);border:1.5px solid var(--border)}
-    .btn-ghost:hover{border-color:var(--green);color:var(--green)}
-
-    .earn-pills{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
-    .pill{
-      background:var(--card);border-radius:var(--radius);padding:16px;
-      border:1px solid var(--border);box-shadow:var(--shadow);
-      display:flex;flex-direction:column;gap:4px
-    }
-    .pill-icon{font-size:26px}
-    .pill-val{font-size:16px;font-weight:800;color:var(--green-dark)}
-    .pill-desc{font-size:12px;color:var(--muted)}
-
-    .ref-link-wrap{
-      display:flex;align-items:center;
-      background:var(--bg);border:1.5px solid var(--border);
-      border-radius:12px;overflow:hidden;margin:12px 0
-    }
-    .ref-link-wrap input{
-      flex:1;padding:12px;background:transparent;
-      border:none;outline:none;font-size:13px;color:var(--text)
-    }
-    .copy-btn{
-      padding:12px 14px;background:var(--green);color:#fff;
-      font-size:13px;font-weight:700;cursor:pointer;
-      transition:background .2s;white-space:nowrap;border:none
-    }
-    .copy-btn:hover{background:var(--green-dark)}
-
-    .share-row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
-    .share-btn{
-      flex:1;min-width:70px;padding:10px 8px;border-radius:12px;
-      font-size:12px;font-weight:600;cursor:pointer;border:none;
-      color:#fff;display:flex;align-items:center;justify-content:center;
-      gap:5px;transition:transform .2s,opacity .2s
-    }
-    .share-btn:active{transform:scale(.93)}
-    .sh-tg{background:#0088cc}.sh-wa{background:#25d366}
-    .sh-tw{background:#1da1f2}.sh-fb{background:#1877f2}
-    .sh-me{background:#0084ff}
-
-    .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .stat-item{
-      background:linear-gradient(135deg,#f0fdf4,#dcfce7);
-      border:1px solid #bbf7d0;border-radius:14px;padding:16px;
-      text-align:center
-    }
-    .stat-num{font-size:20px;font-weight:800;color:var(--green-dark)}
-    .stat-lbl{font-size:11px;color:var(--muted);margin-top:3px}
-    .live-dot{
-      display:inline-block;width:7px;height:7px;background:#22c55e;
-      border-radius:50%;margin-right:5px;
-      animation:pulse 1.4s ease-in-out infinite
-    }
-
-    .ads-grid{display:flex;flex-direction:column;gap:12px}
-    .ad-card{
-      background:var(--card);border:1px solid var(--border);
-      border-radius:var(--radius);padding:16px;
-      display:flex;align-items:center;gap:14px;
-      box-shadow:var(--shadow)
-    }
-    .ad-thumb{
-      width:60px;height:60px;border-radius:12px;
-      background:linear-gradient(135deg,#e0f2fe,#bae6fd);
-      display:flex;align-items:center;justify-content:center;
-      font-size:26px;flex-shrink:0
-    }
-    .ad-info{flex:1}
-    .ad-title{font-size:14px;font-weight:700}
-    .ad-reward{font-size:13px;color:var(--green-dark);font-weight:600;margin-top:3px}
-    .ad-dur{font-size:11px;color:var(--muted);margin-top:2px}
-    .ad-btn{padding:9px 18px;font-size:13px}
-
-    .method-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
-    .method{
-      background:var(--bg);border:2px solid var(--border);
-      border-radius:14px;padding:14px 8px;text-align:center;
-      cursor:pointer;transition:all .2s
-    }
-    .method:hover,.method.sel{border-color:var(--green);background:var(--green-light)}
-    .method.sel{box-shadow:0 0 0 3px var(--green-glow)}
-    .method-icon{font-size:24px;margin-bottom:6px}
-    .method-name{font-size:12px;font-weight:600}
-
-    .method-fields{display:none;margin-top:12px}
-    .method-fields.active{display:block}
-    .field{
-      width:100%;
-      padding:14px;
-      border-radius:14px;
-      border:1.5px solid var(--border);
-      font-size:15px;
-      outline:none;
-      background:var(--bg);
-      color:var(--text);
-      margin-top:10px
-    }
-    .field:focus{border-color:var(--green)}
-    .field-row{
+    .bal-actions{
       display:grid;
       grid-template-columns:1fr 1fr;
-      gap:10px
+      gap:10px;
+      margin-top:18px;
     }
 
-    .amount-input{
-      width:100%;padding:14px;border-radius:14px;
-      border:1.5px solid var(--border);font-size:18px;font-weight:700;
-      outline:none;background:var(--bg);color:var(--text);
-      transition:border-color .2s;margin-bottom:8px
+    .btn{
+      border:none;
+      outline:none;
+      cursor:pointer;
+      border-radius:16px;
+      padding:14px 16px;
+      font-size:14px;
+      font-weight:800;
+      transition:transform .12s ease, box-shadow .18s ease, opacity .18s ease, background .18s ease;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      text-align:center;
     }
-    .amount-input:focus{border-color:var(--green)}
-    .min-note{font-size:12px;color:var(--muted);margin-bottom:16px}
-    .min-note span{color:var(--green-dark);font-weight:700}
 
-    .faq-item{
-      border:1px solid var(--border);border-radius:14px;
-      overflow:hidden;margin-bottom:10px
+    .btn:active{
+      transform:scale(.98);
     }
-    .faq-q{
-      padding:16px;font-size:14px;font-weight:600;
-      cursor:pointer;display:flex;justify-content:space-between;align-items:center;
-      background:var(--card);transition:background .2s
-    }
-    .faq-q:hover{background:var(--green-light)}
-    .faq-q .arrow{transition:transform .3s;font-size:16px}
-    .faq-a{
-      max-height:0;overflow:hidden;
-      transition:max-height .35s ease,padding .35s;
-      background:#f8fff9;font-size:13px;color:var(--muted);line-height:1.6;
-      padding:0 16px
-    }
-    .faq-item.open .faq-a{max-height:220px;padding:14px 16px}
-    .faq-item.open .arrow{transform:rotate(180deg)}
 
-    #bottom-nav{
-      position:fixed;bottom:0;left:0;right:0;height:var(--nav-h);
-      background:var(--white);
-      border-top:1px solid var(--border);
-      display:flex;align-items:center;justify-content:space-around;
-      z-index:800;box-shadow:0 -4px 20px rgba(0,0,0,.07)
+    .btn:disabled{
+      opacity:.6;
+      cursor:not-allowed;
     }
-    .nav-item{
-      display:flex;flex-direction:column;align-items:center;gap:4px;
-      cursor:pointer;padding:6px 12px;border-radius:12px;
-      transition:all .2s;flex:1
-    }
-    .nav-item .nav-icon{font-size:22px;transition:transform .2s}
-    .nav-item .nav-lbl{font-size:10px;font-weight:600;color:var(--muted)}
-    .nav-item.active .nav-icon{transform:scale(1.15)}
-    .nav-item.active .nav-lbl{color:var(--green)}
-    .nav-item:active .nav-icon{transform:scale(.9)}
 
-    #fab{
-      position:fixed;bottom:calc(var(--nav-h) + 16px);right:18px;
-      width:54px;height:54px;border-radius:18px;
-      background:linear-gradient(135deg,var(--green),var(--green-dark));
-      color:#fff;font-size:24px;
-      display:flex;align-items:center;justify-content:center;
-      box-shadow:0 6px 20px var(--green-glow);
-      cursor:pointer;z-index:700;transition:transform .2s,box-shadow .2s;
-      border:none;outline:none
+    .btn-green{
+      color:#fff;
+      background:linear-gradient(135deg, var(--green), var(--green-dark));
+      box-shadow:0 10px 20px var(--green-glow);
     }
-    #fab:hover{transform:scale(1.08);box-shadow:0 8px 28px var(--green-glow)}
-    #fab:active{transform:scale(.95)}
 
-    #toast{
-      position:fixed;bottom:calc(var(--nav-h) + 80px);left:50%;
-      transform:translateX(-50%) translateY(20px);
-      background:#0f172a;color:#fff;padding:10px 20px;
-      border-radius:24px;font-size:13px;font-weight:600;
-      opacity:0;transition:all .3s;z-index:2000;pointer-events:none;
-      white-space:nowrap
+    .btn-white{
+      background:#fff;
+      color:var(--green-dark);
     }
-    #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-    #main::-webkit-scrollbar,.sb-nav::-webkit-scrollbar{width:4px}
-    #main::-webkit-scrollbar-thumb,.sb-nav::-webkit-scrollbar-thumb{
-      background:var(--border);border-radius:4px
+    .btn-outline{
+      color:#fff;
+      background:rgba(255,255,255,.14);
+      border:1.5px solid rgba(255,255,255,.36);
+    }
+
+    .btn-ghost{
+      color:var(--text);
+      background:#f8fffa;
+      border:1px solid var(--border);
+    }
+
+    .btn-blue{
+      color:#fff;
+      background:linear-gradient(135deg, #3b82f6, #2563eb);
+      box-shadow:0 10px 20px rgba(59,130,246,.22);
+    }
+
+    .btn-warn{
+      color:#fff;
+      background:linear-gradient(135deg, #f59e0b, #d97706);
+      box-shadow:0 10px 20px rgba(245,158,11,.22);
+    }
+
+    .grid-2{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+
+    .earn-pills{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-bottom:14px;
+    }
+
+    .pill{
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:16px;
+      box-shadow:var(--shadow);
+    }
+
+    .pill-icon{
+      font-size:24px;
+      display:block;
+      margin-bottom:8px;
+    }
+
+    .pill-val{
+      display:block;
+      font-size:17px;
+      font-weight:900;
+      color:var(--green-dark);
+      margin-bottom:4px;
+    }
+
+    .pill-desc{
+      display:block;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.4;
+    }
+
+    .stats-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+
+    .stat-item{
+      border-radius:18px;
+      padding:16px;
+      border:1px solid #d8f3df;
+      background:linear-gradient(180deg, #f8fff9, #edfff1);
+    }
+
+    .stat-num{
+      font-size:20px;
+      font-weight:900;
+      color:var(--green-dark);
+      margin-bottom:4px;
+    }
+
+    .stat-lbl{
+      color:var(--muted);
+      font-size:11px;
+    }
+
+    .live-chip{
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      padding:8px 12px;
+      border-radius:999px;
+      background:#f4fff6;
+      border:1px solid #dcf5e2;
+      color:#166534;
+      font-size:12px;
+      font-weight:700;
+      margin-bottom:14px;
+    }
+
+    .live-dot{
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      background:#22c55e;
+      box-shadow:0 0 0 0 rgba(34,197,94,.6);
+      animation:pulse 1.6s infinite;
     }
 
     @keyframes pulse{
-      0%,100%{transform:scale(1);opacity:1}
-      50%{transform:scale(1.6);opacity:.6}
+      0%{ box-shadow:0 0 0 0 rgba(34,197,94,.55); }
+      70%{ box-shadow:0 0 0 10px rgba(34,197,94,0); }
+      100%{ box-shadow:0 0 0 0 rgba(34,197,94,0); }
     }
 
-    /* Crypto Payment Modal */
+    .ads-grid{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    .ad-card,
+    .offer-card,
+    .vip-card{
+      display:flex;
+      gap:14px;
+      align-items:center;
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:20px;
+      padding:16px;
+      box-shadow:var(--shadow);
+    }
+
+    .ad-thumb,
+    .offer-thumb,
+    .vip-thumb{
+      width:62px;
+      height:62px;
+      border-radius:18px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-shrink:0;
+      font-size:28px;
+    }
+
+    .ad-thumb{
+      background:linear-gradient(135deg,#dcfce7,#bbf7d0);
+    }
+
+    .offer-thumb{
+      background:linear-gradient(135deg,#dbeafe,#bfdbfe);
+    }
+
+    .vip-thumb{
+      background:linear-gradient(135deg,#fef3c7,#fde68a);
+    }
+
+    .ad-info,
+    .offer-info,
+    .vip-info{
+      flex:1;
+      min-width:0;
+    }
+
+    .ad-title,
+    .offer-title,
+    .vip-title{
+      font-size:14px;
+      font-weight:800;
+      line-height:1.3;
+    }
+
+    .ad-reward,
+    .offer-reward,
+    .vip-reward{
+      font-size:13px;
+      font-weight:700;
+      margin-top:4px;
+      color:var(--green-dark);
+    }
+
+    .ad-dur,
+    .offer-desc,
+    .vip-desc{
+      font-size:11px;
+      color:var(--muted);
+      margin-top:4px;
+      line-height:1.45;
+    }
+
+    .stack-actions{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      min-width:120px;
+    }
+
+    .stack-actions .btn{
+      width:100%;
+      padding:11px 12px;
+      font-size:12px;
+      border-radius:14px;
+    }
+
+    .ref-panel{
+      background:
+        radial-gradient(circle at top right, rgba(255,255,255,.18), transparent 32%),
+        linear-gradient(135deg, #166534, #22c55e);
+      color:#fff;
+      border:none;
+    }
+
+    .ref-top{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:flex-start;
+      margin-bottom:14px;
+    }
+
+    .ref-big{
+      font-size:34px;
+      font-weight:900;
+      line-height:1;
+      letter-spacing:-.5px;
+      margin-top:2px;
+    }
+
+    .ref-label{
+      font-size:12px;
+      opacity:.9;
+      margin-bottom:6px;
+    }
+
+    .ref-divider{
+      height:1px;
+      background:rgba(255,255,255,.2);
+      margin-bottom:14px;
+    }
+
+    .ref-link-wrap{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      background:#f8fffa;
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:8px;
+      margin-top:12px;
+    }
+
+    .ref-link-wrap input{
+      flex:1;
+      min-width:0;
+      border:none;
+      background:transparent;
+      outline:none;
+      font-size:13px;
+      color:var(--text);
+      padding:6px 8px;
+    }
+
+    .copy-btn{
+      border:none;
+      cursor:pointer;
+      background:linear-gradient(135deg, var(--green), var(--green-dark));
+      color:#fff;
+      font-weight:800;
+      font-size:13px;
+      border-radius:12px;
+      padding:11px 14px;
+    }
+
+    .share-row{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+      margin-top:12px;
+    }
+
+    .share-btn{
+      border:none;
+      border-radius:14px;
+      padding:12px 10px;
+      font-size:12px;
+      color:#fff;
+      font-weight:700;
+      cursor:pointer;
+    }
+
+    .sh-tg{background:#229ED9;}
+    .sh-wa{background:#25D366;}
+    .sh-tw{background:#1D9BF0;}
+    .sh-fb{background:#1877F2;}
+    .sh-me{background:#0084FF;}
+    .sh-ms{background:#7c3aed;}
+
+    .method-grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:10px;
+      margin:14px 0 12px;
+    }
+
+    .method{
+      padding:14px 10px;
+      border-radius:18px;
+      background:#f9fffb;
+      border:2px solid var(--border);
+      text-align:center;
+      cursor:pointer;
+      transition:all .15s ease;
+    }
+
+    .method:hover{
+      border-color:#ccefd5;
+    }
+
+    .method.sel{
+      border-color:var(--green);
+      background:#edfff2;
+      box-shadow:0 0 0 4px rgba(34,197,94,.10);
+    }
+
+    .method-icon{
+      font-size:22px;
+      margin-bottom:6px;
+    }
+
+    .method-name{
+      font-size:12px;
+      font-weight:700;
+      line-height:1.3;
+    }
+
+    .method-fields{
+      display:none;
+      margin-top:10px;
+    }
+
+    .method-fields.active{
+      display:block;
+    }
+
+    .field,
+    .amount-input{
+      width:100%;
+      border:1.5px solid var(--border);
+      background:#fbfffc;
+      color:var(--text);
+      border-radius:16px;
+      padding:14px;
+      outline:none;
+      transition:border-color .15s ease, box-shadow .15s ease;
+    }
+
+    .field:focus,
+    .amount-input:focus{
+      border-color:var(--green);
+      box-shadow:0 0 0 4px rgba(34,197,94,.10);
+    }
+
+    .field-row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+
+    .amount-input{
+      font-size:20px;
+      font-weight:900;
+      margin-bottom:8px;
+    }
+
+    .min-note{
+      font-size:12px;
+      color:var(--muted);
+      margin-bottom:14px;
+      line-height:1.5;
+    }
+
+    .min-note span{
+      font-weight:800;
+      color:var(--green-dark);
+    }
+
+    .quick-amounts{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-bottom:14px;
+    }
+
+    .tiny-btn{
+      border:none;
+      cursor:pointer;
+      border-radius:12px;
+      padding:9px 14px;
+      background:#f7fff9;
+      border:1px solid var(--border);
+      font-size:12px;
+      font-weight:800;
+      color:var(--text);
+    }
+
+    .history-list > div:last-child{
+      border-bottom:none !important;
+      padding-bottom:0 !important;
+    }
+
+    .vip-hero{
+      padding:20px;
+      background:
+        radial-gradient(circle at top right, rgba(255,255,255,.16), transparent 34%),
+        linear-gradient(135deg, #0f172a 0%, #111827 30%, #15803d 100%);
+      color:#fff;
+      border:none;
+    }
+
+    .vip-top-row{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:flex-start;
+      margin-bottom:12px;
+    }
+
+    .vip-status-badge{
+      border-radius:999px;
+      padding:8px 12px;
+      font-size:12px;
+      font-weight:800;
+      background:rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.18);
+      white-space:nowrap;
+    }
+
+    .vip-note{
+      color:rgba(255,255,255,.86);
+      font-size:13px;
+      line-height:1.6;
+      margin-top:8px;
+    }
+
+    .vip-card{
+      align-items:flex-start;
+    }
+
+    .vip-card .stack-actions{
+      min-width:126px;
+    }
+
+    .vip-rank{
+      font-size:12px;
+      font-weight:800;
+      color:#64748b;
+      margin-bottom:4px;
+    }
+
+    .vip-meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      margin-top:8px;
+    }
+
+    .vip-chip{
+      border-radius:999px;
+      padding:6px 10px;
+      background:#f7fff9;
+      border:1px solid #dcefe2;
+      font-size:11px;
+      font-weight:800;
+      color:#166534;
+    }
+
+    .faq-item{
+      overflow:hidden;
+      border:1px solid var(--border);
+      border-radius:18px;
+      background:#fff;
+      margin-bottom:10px;
+      box-shadow:var(--shadow);
+    }
+
+    .faq-q{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:16px;
+      font-size:14px;
+      font-weight:800;
+      cursor:pointer;
+    }
+
+    .faq-a{
+      max-height:0;
+      overflow:hidden;
+      transition:max-height .22s ease, padding .22s ease;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.65;
+      padding:0 16px;
+      background:#f9fffb;
+    }
+
+    .faq-item.open .faq-a{
+      max-height:220px;
+      padding:0 16px 16px;
+    }
+
+    .faq-arrow{
+      transition:transform .18s ease;
+      flex-shrink:0;
+    }
+
+    .faq-item.open .faq-arrow{
+      transform:rotate(180deg);
+    }
+
+    .info-note{
+      border-radius:16px;
+      padding:14px;
+      background:#f8fffa;
+      border:1px solid #dcefe2;
+      color:#166534;
+      font-size:12px;
+      line-height:1.6;
+    }
+
+    #bottom-nav{
+      position:fixed;
+      left:0;
+      right:0;
+      bottom:0;
+      height:var(--nav-h);
+      background:rgba(255,255,255,.96);
+      backdrop-filter:blur(10px);
+      border-top:1px solid rgba(226,232,240,.9);
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      z-index:900;
+      box-shadow:0 -8px 20px rgba(15,23,42,.04);
+    }
+
+    .nav-item{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:4px;
+      cursor:pointer;
+      color:var(--muted);
+      transition:all .15s ease;
+      font-size:10px;
+      font-weight:700;
+    }
+
+    .nav-item .nav-icon{
+      font-size:21px;
+      line-height:1;
+    }
+
+    .nav-item.active{
+      color:var(--green-dark);
+    }
+
+    .nav-item.active .nav-icon{
+      transform:translateY(-1px) scale(1.06);
+    }
+
+    #fab{
+      position:fixed;
+      right:18px;
+      bottom:calc(var(--nav-h) + 16px);
+      width:58px;
+      height:58px;
+      border:none;
+      border-radius:20px;
+      background:linear-gradient(135deg, var(--green), var(--green-dark));
+      color:#fff;
+      font-size:24px;
+      cursor:pointer;
+      box-shadow:0 16px 28px var(--green-glow);
+      z-index:850;
+    }
+
+    #toast{
+      position:fixed;
+      left:50%;
+      bottom:calc(var(--nav-h) + 82px);
+      transform:translateX(-50%) translateY(14px);
+      background:#0f172a;
+      color:#fff;
+      padding:12px 18px;
+      border-radius:999px;
+      font-size:13px;
+      font-weight:700;
+      opacity:0;
+      pointer-events:none;
+      transition:all .2s ease;
+      z-index:2000;
+      max-width:min(92vw, 480px);
+      text-align:center;
+      box-shadow:0 14px 30px rgba(15,23,42,.22);
+    }
+
+    #toast.show{
+      opacity:1;
+      transform:translateX(-50%) translateY(0);
+    }
+
     #crypto-modal{
-      position:fixed;inset:0;background:rgba(0,0,0,.6);
-      backdrop-filter:blur(8px);z-index:2000;
-      display:none;align-items:center;justify-content:center;
-      opacity:0;transition:opacity .3s ease
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      background:rgba(2,6,23,.62);
+      backdrop-filter:blur(7px);
+      z-index:2200;
+      opacity:0;
+      transition:opacity .25s ease;
+      padding:18px;
     }
-    #crypto-modal.show{opacity:1}
+
+    #crypto-modal.show{
+      opacity:1;
+    }
+
     .crypto-card{
-      background:linear-gradient(135deg,#0f172a,#1e293b);
-      border:1px solid rgba(34,197,94,.3);
-      box-shadow:0 8px 32px var(--green-glow);
-      border-radius:24px;padding:24px;width:92%;max-width:360px;
-      color:#fff;position:relative;
-      transform:translateY(20px);transition:transform .3s ease
+      width:min(100%, 390px);
+      border-radius:28px;
+      background:linear-gradient(135deg, #0f172a, #1f2937);
+      border:1px solid rgba(255,255,255,.08);
+      box-shadow:0 22px 40px rgba(15,23,42,.35);
+      color:#fff;
+      padding:22px;
+      position:relative;
+      transform:translateY(18px);
+      transition:transform .25s ease;
     }
-    #crypto-modal.show .crypto-card{transform:translateY(0)}
+
+    #crypto-modal.show .crypto-card{
+      transform:translateY(0);
+    }
+
     .crypto-close{
-      position:absolute;top:16px;right:16px;
-      background:rgba(255,255,255,.1);border:none;color:#fff;
-      width:30px;height:30px;border-radius:50%;
-      display:flex;align-items:center;justify-content:center;
-      cursor:pointer;font-size:14px
+      position:absolute;
+      top:14px;
+      right:14px;
+      width:32px;
+      height:32px;
+      border-radius:50%;
+      border:none;
+      cursor:pointer;
+      background:rgba(255,255,255,.08);
+      color:#fff;
+      font-size:16px;
     }
+
     .coin-grid{
-      display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:10px;
+      margin-top:16px;
     }
+
     .coin-btn{
-      background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
-      padding:12px;border-radius:14px;color:#fff;cursor:pointer;
-      display:flex;flex-direction:column;align-items:center;gap:6px;
-      transition:all .2s
+      border:none;
+      cursor:pointer;
+      border-radius:18px;
+      padding:14px 10px;
+      color:#fff;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:6px;
+      transition:all .15s ease;
     }
-    .coin-btn:hover,.coin-btn:active{
-      background:var(--green-glow);border-color:var(--green)
+
+    .coin-btn:hover{
+      background:rgba(34,197,94,.18);
+      border-color:rgba(34,197,94,.5);
     }
-    .coin-icon{font-size:24px}
-    .coin-name{font-size:13px;font-weight:700}
-    .coin-net{font-size:10px;color:var(--muted)}
-    #crypto-details{display:none;margin-top:16px}
+
+    .coin-icon{
+      font-size:24px;
+    }
+
+    .coin-name{
+      font-size:13px;
+      font-weight:800;
+    }
+
+    .coin-net{
+      font-size:10px;
+      color:#94a3b8;
+    }
+
+    #crypto-details{
+      display:none;
+      margin-top:16px;
+    }
+
     .copy-box{
-      background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);
-      border-radius:12px;padding:12px;margin-bottom:12px;
-      display:flex;justify-content:space-between;align-items:center
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      padding:12px;
+      margin-bottom:12px;
+      border-radius:16px;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
     }
-    .copy-info{flex:1;overflow:hidden}
-    .copy-label{font-size:11px;color:var(--muted);margin-bottom:4px}
-    .copy-value{font-size:14px;font-weight:700;word-break:break-all}
+
+    .copy-info{
+      min-width:0;
+      flex:1;
+    }
+
+    .copy-label{
+      font-size:11px;
+      color:#94a3b8;
+      margin-bottom:4px;
+    }
+
+    .copy-value{
+      font-size:13px;
+      font-weight:800;
+      line-height:1.45;
+      word-break:break-word;
+    }
+
     .copy-action{
-      background:var(--green);color:#fff;border:none;
-      padding:8px 12px;border-radius:8px;font-size:12px;
-      font-weight:bold;cursor:pointer;margin-left:10px
+      border:none;
+      cursor:pointer;
+      border-radius:12px;
+      padding:10px 12px;
+      font-size:12px;
+      font-weight:800;
+      color:#fff;
+      background:linear-gradient(135deg, var(--green), var(--green-dark));
+      flex-shrink:0;
     }
 
     .small-note{
-      background:rgba(34,197,94,.1);
-      border-left:3px solid #22c55e;
-      padding:10px;
+      padding:12px 14px;
+      border-radius:16px;
+      background:rgba(34,197,94,.12);
+      border:1px solid rgba(34,197,94,.22);
+      color:#d1fae5;
       font-size:11px;
-      color:#bbf7d0;
-      margin-bottom:16px;
-      border-radius:4px;
-      line-height:1.4
+      line-height:1.65;
+      margin-bottom:14px;
+    }
+
+    .muted{
+      color:var(--muted);
+    }
+
+    @media (max-width:380px){
+      .stack-actions{
+        min-width:108px;
+      }
+
+      .vip-card,
+      .offer-card,
+      .ad-card{
+        padding:14px;
+        gap:12px;
+      }
+
+      .bal-amount{
+        font-size:40px;
+      }
+
+      .share-row{
+        grid-template-columns:repeat(2,1fr);
+      }
+
+      .mini-row{
+        grid-template-columns:1fr;
+      }
     }
   </style>
 </head>
 <body>
+  <div id="overlay" onclick="toggleSidebar(false)"></div>
 
-<div id="overlay" onclick="toggleSidebar()"></div>
+  <aside id="sidebar">
+    <div class="sb-header">
+      <div class="sb-avatar">👤</div>
+      <div class="sb-name" id="sb-name">User</div>
+      <div class="sb-bal">Balance: <strong id="sb-bal">$0.00</strong></div>
+    </div>
 
-<nav id="sidebar">
-  <div class="sb-header">
-    <div class="sb-avatar">👤</div>
-    <div class="sb-name" id="sb-name">User</div>
-    <div class="sb-bal">Balance: <strong id="sb-bal">$0.00</strong></div>
+    <div class="sb-nav">
+  <div class="sb-item active" data-page="dashboard" onclick="navigate('dashboard',0,this)">
+    <span class="icon">🏠</span> Dashboard
   </div>
-  <div class="sb-nav">
-    <div class="sb-item active" onclick="navigate('dashboard',0,this)"><span class="icon">🏠</span> Dashboard</div>
-    <div class="sb-item" onclick="navigate('ads',1,this)"><span class="icon">▶️</span> Watch Ads</div>
-    <div class="sb-item" onclick="navigate('offers',2,this)"><span class="icon">🎁</span> Offer Center</div>
-    <div class="sb-item" onclick="navigate('invite',3,this)"><span class="icon">👥</span> Invite Friends</div>
-    <div class="sb-item" onclick="navigate('cashout',4,this)"><span class="icon">💸</span> Cash Out</div>
-    <div class="sb-item" onclick="navigate('vip',5,this)"><span class="icon">💎</span> VIP</div>
-    <div class="sb-item" onclick="navigate('help',6,this)"><span class="icon">❓</span> Help & FAQ</div>
+  <div class="sb-item" data-page="ads" onclick="navigate('ads',1,this)">
+    <span class="icon">🎬</span> Watch Ads
   </div>
-  <div class="sb-footer">AdWallet · Made with 💚</div>
-</nav>
-
-<header id="topbar">
-  <div class="tb-left">
-    <div class="hamburger" onclick="toggleSidebar()" id="ham">
-      <span></span><span></span><span></span>
-    </div>
-    <div class="logo">Ad<span>Wallet</span></div>
+  <div class="sb-item" data-page="offers" onclick="navigate('offers',2,this)">
+    <span class="icon">🎁</span> Offer Center
   </div>
-  <div class="tb-right">
-    <div class="tb-badge">💰 $<span id="tb-bal">0.00</span></div>
-    <div class="tb-notif">🔔<span class="notif-dot"></span></div>
+  <div class="sb-item" data-page="invite" onclick="navigate('invite',3,this)">
+    <span class="icon">👥</span> Invite Friends
   </div>
-</header>
-
-<main id="main">
-  <section class="page" id="page-dashboard">
-  <div class="balance-card">
-    <div class="bal-greeting" id="bal-greeting">👋 Hi, User!</div>
-    <div class="bal-amount">$<span id="bal-main">0.00</span></div>
-    <div class="bal-label">Total Earnings</div>
-
-    <div class="progress-wrap">
-      <div class="progress-label">
-        <span>Earning Progress</span>
-        <span id="progress-text">$0.00 / $100.00</span>
-      </div>
-      <div class="progress-bar">
-        <div class="progress-fill" id="prog-fill"></div>
-      </div>
-    </div>
-
-    <div class="bal-actions" style="position: relative; z-index: 10; pointer-events: auto;">
-      <button class="btn btn-white" style="position: relative; z-index: 11; cursor: pointer;" onclick="navigate('cashout',4)">💸 Cash Out</button>
-      <button class="btn btn-outline" style="position: relative; z-index: 11; cursor: pointer;" onclick="claimBonus()">🎁 Daily Bonus</button>
-    </div>
+  <div class="sb-item" data-page="cashout" onclick="navigate('cashout',4,this)">
+    <span class="icon">💸</span> Cashout
   </div>
-
-  <div class="earn-pills">
-    <div class="pill"><span class="pill-icon">🎬</span><span class="pill-val">$0.05–$0.10</span><span class="pill-desc">per ad watched</span></div>
-    <div class="pill"><span class="pill-icon">👥</span><span class="pill-val">$0.075</span><span class="pill-desc">per referral</span></div>
-    <div class="pill"><span class="pill-icon">✅</span><span class="pill-val">$0.25</span><span class="pill-desc">daily bonus</span></div>
-    <div class="pill"><span class="pill-icon">📦</span><span class="pill-val">$0.50+</span><span class="pill-desc">per offer task</span></div>
+  <div class="sb-item" data-page="vip" onclick="navigate('vip',4,this)">
+    <span class="icon">💎</span> VIP
   </div>
-
-  <div class="card">
-    <div class="sec-title">Quick Earn</div>
-    <div class="sec-sub">Start earning immediately</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-      <button class="btn btn-green" onclick="navigate('ads',1)">▶️ Watch Ads</button>
-      <button class="btn btn-ghost" onclick="navigate('offers',2)">🎁 Offers</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
-      <span class="live-dot"></span>
-      <span class="sec-title" style="margin:0;font-size:16px;">Live Platform Stats</span>
-    </div>
-    <div class="stats-grid">
-      <div class="stat-item"><div class="stat-num" id="stat-payout">$48,312</div><div class="stat-lbl">Total Payouts</div></div>
-      <div class="stat-item"><div class="stat-num" id="stat-users">12,847</div><div class="stat-lbl">Active Users</div></div>
-      <div class="stat-item"><div class="stat-num" id="stat-ads">3.2M</div><div class="stat-lbl">Ads Watched</div></div>
-      <div class="stat-item"><div class="stat-num" id="stat-today">$2,190</div><div class="stat-lbl">Paid Today</div></div>
-    </div>
-  </div>
-
-  <div class="card" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);">
-    <div style="display:flex;justify-content:space-between;align-items:start;">
-      <div>
-        <div class="sec-title">Invite &amp; Earn</div>
-        <div class="sec-sub" style="margin-bottom:12px;">Get $0.075 per friend you invite</div>
-        <button class="btn btn-green" onclick="navigate('invite',3)" style="padding:11px 20px;">👥 Invite Friends</button>
-      </div>
-      <span style="font-size:52px;opacity:.6;">🎉</span>
-    </div>
-  </div>
-</section>
-
-  <section class="page" id="page-ads">
-    <div class="sec-title">Watch Ads</div>
-    <div class="sec-sub">Earn real money watching short video ads</div>
-
-    <div class="card" style="text-align:center;background:linear-gradient(135deg,#0f172a,#1e293b);color:#fff;padding:32px 20px;margin-bottom:16px;">
-      <div style="font-size:52px;margin-bottom:12px;">🎬</div>
-      <div style="font-size:20px;font-weight:800;margin-bottom:6px;">Ready to Earn?</div>
-      <div style="font-size:14px;opacity:.7;margin-bottom:20px;">Watch a 15–30s ad and earn instantly</div>
-      <button class="btn btn-green" style="width:100%;padding:16px;font-size:16px;" onclick="earnNow(this)">▶️ &nbsp;Earn Now</button>
-    </div>
-
-    <div class="ads-grid">
-      <div class="ad-card"><div class="ad-thumb">📱</div><div class="ad-info"><div class="ad-title">Mobile App Promo</div><div class="ad-reward">+$0.08</div><div class="ad-dur">⏱ 30 seconds</div></div><button class="btn btn-green ad-btn" onclick="watchAd(this)">Watch</button></div>
-      <div class="ad-card"><div class="ad-thumb">🛒</div><div class="ad-info"><div class="ad-title">E-Commerce Ad</div><div class="ad-reward">+$0.06</div><div class="ad-dur">⏱ 15 seconds</div></div><button class="btn btn-green ad-btn" onclick="watchAd(this)">Watch</button></div>
-      <div class="ad-card"><div class="ad-thumb">🎮</div><div class="ad-info"><div class="ad-title">Game Ad Sponsor</div><div class="ad-reward">+$0.10</div><div class="ad-dur">⏱ 45 seconds</div></div><button class="btn btn-green ad-btn" onclick="watchAd(this)">Watch</button></div>
-      <div class="ad-card"><div class="ad-thumb">💊</div><div class="ad-info"><div class="ad-title">Health &amp; Wellness</div><div class="ad-reward">+$0.07</div><div class="ad-dur">⏱ 20 seconds</div></div><button class="btn btn-green ad-btn" onclick="watchAd(this)">Watch</button></div>
-      <div class="ad-card"><div class="ad-thumb">✈️</div><div class="ad-info"><div class="ad-title">Travel Deals</div><div class="ad-reward">+$0.09</div><div class="ad-dur">⏱ 25 seconds</div></div><button class="btn btn-green ad-btn" onclick="watchAd(this)">Watch</button></div>
-    </div>
-  </section>
-
-  <section class="page" id="page-offers">
-  <div class="sec-title">Offer Center</div>
-  <div class="sec-sub">Complete CPA offers for much bigger rewards</div>
-
-  <div class="card">
-    <div class="sec-title" style="font-size:16px;margin-bottom:12px;">CPAgrip Offers</div>
-
-    <div class="ads-grid">
-      <div class="ad-card">
-        <div class="ad-thumb" style="background:linear-gradient(135deg,#fef3c7,#fde68a);">📲</div>
-        <div class="ad-info">
-          <div class="ad-title">Install &amp; Open App</div>
-          <div class="ad-reward">+$1.20 to +$3.00</div>
-          <div class="ad-dur">⏱ 2–5 min</div>
-        </div>
-        <button class="btn btn-green ad-btn" onclick="openCpagripOffer(1)">Start</button>
-      </div>
-
-      <div class="ad-card">
-        <div class="ad-thumb" style="background:linear-gradient(135deg,#dbeafe,#93c5fd);">📝</div>
-        <div class="ad-info">
-          <div class="ad-title">Complete Survey</div>
-          <div class="ad-reward">+$0.50 to +$2.50</div>
-          <div class="ad-dur">⏱ 3–8 min</div>
-        </div>
-        <button class="btn btn-green ad-btn" onclick="openCpagripOffer(2)">Start</button>
-      </div>
-
-      <div class="ad-card">
-        <div class="ad-thumb" style="background:linear-gradient(135deg,#ede9fe,#c4b5fd);">🎮</div>
-        <div class="ad-info">
-          <div class="ad-title">Play Game Offer</div>
-          <div class="ad-reward">+$2.00 to +$10.00</div>
-          <div class="ad-dur">⏱ 10–30 min</div>
-        </div>
-        <button class="btn btn-green ad-btn" onclick="openCpagripOffer(3)">Start</button>
-      </div>
-    </div>
-  </div>
-</section>
-
-  <section class="page" id="page-invite">
-  <div class="sec-title">Invite &amp; Earn</div>
-  <div class="sec-sub">Share your link and earn $0.075 per active referral</div>
-
-  <div class="card" style="margin-top:14px;">
-    <div class="sec-title" style="font-size:16px;margin-bottom:12px;">Invite Rewards</div>
-
-    <div class="ads-grid">
-      <div class="ad-card">
-        <div class="ad-thumb" style="background:linear-gradient(135deg,#fde68a,#f59e0b);">🥉</div>
-        <div class="ad-info">
-          <div class="ad-title">Bronze Plan Free</div>
-          <div class="ad-reward">60 referrals required</div>
-          <div class="ad-dur">Unlock Bronze VIP permanently</div>
-        </div>
-      </div>
-
-      <div class="ad-card">
-        <div class="ad-thumb" style="background:linear-gradient(135deg,#d1d5db,#9ca3af);">🥈</div>
-        <div class="ad-info">
-          <div class="ad-title">Silver Plan Free</div>
-          <div class="ad-reward">150 referrals required</div>
-          <div class="ad-dur">Unlock Silver VIP permanently</div>
-        </div>
-      </div>
-
-      <div class="ad-card">
-        <div class="ad-thumb" style="background:linear-gradient(135deg,#fef3c7,#facc15);">🥇</div>
-        <div class="ad-info">
-          <div class="ad-title">Gold Plan Free</div>
-          <div class="ad-reward">300 referrals required</div>
-          <div class="ad-dur">Unlock Gold VIP permanently</div>
-        </div>
-      </div>
-
-      <div class="ad-card">
-        <div class="ad-thumb" style="background:linear-gradient(135deg,#c4b5fd,#8b5cf6);">💎</div>
-        <div class="ad-info">
-          <div class="ad-title">Diamond Plan Free</div>
-          <div class="ad-reward">600 referrals required</div>
-          <div class="ad-dur">Unlock Diamond VIP permanently</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card" style="background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-      <div>
-        <div style="font-size:13px;opacity:.85;">Your Referrals</div>
-        <div style="font-size:32px;font-weight:900;" id="ref-count">0</div>
-      </div>
-      <div style="text-align:right;">
-        <div style="font-size:13px;opacity:.85;">Referral Earnings</div>
-        <div style="font-size:26px;font-weight:900;">$<span id="ref-earnings">0.00</span></div>
-      </div>
-    </div>
-    <div style="height:1px;background:rgba(255,255,255,.2);margin-bottom:14px;"></div>
-    <div style="font-size:13px;opacity:.85;">🎯 Earn $0.075 for every friend who joins and watches their first ad</div>
-  </div>
-
-  <div class="card">
-    <div class="sec-title" style="font-size:16px;">Your Referral Link</div>
-    <div class="ref-link-wrap">
-      <input type="text" id="ref-link-input" readonly placeholder="Referral link will appear here" />
-      <button class="copy-btn" onclick="copyRef()">📋 Copy</button>
-    </div>
-    <div class="sec-sub" style="font-size:12px;margin:0 0 12px;">Share this link to start earning</div>
-    <div class="share-row">
-      <button class="share-btn sh-tg" onclick="share('Telegram')">✈️ Telegram</button>
-      <button class="share-btn sh-wa" onclick="share('WhatsApp')">💬 WhatsApp</button>
-      <button class="share-btn sh-tw" onclick="share('Twitter')">🐦 Twitter</button>
-      <button class="share-btn sh-fb" onclick="share('Facebook')">👥 Facebook</button>
-      <button class="share-btn sh-me" onclick="share('Messenger')">💌 Messenger</button>
-    </div>
-  </div>
-</section>
-
-  <section class="page" id="page-cashout">
-    <div class="sec-title">Cash Out</div>
-    <div class="sec-sub">Withdraw your earnings instantly</div>
-
-    <div class="card">
-      <div style="font-size:14px;font-weight:700;margin-bottom:12px;">Select Payment Method</div>
-      <div class="method-grid" id="method-grid">
-        <div class="method sel" data-method="PayPal" onclick="selectMethod(this)"><div class="method-icon">🅿️</div><div class="method-name">PayPal</div></div>
-        <div class="method" data-method="Bitcoin" onclick="selectMethod(this)"><div class="method-icon">₿</div><div class="method-name">Bitcoin</div></div>
-        <div class="method" data-method="Crypto" onclick="selectMethod(this)"><div class="method-icon">🔷</div><div class="method-name">Crypto</div></div>
-        <div class="method" data-method="Paytm" onclick="selectMethod(this)"><div class="method-icon">🏦</div><div class="method-name">Paytm</div></div>
-        <div class="method" data-method="PhonePe" onclick="selectMethod(this)"><div class="method-icon">📱</div><div class="method-name">PhonePe</div></div>
-        <div class="method" data-method="Bank" onclick="selectMethod(this)"><div class="method-icon">🏧</div><div class="method-name">Bank</div></div>
-        <div class="method" data-method="Telegram Wallet" onclick="selectMethod(this)"><div class="method-icon">💬</div><div class="method-name">Telegram Wallet</div></div>
-        <div class="method" data-method="Telegram Stars" onclick="selectMethod(this)"><div class="method-icon">⭐</div><div class="method-name">Telegram Stars</div></div>
-      </div>
-
-      <div id="method-fields-paypal" class="method-fields active">
-        <input class="field" id="paypal-email" type="email" placeholder="Enter PayPal email" />
-      </div>
-
-      <div id="method-fields-bitcoin" class="method-fields">
-        <input class="field" id="bitcoin-address" type="text" placeholder="Enter Bitcoin wallet address" />
-      </div>
-
-      <div id="method-fields-crypto" class="method-fields">
-        <div class="field-row">
-          <input class="field" id="crypto-name" type="text" placeholder="Enter crypto name (BTC/USDT/ETH)" />
-          <input class="field" id="crypto-wallet" type="text" placeholder="Enter wallet address" />
-        </div>
-      </div>
-
-      <div id="method-fields-paytm" class="method-fields">
-        <input class="field" id="paytm-number" type="tel" placeholder="Enter Paytm number" />
-      </div>
-
-      <div id="method-fields-phonepe" class="method-fields">
-        <input class="field" id="phonepe-number" type="tel" placeholder="Enter PhonePe number" />
-      </div>
-
-      <div id="method-fields-bank" class="method-fields">
-        <input class="field" id="bank-account" type="text" placeholder="Enter account number" />
-        <input class="field" id="bank-ifsc" type="text" placeholder="Enter IFSC code" />
-        <input class="field" id="bank-name" type="text" placeholder="Enter bank name" />
-      </div>
-
-      <div id="method-fields-telegram-wallet" class="method-fields">
-        <input class="field" id="telegram-wallet" type="text" placeholder="Enter Telegram wallet ID / username" />
-      </div>
-
-      <div id="method-fields-telegram-stars" class="method-fields">
-        <input class="field" id="telegram-stars" type="text" placeholder="Enter Telegram Stars account / ID" />
-      </div>
-    </div>
-
-    <div class="card">
-      <div style="font-size:14px;font-weight:700;margin-bottom:10px;">Withdrawal Amount</div>
-      <input class="amount-input" type="number" placeholder="$0.00" id="withdraw-amount" />
-      <div class="min-note">Minimum withdrawal: <span>$100.00</span> · Your balance: <span id="co-bal">$0.00</span></div>
-      <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
-        <button class="btn btn-ghost" style="padding:8px 14px;font-size:12px;" onclick="setAmount(100)">$100</button>
-        <button class="btn btn-ghost" style="padding:8px 14px;font-size:12px;" onclick="setAmount(250)">$250</button>
-        <button class="btn btn-ghost" style="padding:8px 14px;font-size:12px;" onclick="setAmount(500)">$500</button>
-        <button class="btn btn-ghost" style="padding:8px 14px;font-size:12px;" onclick="setAmountMax()">Max</button>
-      </div>
-      <button class="btn btn-green" style="width:100%;padding:16px;" onclick="submitWithdraw()">💸 &nbsp;Request Withdrawal</button>
-    </div>
-
-    <div class="card">
-      <div style="font-size:14px;font-weight:700;margin-bottom:12px;">Recent Withdrawals</div>
-      <div id="withdraw-history"></div>
-    </div>
-  </section>
-
-  <section class="page" id="page-ads">
-  <div class="sec-title">Watch Ads</div>
-  <div class="sec-sub">Earn real money watching short video ads</div>
-
-  <div class="card"
-       style="text-align:center;background:linear-gradient(135deg,#0f172a,#1e293b);color:#fff;padding:32px 20px;margin-bottom:16px;">
-    <div style="font-size:52px;margin-bottom:12px;">🎬</div>
-    <div style="font-size:20px;font-weight:800;margin-bottom:6px;">Ready to Earn?</div>
-    <div style="font-size:14px;opacity:.7;margin-bottom:20px;">Watch a 15–30s ad and earn instantly</div>
-    <button class="btn btn-green" style="width:100%;padding:16px;font-size:16px;" onclick="earnNow(this)">
-      ▶️ &nbsp;Earn Now
-    </button>
-  </div>
-
-  <div class="ads-grid">
-    <div class="ad-card">
-      <div class="ad-thumb">📱</div>
-      <div class="ad-info">
-        <div class="ad-title">Mobile App Promo</div>
-        <div class="ad-reward">+$0.08</div>
-        <div class="ad-dur">⏱ 30 seconds</div>
-      </div>
-      <button class="btn btn-green ad-btn" onclick="watchAd(this)">Watch</button>
-    </div>
-
-    <div class="ad-card">
-      <div class="ad-thumb">🛒</div>
-      <div class="ad-info">
-        <div class="ad-title">E-Commerce Ad</div>
-        <div class="ad-reward">+$0.06</div>
-        <div class="ad-dur">⏱ 15 seconds</div>
-      </div>
-      <button class="btn btn-green ad-btn" onclick="watchAd(this)">Watch</button>
-    </div>
-
-    <div class="ad-card">
-      <div class="ad-thumb">🎮</div>
-      <div class="ad-info">
-        <div class="ad-title">Game Ad Sponsor</div>
-        <div class="ad-reward">+$0.10</div>
-        <div class="ad-dur">⏱ 45 seconds</div>
-      </div>
-      <button class="btn btn-green ad-btn" onclick="watchAd(this)">Watch</button>
-    </div>
-
-    <div class="ad-card">
-      <div class="ad-thumb">💊</div>
-      <div class="ad-info">
-        <div class="ad-title">Health &amp; Wellness</div>
-        <div class="ad-reward">+$0.07</div>
-        <div class="ad-dur">⏱ 20 seconds</div>
-      </div>
-      <button class="btn btn-green ad-btn" onclick="watchAd(this)">Watch</button>
-    </div>
-
-    <div class="ad-card">
-      <div class="ad-thumb">✈️</div>
-      <div class="ad-info">
-        <div class="ad-title">Travel Deals</div>
-        <div class="ad-reward">+$0.09</div>
-        <div class="ad-dur">⏱ 25 seconds</div>
-      </div>
-      <button class="btn btn-green ad-btn" onclick="watchAd(this)">Watch</button>
-    </div>
-
-    <div class="ad-card">
-      <div class="ad-thumb" style="background:linear-gradient(135deg,#fca5a5,#ef4444);">💰</div>
-      <div class="ad-info">
-        <div class="ad-title">Monetag Rewarded Ad</div>
-        <div class="ad-reward">+$0.04</div>
-        <div class="ad-dur">⏱ Instant after view</div>
-      </div>
-      <button class="btn btn-green ad-btn" onclick="showMonetagAd(this)">Watch</button>
-    </div>
-  </div>
-</section>
-
-  <section class="page" id="page-help">
-    <div class="sec-title">Help &amp; FAQ</div>
-    <div class="sec-sub">Got questions? We've got answers</div>
-
-    <div id="faq-list">
-      <div class="faq-item">
-        <div class="faq-q" onclick="toggleFaq(this)">How do I earn money on AdWallet?<span class="arrow">▾</span></div>
-        <div class="faq-a">Earn by watching short video ads, completing offers, inviting friends, and claiming your daily bonus. Earnings are credited instantly to your balance.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q" onclick="toggleFaq(this)">What is the minimum withdrawal amount?<span class="arrow">▾</span></div>
-        <div class="faq-a">The minimum withdrawal is $100.00. Once your balance reaches this threshold, you can cash out via PayPal, Bitcoin, Crypto, Paytm, PhonePe, Telegram Wallet, Telegram Stars, or bank transfer.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q" onclick="toggleFaq(this)">How does the referral system work?<span class="arrow">▾</span></div>
-        <div class="faq-a">Share your unique referral link. When a friend signs up and watches their first ad, you instantly earn $0.075. There's no limit to how many friends you can refer.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q" onclick="toggleFaq(this)">How long does withdrawal take?<span class="arrow">▾</span></div>
-        <div class="faq-a">Most withdrawals are processed within 24–48 hours. Crypto withdrawals are typically faster. Bank transfers may take longer depending on the payment route.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q" onclick="toggleFaq(this)">Is AdWallet free to use?<span class="arrow">▾</span></div>
-        <div class="faq-a">Yes. AdWallet is free to use. We earn revenue from advertisers and share it directly with users.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q" onclick="toggleFaq(this)">Need help with your account?<span class="arrow">▾</span></div>
-        <div class="faq-a">Tap Contact Support below to open @adwalletagent directly in Telegram.</div>
-      </div>
-    </div>
-
-    <div class="card" style="text-align:center;margin-top:16px;">
-      <div style="font-size:32px;margin-bottom:10px;">💬</div>
-      <div style="font-size:16px;font-weight:700;margin-bottom:6px;">Still need help?</div>
-      <div style="font-size:13px;color:var(--muted);margin-bottom:14px;">Our support team is available 24/7</div>
-      <button class="btn btn-green" style="padding:13px 28px;display:block;margin:0 auto;" onclick="contactSupport()">Contact Support</button>
-    </div>
-  </section>
-</main>
-
-<nav id="bottom-nav">
-  <div class="nav-item active" onclick="navigate('dashboard',0)" id="nav-0"><span class="nav-icon">🏠</span><span class="nav-lbl">Home</span></div>
-  <div class="nav-item" onclick="navigate('ads',1)" id="nav-1"><span class="nav-icon">▶️</span><span class="nav-lbl">Earn</span></div>
-  <div class="nav-item" onclick="navigate('offers',2)" id="nav-2"><span class="nav-icon">🎁</span><span class="nav-lbl">Offers</span></div>
-  <div class="nav-item" onclick="navigate('invite',3)" id="nav-3"><span class="nav-icon">👥</span><span class="nav-lbl">Invite</span></div>
-  <div class="nav-item" onclick="navigate('cashout',4)" id="nav-4"><span class="nav-icon">💸</span><span class="nav-lbl">Cash</span></div>
-  <div class="nav-item" onclick="navigate('vip',5)" id="nav-5"><span class="nav-icon">💎</span><span class="nav-lbl">VIP</span></div>
-</nav>
-
-<button id="fab" onclick="navigate('ads',1)" title="Earn Now">⚡</button>
-<div id="toast"></div>
-
-<div id="crypto-modal">
-  <div class="crypto-card">
-    <button class="crypto-close" onclick="closeCryptoModal()">✕</button>
-
-    <div style="font-size:18px;font-weight:800;text-align:center;">
-      Buy <span id="modal-plan-name" style="color:#22c55e;">VIP</span>
-    </div>
-    <div style="font-size:13px;color:#94a3b8;text-align:center;margin-top:4px;" id="modal-subtitle">
-      Select your payment method
-    </div>
-
-    <div class="coin-grid" id="coin-selection">
-      <div class="coin-btn" onclick="selectCoin('USDT')">
-        <span class="coin-icon">💵</span>
-        <span class="coin-name">USDT</span>
-        <span class="coin-net">BEP20</span>
-      </div>
-      <div class="coin-btn" onclick="selectCoin('BNB')">
-        <span class="coin-icon">🟡</span>
-        <span class="coin-name">BNB</span>
-        <span class="coin-net">BEP20</span>
-      </div>
-      <div class="coin-btn" onclick="selectCoin('TRX')">
-        <span class="coin-icon">🔴</span>
-        <span class="coin-name">TRX</span>
-        <span class="coin-net">TRON</span>
-      </div>
-      <div class="coin-btn" onclick="selectCoin('TON')">
-        <span class="coin-icon">💎</span>
-        <span class="coin-name">TON</span>
-        <span class="coin-net">TON</span>
-      </div>
-      <div class="coin-btn" onclick="selectCoin('SOL')">
-        <span class="coin-icon">🟣</span>
-        <span class="coin-name">SOL</span>
-        <span class="coin-net">Solana</span>
-      </div>
-      <div class="coin-btn" onclick="selectCoin('BTC')">
-        <span class="coin-icon">₿</span>
-        <span class="coin-name">BTC</span>
-        <span class="coin-net">Bitcoin</span>
-      </div>
-    </div>
-
-    <div id="crypto-details">
-      <button class="btn btn-ghost" style="padding:6px 12px;font-size:12px;margin-bottom:16px;width:auto;background:rgba(255,255,255,0.05);" onclick="resetCryptoModal()">← Back</button>
-
-      <div class="copy-box">
-        <div class="copy-info">
-          <div class="copy-label">Amount to send</div>
-          <div class="copy-value" id="pay-amount">0.00</div>
-        </div>
-        <button class="copy-action" onclick="copyToClipboard('pay-amount')">Copy</button>
-      </div>
-
-      <div class="copy-box">
-        <div class="copy-info">
-          <div class="copy-label">Wallet Address (<span id="pay-network">Net</span>)</div>
-          <div class="copy-value" style="font-size:11px;" id="pay-address">0x...</div>
-        </div>
-        <button class="copy-action" onclick="copyToClipboard('pay-address')">Copy</button>
-      </div>
-
-      <div class="small-note">
-        ⚠️ 1. Send exact amount.<br>
-        2. Close app and send screenshot to @AdzwalletBot.
-      </div>
-
-      <button class="btn btn-green" style="width:100%;padding:14px;background:#22c55e;color:#000;font-weight:800;border-radius:12px;border:none;cursor:pointer;" onclick="closeAppAndUpload()">
-        📸 I have paid, send screenshot
-      </button>
-    </div>
+  <div class="sb-item" data-page="help" onclick="navigate('help',4,this)">
+    <span class="icon">❓</span> Help & FAQ
   </div>
 </div>
 
-<script>
-const BOT_USERNAME = 'AdzwalletBot'; // change if your bot username is different
+    <div class="sb-footer">
+      AdWallet Elite · Smooth Telegram WebApp UI
+    </div>
+  </aside>
 
-let balance = 0;
-let referralCount = 0;
-let referralEarnings = 0;
-let sidebarOpen = false;
-let userId = '';
-let adInstance = null;
-let selectedVipPlan = '';
-let withdrawHistory = [];
+  <header id="topbar">
+    <div class="tb-left">
+      <div class="hamburger" id="ham" onclick="toggleSidebar()">
+        <span></span><span></span><span></span>
+      </div>
+      <div class="logo">Ad<span>Wallet</span></div>
+    </div>
 
-const ADSGRAM_BLOCKS = ['26225']; // add more block IDs here later if you create them
-let adBlockPointer = 0;
+    <div class="tb-right">
+      <div class="pill-badge">💰 $<span id="tb-bal">0.00</span></div>
+      <div class="tb-action">🔔</div>
+    </div>
+  </header>
 
-const cryptoWallets = {
-  USDT: { address: '0x3e5989c2e42fa96397a1c9c743da6939b13b58b0', network: 'BEP20' },
-  BNB: { address: '0x3e5989c2e42fa96397a1c9c743da6939b13b58b0', network: 'BEP20' },
-  TRX: { address: 'THd6rZRzPKBwn5e2LhmiHPkNTXdLYsxFkj', network: 'TRON' },
-  TON: { address: 'UQBR-ZYfWLu0qu6SHZev7y8PnKSjMBn4eh9KoC7obr7rucew', network: 'TON' },
-  SOL: { address: 'GfB21zL1yqM7SzSh1gEyKPJZgA3CAGo5PxSKmmsxTE6Q', network: 'Solana' },
-  BTC: { address: '1CZ1Z61vGh162pXGNU4q4vGN2hjWxom8rc', network: 'Bitcoin' }
-};
+  <main id="main">
+    <section class="page active" id="page-dashboard">
+      <div class="balance-card">
+        <div class="balance-inner">
+          <div class="bal-greeting" id="bal-greeting">👋 Hi, User!</div>
+          <div class="bal-amount">$<span id="bal-main">0.00</span></div>
+          <div class="bal-label">Total Earnings</div>
 
-const planPrices = {
-  Bronze:   { USDT: 10.00,  BNB: 0.033, TRX: 77.50,  TON: 10.50,  SOL: 0.071, BTC: 0.00016 },
-  Silver:   { USDT: 20.00,  BNB: 0.066, TRX: 155.00, TON: 21.00,  SOL: 0.142, BTC: 0.00032 },
-  Gold:     { USDT: 30.00,  BNB: 0.099, TRX: 232.50, TON: 31.50,  SOL: 0.213, BTC: 0.00048 },
-  Platinum: { USDT: 50.00,  BNB: 0.165, TRX: 387.50, TON: 52.50,  SOL: 0.355, BTC: 0.00080 },
-  Diamond:  { USDT: 75.00,  BNB: 0.248, TRX: 581.25, TON: 78.75,  SOL: 0.533, BTC: 0.00120 },
-  Elite:    { USDT: 100.00, BNB: 0.330, TRX: 775.00, TON: 105.00, SOL: 0.710, BTC: 0.00160 }
-};
+          <div class="progress-wrap">
+            <div class="progress-top">
+              <span>Withdrawal Progress</span>
+              <span id="progress-text">$0.00 / $100.00</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" id="prog-fill"></div>
+            </div>
+          </div>
 
-const REFERRAL_VIP_REWARDS = {
-  Bronze: 60,
-  Silver: 150,
-  Gold: 300,
-  Platinum: 500,
-  Diamond: 800,
-  Elite: 1200
-};
+          <div class="mini-row">
+            <div class="mini-stat">
+              <div class="k">Ads Watched</div>
+              <div class="v" id="mini-tasks">0</div>
+            </div>
+            <div class="mini-stat">
+              <div class="k">Referrals</div>
+              <div class="v" id="mini-refs">0</div>
+            </div>
+            <div class="mini-stat">
+              <div class="k">VIP Status</div>
+              <div class="v" id="mini-vip">None</div>
+            </div>
+          </div>
 
-function resolveUserId() {
-  if (userId) return String(userId);
+          <div class="bal-actions">
+            <button class="btn btn-white" onclick="navigate('cashout',4)">💸 Cashout</button>
+            <button class="btn btn-outline" onclick="claimBonus()">🎁 Daily Bonus</button>
+          </div>
+        </div>
+      </div>
 
-  const urlId = new URLSearchParams(location.search).get('id');
-  if (urlId) return String(urlId);
+      <div class="earn-pills">
+        <div class="pill">
+          <span class="pill-icon">🎬</span>
+          <span class="pill-val">$0.05+</span>
+          <span class="pill-desc">Rewarded ad earning</span>
+        </div>
+        <div class="pill">
+          <span class="pill-icon">👥</span>
+          <span class="pill-val">$0.075</span>
+          <span class="pill-desc">Per active referral</span>
+        </div>
+        <div class="pill">
+          <span class="pill-icon">🎁</span>
+          <span class="pill-val">$0.25</span>
+          <span class="pill-desc">Daily bonus claim</span>
+        </div>
+        <div class="pill">
+          <span class="pill-icon">💎</span>
+          <span class="pill-val">Up to 4x</span>
+          <span class="pill-desc">VIP boost multiplier</span>
+        </div>
+      </div>
 
-  const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-  if (tgUser?.id) return String(tgUser.id);
+      <div class="card">
+        <div class="sec-title" style="font-size:17px;">Quick Earn</div>
+        <div class="sec-sub">Start earning instantly from your dashboard.</div>
+        <div class="grid-2">
+          <button class="btn btn-green" onclick="navigate('ads',1)">▶️ Watch Ads</button>
+          <button class="btn btn-ghost" onclick="navigate('offers',2)">🎁 Offers</button>
+        </div>
+      </div>
 
-  return '';
-}
+      <div class="card">
+        <div class="live-chip">
+          <span class="live-dot"></span>
+          Live platform highlights
+        </div>
 
-function getTelegramUserId() {
-  return resolveUserId();
-}
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-num" id="stat-payout">$48,312</div>
+            <div class="stat-lbl">Total Payouts</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num" id="stat-users">12,847</div>
+            <div class="stat-lbl">Active Users</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num" id="stat-ads">3.2M</div>
+            <div class="stat-lbl">Ads Watched</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num" id="stat-today">$2,190</div>
+            <div class="stat-lbl">Paid Today</div>
+          </div>
+        </div>
+      </div>
 
-function getFingerprint() {
-  const parts = [
-    navigator.userAgent || 'ua',
-    screen.width || 0,
-    screen.height || 0,
-    Intl.DateTimeFormat().resolvedOptions().timeZone || 'tz',
-    navigator.language || 'lang'
-  ];
-  return parts.join('|');
-}
+      <div class="card ref-panel">
+        <div class="ref-top">
+          <div>
+            <div class="ref-label">Your Referrals</div>
+            <div class="ref-big" id="dash-ref-count">0</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="ref-label">Referral Earnings</div>
+            <div class="ref-big" style="font-size:28px;">$<span id="dash-ref-earnings">0.00</span></div>
+          </div>
+        </div>
 
-function getNextAdBlockId() {
-  if (!ADSGRAM_BLOCKS.length) return '26225';
-  const blockId = ADSGRAM_BLOCKS[adBlockPointer % ADSGRAM_BLOCKS.length];
-  adBlockPointer += 1;
-  return blockId;
-}
+        <div class="ref-divider"></div>
+        <div style="font-size:13px;opacity:.95;">
+          Invite friends. When they join and watch their first ad, you earn instantly.
+        </div>
 
-function toggleSidebar() {
-  sidebarOpen = !sidebarOpen;
-  document.getElementById('sidebar').classList.toggle('open', sidebarOpen);
-  document.getElementById('overlay').classList.toggle('show', sidebarOpen);
+        <div style="margin-top:14px;">
+          <button class="btn btn-white" onclick="navigate('invite',3)" style="width:100%;">
+            👥 Open Referral Center
+          </button>
+        </div>
+      </div>
+    </section>
 
-  const ham = document.getElementById('ham');
-  const spans = ham.querySelectorAll('span');
+    <section class="page" id="page-ads">
+      <div class="sec-title">Watch Ads</div>
+      <div class="sec-sub">Watch rewarded ads and claim your balance instantly.</div>
 
-  if (sidebarOpen) {
-    spans[0].style.transform = 'rotate(45deg) translate(5px,5px)';
-    spans[1].style.opacity = '0';
-    spans[2].style.transform = 'rotate(-45deg) translate(5px,-5px)';
-  } else {
-    spans.forEach(s => { s.style.transform = ''; s.style.opacity = ''; });
-  }
-}
+      <div class="card" style="padding:20px;background:linear-gradient(135deg,#0f172a,#1e293b);color:#fff;border:none;">
+        <div style="font-size:48px;margin-bottom:10px;">🎬</div>
+        <div style="font-size:21px;font-weight:900;margin-bottom:6px;">Ready to Earn?</div>
+        <div style="font-size:13px;opacity:.82;line-height:1.6;margin-bottom:18px;">
+          Watch a short ad and claim your reward right away.
+        </div>
+        <button class="btn btn-green" style="width:100%;padding:16px;" onclick="earnNow(this)">
+          ▶️ Earn Now
+        </button>
+      </div>
 
-function navigate(page, idx, sbItem) {
-  if (sidebarOpen) toggleSidebar();
+      <div class="ads-grid">
+        <div class="ad-card">
+          <div class="ad-thumb">📱</div>
+          <div class="ad-info">
+            <div class="ad-title">Mobile App Promo</div>
+            <div class="ad-reward">+$0.05 and up</div>
+            <div class="ad-dur">⏱ 15–30 seconds</div>
+          </div>
+          <div class="stack-actions">
+            <button class="btn btn-green" onclick="watchAd(this)">Watch</button>
+          </div>
+        </div>
 
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  const target = document.getElementById('page-' + page);
-  if (target) target.classList.add('active');
+        <div class="ad-card">
+          <div class="ad-thumb">🛒</div>
+          <div class="ad-info">
+            <div class="ad-title">Shopping Sponsor</div>
+            <div class="ad-reward">Boost your earnings</div>
+            <div class="ad-dur">⏱ Rewarded video slot</div>
+          </div>
+          <div class="stack-actions">
+            <button class="btn btn-green" onclick="watchAd(this)">Watch</button>
+          </div>
+        </div>
+
+        <div class="ad-card">
+          <div class="ad-thumb">🎮</div>
+          <div class="ad-info">
+            <div class="ad-title">Game Partner Ad</div>
+            <div class="ad-reward">Instant credit after completion</div>
+            <div class="ad-dur">⏱ Short video</div>
+          </div>
+          <div class="stack-actions">
+            <button class="btn btn-green" onclick="watchAd(this)">Watch</button>
+          </div>
+        </div>
+
+        <div class="ad-card">
+          <div class="ad-thumb">💰</div>
+          <div class="ad-info">
+            <div class="ad-title">Reward Slot</div>
+            <div class="ad-reward">Bonus earning chance</div>
+            <div class="ad-dur">⏱ Try the next available ad</div>
+          </div>
+          <div class="stack-actions">
+            <button class="btn btn-blue" onclick="showMonetagAd(this)">Play</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="page-offers">
+      <div class="sec-title">Offer Center</div>
+      <div class="sec-sub">Send users to your CPA or custom offer links from here.</div>
+
+      <div class="info-note" style="margin-bottom:14px;">
+        Set your real offer URLs in the <strong>OFFER_URLS</strong> object inside the script before deployment.
+      </div>
+
+      <div class="ads-grid">
+        <div class="offer-card">
+          <div class="offer-thumb">📲</div>
+          <div class="offer-info">
+            <div class="offer-title">Install & Open App</div>
+            <div class="offer-reward">+$1.20 to +$3.00</div>
+            <div class="offer-desc">Perfect for app install campaigns and CPI offers.</div>
+          </div>
+          <div class="stack-actions">
+            <button class="btn btn-green" onclick="openCpagripOffer(1)">Start</button>
+          </div>
+        </div>
+
+        <div class="offer-card">
+          <div class="offer-thumb">📝</div>
+          <div class="offer-info">
+            <div class="offer-title">Complete Survey</div>
+            <div class="offer-reward">+$0.50 to +$2.50</div>
+            <div class="offer-desc">Connect this card to survey walls or lead-gen offers.</div>
+          </div>
+          <div class="stack-actions">
+            <button class="btn btn-green" onclick="openCpagripOffer(2)">Start</button>
+          </div>
+        </div>
+
+        <div class="offer-card">
+          <div class="offer-thumb">🎯</div>
+          <div class="offer-info">
+            <div class="offer-title">Custom Premium Offer</div>
+            <div class="offer-reward">High EPC campaigns</div>
+            <div class="offer-desc">Use this for your best converting landing page or locker.</div>
+          </div>
+          <div class="stack-actions">
+            <button class="btn btn-green" onclick="openCpagripOffer(3)">Start</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="page-invite">
+      <div class="sec-title">Invite & Earn</div>
+      <div class="sec-sub">Share your referral link and earn when referrals become active.</div>
+
+      <div class="card ref-panel">
+        <div class="ref-top">
+          <div>
+            <div class="ref-label">Your Referrals</div>
+            <div class="ref-big" id="ref-count">0</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="ref-label">Referral Earnings</div>
+            <div class="ref-big" style="font-size:28px;">$<span id="ref-earnings">0.00</span></div>
+          </div>
+        </div>
+
+        <div class="ref-divider"></div>
+        <div style="font-size:13px;opacity:.92;">
+          Earn <strong>$0.075</strong> whenever a referred user watches their first ad.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="sec-title" style="font-size:17px;">Your Referral Link</div>
+        <div class="ref-link-wrap">
+          <input id="ref-link-input" type="text" readonly placeholder="Referral link will appear here" />
+          <button class="copy-btn" onclick="copyRef()">📋 Copy</button>
+        </div>
+
+        <div class="sec-sub" style="margin:12px 0 0;">
+          Share anywhere. Telegram works best inside the app.
+        </div>
+
+        <div class="share-row">
+          <button class="share-btn sh-tg" onclick="share('telegram')">Telegram</button>
+          <button class="share-btn sh-wa" onclick="share('whatsapp')">WhatsApp</button>
+          <button class="share-btn sh-tw" onclick="share('twitter')">Twitter</button>
+          <button class="share-btn sh-fb" onclick="share('facebook')">Facebook</button>
+          <button class="share-btn sh-me" onclick="share('messenger')">Messenger</button>
+          <button class="share-btn sh-ms" onclick="share('copy')">Copy</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="sec-title" style="font-size:17px;">Referral VIP Rewards</div>
+        <div class="sec-sub">Unlock VIP permanently by hitting referral milestones.</div>
+
+        <div class="ads-grid">
+          <div class="offer-card">
+            <div class="offer-thumb" style="background:linear-gradient(135deg,#fde68a,#f59e0b);">🥉</div>
+            <div class="offer-info">
+              <div class="offer-title">Bronze VIP</div>
+              <div class="offer-reward">60 referrals</div>
+              <div class="offer-desc">Claim permanently after hitting the milestone.</div>
+            </div>
+          </div>
+
+          <div class="offer-card">
+            <div class="offer-thumb" style="background:linear-gradient(135deg,#d1d5db,#9ca3af);">🥈</div>
+            <div class="offer-info">
+              <div class="offer-title">Silver VIP</div>
+              <div class="offer-reward">150 referrals</div>
+              <div class="offer-desc">Unlock a stronger ad reward multiplier.</div>
+            </div>
+          </div>
+
+          <div class="offer-card">
+            <div class="offer-thumb" style="background:linear-gradient(135deg,#fef3c7,#facc15);">🥇</div>
+            <div class="offer-info">
+              <div class="offer-title">Gold VIP</div>
+              <div class="offer-reward">300 referrals</div>
+              <div class="offer-desc">One of the most attractive referral unlocks.</div>
+            </div>
+          </div>
+
+          <div class="offer-card">
+            <div class="offer-thumb" style="background:linear-gradient(135deg,#c4b5fd,#8b5cf6);">💎</div>
+            <div class="offer-info">
+              <div class="offer-title">Diamond VIP</div>
+              <div class="offer-reward">800 referrals</div>
+              <div class="offer-desc">Premium tier with a strong multiplier boost.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="page-cashout">
+      <div class="sec-title">Cash Out</div>
+      <div class="sec-sub">Request a withdrawal once you reach the minimum balance.</div>
+
+      <div class="card">
+        <div class="sec-title" style="font-size:17px;">Select Payment Method</div>
+
+        <div class="method-grid" id="method-grid">
+          <div class="method sel" data-method="PayPal" onclick="selectMethod(this)">
+            <div class="method-icon">💳</div>
+            <div class="method-name">PayPal</div>
+          </div>
+          <div class="method" data-method="Bitcoin" onclick="selectMethod(this)">
+            <div class="method-icon">₿</div>
+            <div class="method-name">Bitcoin</div>
+          </div>
+          <div class="method" data-method="Crypto" onclick="selectMethod(this)">
+            <div class="method-icon">🔷</div>
+            <div class="method-name">Crypto</div>
+          </div>
+          <div class="method" data-method="Paytm" onclick="selectMethod(this)">
+            <div class="method-icon">🏦</div>
+            <div class="method-name">Paytm</div>
+          </div>
+          <div class="method" data-method="PhonePe" onclick="selectMethod(this)">
+            <div class="method-icon">📱</div>
+            <div class="method-name">PhonePe</div>
+          </div>
+          <div class="method" data-method="Bank" onclick="selectMethod(this)">
+            <div class="method-icon">🏧</div>
+            <div class="method-name">Bank</div>
+          </div>
+          <div class="method" data-method="Telegram Wallet" onclick="selectMethod(this)">
+            <div class="method-icon">💬</div>
+            <div class="method-name">Telegram Wallet</div>
+          </div>
+          <div class="method" data-method="Telegram Stars" onclick="selectMethod(this)">
+            <div class="method-icon">⭐</div>
+            <div class="method-name">Telegram Stars</div>
+          </div>
+        </div>
+
+        <div id="method-fields-paypal" class="method-fields active">
+          <input class="field" id="paypal-email" type="email" placeholder="Enter PayPal email" />
+        </div>
+
+        <div id="method-fields-bitcoin" class="method-fields">
+          <input class="field" id="bitcoin-address" type="text" placeholder="Enter Bitcoin wallet address" />
+        </div>
+
+        <div id="method-fields-crypto" class="method-fields">
+          <div class="field-row">
+            <input class="field" id="crypto-name" type="text" placeholder="Crypto name" />
+            <input class="field" id="crypto-wallet" type="text" placeholder="Wallet address" />
+          </div>
+        </div>
+
+        <div id="method-fields-paytm" class="method-fields">
+          <input class="field" id="paytm-number" type="tel" placeholder="Enter Paytm number" />
+        </div>
+
+        <div id="method-fields-phonepe" class="method-fields">
+          <input class="field" id="phonepe-number" type="tel" placeholder="Enter PhonePe number" />
+        </div>
+
+        <div id="method-fields-bank" class="method-fields">
+          <input class="field" id="bank-account" type="text" placeholder="Account number" />
+          <input class="field" id="bank-ifsc" type="text" placeholder="IFSC code" style="margin-top:10px;" />
+          <input class="field" id="bank-name" type="text" placeholder="Bank name" style="margin-top:10px;" />
+        </div>
+
+        <div id="method-fields-telegram-wallet" class="method-fields">
+          <input class="field" id="telegram-wallet" type="text" placeholder="Telegram wallet ID / username" />
+        </div>
+
+        <div id="method-fields-telegram-stars" class="method-fields">
+          <input class="field" id="telegram-stars" type="text" placeholder="Telegram Stars account / ID" />
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="sec-title" style="font-size:17px;">Withdrawal Amount</div>
+        <input class="amount-input" id="withdraw-amount" type="number" min="0" step="0.01" placeholder="$0.00" />
+        <div class="min-note">
+          Minimum withdrawal: <span>$100.00</span> · Your balance: <span id="co-bal">$0.00</span>
+        </div>
+
+        <div class="quick-amounts">
+          <button class="tiny-btn" onclick="setAmount(100)">$100</button>
+          <button class="tiny-btn" onclick="setAmount(250)">$250</button>
+          <button class="tiny-btn" onclick="setAmount(500)">$500</button>
+          <button class="tiny-btn" onclick="setAmountMax()">Max</button>
+        </div>
+
+        <button class="btn btn-green" style="width:100%;" onclick="submitWithdraw()">
+          💸 Request Withdrawal
+        </button>
+      </div>
+
+      <div class="card">
+        <div class="sec-title" style="font-size:17px;">Recent Withdrawals</div>
+        <div id="withdraw-history" class="history-list"></div>
+      </div>
+    </section>
+
+    <section class="page" id="page-vip">
+      <div class="sec-title">VIP Plans</div>
+      <div class="sec-sub">Buy VIP with Telegram Stars or crypto, or unlock plans by referrals.</div>
+
+      <div class="card vip-hero">
+        <div class="vip-top-row">
+          <div>
+            <div style="font-size:22px;font-weight:900;">AdWallet VIP</div>
+            <div class="vip-note">
+              Increase your ad reward multiplier and unlock premium status.
+            </div>
+          </div>
+          <div class="vip-status-badge" id="vip-status-text">Not activated yet</div>
+        </div>
+
+        <div class="grid-2">
+          <button class="btn btn-white" onclick="scrollToVipList()">⭐ Buy VIP</button>
+          <button class="btn btn-outline" onclick="navigate('invite',3)">👥 Referral Unlocks</button>
+        </div>
+      </div>
+
+      <div class="ads-grid" id="vip-plans-list">
+        <div class="vip-card" data-plan="Bronze">
+          <div class="vip-thumb">🥉</div>
+          <div class="vip-info">
+            <div class="vip-rank">Tier 1</div>
+            <div class="vip-title">Bronze VIP</div>
+            <div class="vip-reward">1.2x reward boost</div>
+            <div class="vip-desc">Good starter tier for better ad earnings.</div>
+            <div class="vip-meta">
+              <span class="vip-chip">425 Stars</span>
+              <span class="vip-chip">60 referrals free unlock</span>
+            </div>
+          </div>
+          <div class="stack-actions">
+            <button class="btn btn-green" onclick="buyVipStars('Bronze')">Stars</button>
+            <button class="btn btn-blue" onclick="buyVipCrypto('Bronze')">Crypto</button>
+            <button class="btn btn-ghost vip-claim-btn" data-plan="Bronze" onclick="claimReferralVIP('Bronze')">Claim</button>
+          </div>
+        </div>
+
+        <div class="vip-card" data-plan="Silver">
+          <div class="vip-thumb">🥈</div>
+          <div class="vip-info">
+            <div class="vip-rank">Tier 2</div>
+            <div class="vip-title">Silver VIP</div>
+            <div class="vip-reward">1.5x reward boost</div>
+            <div class="vip-desc">A balanced multiplier with better long-term value.</div>
+            <div class="vip-meta">
+              <span class="vip-chip">850 Stars</span>
+              <span class="vip-chip">150 referrals free unlock</span>
+            </div>
+          </div>
+          <div class="stack-actions">
+            <button class="btn btn-green" onclick="buyVipStars('Silver')">Stars</button>
+            <button class="btn btn-blue" onclick="buyVipCrypto('Silver')">Crypto</button>
+            <button class="btn btn-ghost vip-claim-btn" data-plan="Silver" onclick="claimReferralVIP('Silver')">Claim</button>
+          </div>
+        </div>
+
+        <div class="vip-card" data-plan="Gold">
+          <div class="vip-thumb">🥇</div>
+          <div class="vip-info">
+            <div class="vip-rank">Tier 3</div>
+            <div class="vip-title">Gold VIP</div>
+            <div class="vip-reward">2x reward boost</div>
+            <div class="vip-desc">One of the most attractive upgrades for active users.</div>
+            <div class="vip-meta">
+              <span class="vip-chip">1275 Stars</span>
+              <span class="vip-chip">300 referrals free unlock</span>
+            </div>
+          </div>
+          <div class="stack-actions">
+            <button class="btn btn-green" onclick="buyVipStars('Gold')">Stars</button>
+            <button class="btn btn-blue" onclick="buyVipCrypto('Gold')">Crypto</button>
+            <button class="btn btn-ghost vip-claim-btn" data-plan="Gold" onclick="claimReferralVIP('Gold')">Claim</button>
+          </div>
+        </div>
+
+        <div class="vip-card" data-plan="Platinum">
+          <div class="vip-thumb">🏆</div>
+          <div class="vip-info">
+            <div class="vip-rank">Tier 4</div>
+            <div class="vip-title">Platinum VIP</div>
+            <div class="vip-reward">2.5x reward boost</div>
+            <div class="vip-desc">Premium status for serious earners.</div>
+            <div class="vip-meta">
+              <span class="vip-chip">2125 Stars</span>
+              <span class="vip-chip">500 referrals free unlock</span>
+            </div>
+          </div>
+          <div class="stack-actions">
+            <button class="btn btn-green" onclick="buyVipStars('Platinum')">Stars</button>
+            <button class="btn btn-blue" onclick="buyVipCrypto('Platinum')">Crypto</button>
+            <button class="btn btn-ghost vip-claim-btn" data-plan="Platinum" onclick="claimReferralVIP('Platinum')">Claim</button>
+          </div>
+        </div>
+
+        <div class="vip-card" data-plan="Diamond">
+          <div class="vip-thumb">💎</div>
+          <div class="vip-info">
+            <div class="vip-rank">Tier 5</div>
+            <div class="vip-title">Diamond VIP</div>
+            <div class="vip-reward">3x reward boost</div>
+            <div class="vip-desc">High-value tier with stronger earning performance.</div>
+            <div class="vip-meta">
+              <span class="vip-chip">3200 Stars</span>
+              <span class="vip-chip">800 referrals free unlock</span>
+            </div>
+          </div>
+          <div class="stack-actions">
+            <button class="btn btn-green" onclick="buyVipStars('Diamond')">Stars</button>
+            <button class="btn btn-blue" onclick="buyVipCrypto('Diamond')">Crypto</button>
+            <button class="btn btn-ghost vip-claim-btn" data-plan="Diamond" onclick="claimReferralVIP('Diamond')">Claim</button>
+          </div>
+        </div>
+
+        <div class="vip-card" data-plan="Elite">
+          <div class="vip-thumb">👑</div>
+          <div class="vip-info">
+            <div class="vip-rank">Tier 6</div>
+            <div class="vip-title">Elite VIP</div>
+            <div class="vip-reward">4x reward boost</div>
+            <div class="vip-desc">Top tier with the highest multiplier in the app.</div>
+            <div class="vip-meta">
+              <span class="vip-chip">4250 Stars</span>
+              <span class="vip-chip">1200 referrals free unlock</span>
+            </div>
+          </div>
+          <div class="stack-actions">
+            <button class="btn btn-green" onclick="buyVipStars('Elite')">Stars</button>
+            <button class="btn btn-blue" onclick="buyVipCrypto('Elite')">Crypto</button>
+            <button class="btn btn-ghost vip-claim-btn" data-plan="Elite" onclick="claimReferralVIP('Elite')">Claim</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="page-help">
+      <div class="sec-title">Help & FAQ</div>
+      <div class="sec-sub">Answers to common questions about earning and withdrawals.</div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>How do I earn on AdWallet?</span>
+          <span class="faq-arrow">▾</span>
+        </div>
+        <div class="faq-a">
+          Earn by watching rewarded ads, claiming your daily bonus, referring friends, and sending users to offer links you configure.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>What is the minimum withdrawal?</span>
+          <span class="faq-arrow">▾</span>
+        </div>
+        <div class="faq-a">
+          The minimum withdrawal is $100.00. Once you reach that amount, you can request a payout using one of the available cashout methods.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>How does the referral system work?</span>
+          <span class="faq-arrow">▾</span>
+        </div>
+        <div class="faq-a">
+          Share your referral link. When someone joins through your link and watches their first ad, your referral reward is credited automatically.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>How do VIP plans work?</span>
+          <span class="faq-arrow">▾</span>
+        </div>
+        <div class="faq-a">
+          VIP plans increase your reward multiplier. You can activate VIP through Telegram Stars, crypto payment with proof submission, or referral milestones.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>I paid with crypto. What next?</span>
+          <span class="faq-arrow">▾</span>
+        </div>
+        <div class="faq-a">
+          Use the VIP crypto flow, send the exact amount, then tap the screenshot button and upload your payment proof in the Telegram bot chat for manual review.
+        </div>
+      </div>
+
+      <div class="card" style="text-align:center;">
+        <div style="font-size:34px;margin-bottom:8px;">💬</div>
+        <div class="sec-title" style="font-size:18px;">Still need help?</div>
+        <div class="sec-sub" style="margin-bottom:14px;">Open Telegram support directly from the app.</div>
+        <button class="btn btn-green" style="margin:0 auto;" onclick="contactSupport()">
+          Contact Support
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <nav id="bottom-nav">
+  <div class="nav-item active" id="nav-0" onclick="navigate('dashboard',0)">
+    <span class="nav-icon">🏠</span>
+    <span>Home</span>
+  </div>
+  <div class="nav-item" id="nav-1" onclick="navigate('ads',1)">
+    <span class="nav-icon">🎬</span>
+    <span>Earn</span>
+  </div>
+  <div class="nav-item" id="nav-2" onclick="navigate('offers',2)">
+    <span class="nav-icon">🎁</span>
+    <span>Offers</span>
+  </div>
+  <div class="nav-item" id="nav-3" onclick="navigate('invite',3)">
+    <span class="nav-icon">👥</span>
+    <span>Invite</span>
+  </div>
+  <div class="nav-item" id="nav-4" onclick="navigate('vip',4)">
+    <span class="nav-icon">💎</span>
+    <span>VIP</span>
+  </div>
+</nav>
+
+  <button id="fab" title="Earn Now" onclick="navigate('ads',1)">⚡</button>
+  <div id="toast"></div>
+
+  <div id="crypto-modal">
+    <div class="crypto-card">
+      <button class="crypto-close" onclick="closeCryptoModal()">✕</button>
+
+      <div style="font-size:20px;font-weight:900;text-align:center;">
+        Buy <span id="modal-plan-name" style="color:#4ade80;">VIP</span>
+      </div>
+      <div id="modal-subtitle" style="font-size:13px;color:#94a3b8;text-align:center;margin-top:5px;">
+        Select your crypto payment method
+      </div>
+
+      <div class="coin-grid" id="coin-selection">
+        <button class="coin-btn" onclick="selectCoin('USDT')">
+          <span class="coin-icon">💵</span>
+          <span class="coin-name">USDT</span>
+          <span class="coin-net">BEP20</span>
+        </button>
+        <button class="coin-btn" onclick="selectCoin('BNB')">
+          <span class="coin-icon">🟡</span>
+          <span class="coin-name">BNB</span>
+          <span class="coin-net">BEP20</span>
+        </button>
+        <button class="coin-btn" onclick="selectCoin('TRX')">
+          <span class="coin-icon">🔴</span>
+          <span class="coin-name">TRX</span>
+          <span class="coin-net">TRON</span>
+        </button>
+        <button class="coin-btn" onclick="selectCoin('TON')">
+          <span class="coin-icon">💎</span>
+          <span class="coin-name">TON</span>
+          <span class="coin-net">TON</span>
+        </button>
+        <button class="coin-btn" onclick="selectCoin('SOL')">
+          <span class="coin-icon">🟣</span>
+          <span class="coin-name">SOL</span>
+          <span class="coin-net">Solana</span>
+        </button>
+        <button class="coin-btn" onclick="selectCoin('BTC')">
+          <span class="coin-icon">₿</span>
+          <span class="coin-name">BTC</span>
+          <span class="coin-net">Bitcoin</span>
+        </button>
+      </div>
+
+      <div id="crypto-details">
+        <button
+          class="btn btn-ghost"
+          style="padding:10px 12px;width:auto;margin-bottom:12px;background:rgba(255,255,255,.05);color:#fff;border-color:rgba(255,255,255,.12);"
+          onclick="resetCryptoModal()"
+        >
+          ← Back
+        </button>
+
+        <div class="copy-box">
+          <div class="copy-info">
+            <div class="copy-label">Amount to send</div>
+            <div class="copy-value" id="pay-amount">0.00</div>
+          </div>
+          <button class="copy-action" onclick="copyToClipboard('pay-amount')">Copy</button>
+        </div>
+
+        <div class="copy-box">
+          <div class="copy-info">
+            <div class="copy-label">Wallet Address (<span id="pay-network">Network</span>)</div>
+            <div class="copy-value" id="pay-address">-</div>
+          </div>
+          <button class="copy-action" onclick="copyToClipboard('pay-address')">Copy</button>
+        </div>
+
+        <div class="small-note">
+          1. Send the exact amount.<br>
+          2. Then tap the screenshot button below.<br>
+          3. Upload proof in the bot chat for manual VIP activation.
+        </div>
+
+        <button class="btn btn-green" style="width:100%;" onclick="closeAppAndUpload()">
+          📸 I Have Paid, Send Screenshot
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const tg = window.Telegram?.WebApp || null;
+
+    const BOT_USERNAME = 'AdzwalletBot';
+    const SUPPORT_USERNAME = 'adwalletagent';
+
+    const ADSGRAM_BLOCKS = ['26225'];
+
+    const OFFER_URLS = {
+      1: '',
+      2: '',
+      3: ''
+    };
+
+    const REFERRAL_VIP_REWARDS = {
+      Bronze: 60,
+      Silver: 150,
+      Gold: 300,
+      Platinum: 500,
+      Diamond: 800,
+      Elite: 1200
+    };
+
+    const planPrices = {
+      Bronze: { USDT: 10.00, BNB: 0.033, TRX: 77.50, TON: 10.50, SOL: 0.071, BTC: 0.00016 },
+      Silver: { USDT: 20.00, BNB: 0.066, TRX: 155.00, TON: 21.00, SOL: 0.142, BTC: 0.00032 },
+      Gold: { USDT: 30.00, BNB: 0.099, TRX: 232.50, TON: 31.50, SOL: 0.213, BTC: 0.00048 },
+      Platinum: { USDT: 50.00, BNB: 0.165, TRX: 387.50, TON: 52.50, SOL: 0.355, BTC: 0.00080 },
+      Diamond: { USDT: 75.00, BNB: 0.248, TRX: 581.25, TON: 78.75, SOL: 0.533, BTC: 0.00120 },
+      Elite: { USDT: 100.00, BNB: 0.330, TRX: 775.00, TON: 105.00, SOL: 0.710, BTC: 0.00160 }
+    };
+
+    const cryptoWallets = {
+      USDT: { address: '0x3e5989c2e42fa96397a1c9c743da6939b13b58b0', network: 'BEP20' },
+      BNB:  { address: '0x3e5989c2e42fa96397a1c9c743da6939b13b58b0', network: 'BEP20' },
+      TRX:  { address: 'THd6rZRzPKBwn5e2LhmiHPkNTXdLYsxFkj', network: 'TRON' },
+      TON:  { address: 'UQBR-ZYfWLu0qu6SHZev7y8PnKSjMBn4eh9KoC7obr7rucew', network: 'TON' },
+      SOL:  { address: 'GfB21zL1yqM7SzSh1gEyKPJZgA3CAGo5PxSKmmsxTE6Q', network: 'Solana' },
+      BTC:  { address: '1CZ1Z61vGh162pXGNU4q4vGN2hjWxom8rc', network: 'Bitcoin' }
+    };
+
+    let sidebarOpen = false;
+    let userId = '';
+    let adBlockPointer = 0;
+    let currentBalance = 0;
+    let currentTasks = 0;
+    let referralCount = 0;
+    let referralEarnings = 0;
+    let currentVip = false;
+    let currentVipPlan = '';
+    let currentPendingVipPlan = '';
+    let claimedReferralVipRewards = [];
+    let withdrawHistory = [];
+    let selectedVipPlan = '';
+
+    function resolveUserId() {
+      if (userId) return String(userId);
+      const urlId = new URLSearchParams(window.location.search).get('id');
+      if (urlId) return String(urlId);
+      const tgUser = tg?.initDataUnsafe?.user;
+      if (tgUser?.id) return String(tgUser.id);
+      return '';
+    }
+
+    function getFingerprint() {
+      const parts = [
+        navigator.userAgent || 'ua',
+        screen.width || 0,
+        screen.height || 0,
+        Intl.DateTimeFormat().resolvedOptions().timeZone || 'tz',
+        navigator.language || 'lang'
+      ];
+      return parts.join('|');
+    }
+
+    function toggleSidebar(force) {
+      if (typeof force === 'boolean') {
+        sidebarOpen = force;
+      } else {
+        sidebarOpen = !sidebarOpen;
+      }
+
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('overlay');
+      const ham = document.getElementById('ham');
+      const spans = ham ? ham.querySelectorAll('span') : [];
+
+      sidebar?.classList.toggle('open', sidebarOpen);
+      overlay?.classList.toggle('show', sidebarOpen);
+
+      if (spans.length === 3) {
+        if (sidebarOpen) {
+          spans[0].style.transform = 'rotate(45deg) translate(4px,5px)';
+          spans[1].style.opacity = '0';
+          spans[2].style.transform = 'rotate(-45deg) translate(5px,-6px)';
+        } else {
+          spans.forEach((s) => {
+            s.style.transform = '';
+            s.style.opacity = '';
+          });
+        }
+      }
+    }
+
+    function navigate(page, idx, sbItem) {
+  toggleSidebar(false);
+
+  document.querySelectorAll('.page').forEach((p) => p.classList.remove('active'));
+  document.getElementById(`page-${page}`)?.classList.add('active');
 
   document.getElementById('main').scrollTop = 0;
 
-  document.querySelectorAll('.nav-item').forEach((n, i) => {
-    n.classList.toggle('active', i === idx);
+  document.querySelectorAll('#bottom-nav .nav-item').forEach((item, i) => {
+    item.classList.toggle('active', i === idx);
   });
 
-  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
-  const sbItems = document.querySelectorAll('.sb-item');
-  if (sbItem) sbItem.classList.add('active');
-  else if (sbItems[idx]) sbItems[idx].classList.add('active');
+  document.querySelectorAll('.sb-item').forEach((item) => item.classList.remove('active'));
 
-  if (navigator.vibrate) navigator.vibrate(20);
-}
-
-function updateBalance(delta) {
-  balance = Math.max(0, balance + delta);
-  const fmt = balance.toFixed(2);
-
-  document.getElementById('bal-main').textContent = fmt;
-  document.getElementById('tb-bal').textContent = fmt;
-  document.getElementById('sb-bal').textContent = '$' + fmt;
-  document.getElementById('co-bal').textContent = '$' + fmt;
-  document.getElementById('progress-text').textContent = `$${fmt} / $100.00`;
-
-  const pct = Math.min(100, (balance / 100) * 100);
-  document.getElementById('prog-fill').style.width = pct + '%';
-}
-
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  if (!t) return;
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2400);
-}
-
-function copyRef() {
-  const val = document.getElementById('ref-link-input').value;
-  if (!val) {
-    showToast('Referral link not ready yet');
-    return;
-  }
-
-  if (navigator.clipboard?.writeText) {
-    navigator.clipboard.writeText(val)
-      .then(() => showToast('📋 Link copied!'))
-      .catch(() => showToast('📋 Copy failed'));
+  if (sbItem) {
+    sbItem.classList.add('active');
   } else {
-    showToast('📋 ' + val);
+    const targetSidebarItem = document.querySelector(`.sb-item[data-page="${page}"]`);
+    if (targetSidebarItem) targetSidebarItem.classList.add('active');
   }
 
-  if (navigator.vibrate) navigator.vibrate(30);
+  if (navigator.vibrate) navigator.vibrate(18);
 }
 
-function share(platform) {
-  const link = document.getElementById('ref-link-input').value;
-  if (!link) {
-    showToast('Referral link not ready yet');
-    return;
-  }
-
-  const text = encodeURIComponent(`Join AdWallet and earn money!\n${link}`);
-  const url = encodeURIComponent(link);
-  window.open(`https://t.me/share/url?url=${url}&text=${text}`, '_blank');
-  showToast('✈️ Sharing via ' + platform + '…');
-}
-
-function contactSupport() {
-  const url = 'https://t.me/adwalletagent';
-  if (window.Telegram?.WebApp) {
-    window.Telegram.WebApp.openTelegramLink(url);
-  } else {
-    window.open(url, '_blank');
-  }
-}
-
-function selectMethod(el) {
-  document.querySelectorAll('.method').forEach(m => m.classList.remove('sel'));
-  el.classList.add('sel');
-
-  const method = el.dataset.method;
-  document.querySelectorAll('.method-fields').forEach(f => {
-    f.classList.remove('active');
-    f.style.display = 'none';
-  });
-
-  const id = 'method-fields-' + method.toLowerCase().replace(/\s+/g, '-');
-  const target = document.getElementById(id);
-  if (target) {
-    target.classList.add('active');
-    target.style.display = 'block';
-  }
-}
-
-function setAmount(v) {
-  document.getElementById('withdraw-amount').value = v;
-}
-
-function setAmountMax() {
-  document.getElementById('withdraw-amount').value = balance.toFixed(2);
-}
-
-function renderHistory() {
-  const container = document.getElementById('withdraw-history');
-  if (!container) return;
-
-  if (!withdrawHistory.length) {
-    container.innerHTML = '<div style="color:var(--muted);font-size:13px;">No withdrawals yet.</div>';
-    return;
-  }
-
-  container.innerHTML = withdrawHistory.map(w => {
-    const date = w.date ? new Date(w.date).toLocaleString() : 'Unknown';
-    const status = String(w.status || 'pending');
-    const statusColor =
-      status === 'approved' ? 'var(--green-dark)' :
-      status === 'rejected' ? '#dc2626' : '#f59e0b';
-
-    return `
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);gap:10px;">
-        <div style="min-width:0;">
-          <div style="font-size:13px;font-weight:700;">${w.method || 'Withdrawal'}</div>
-          <div style="font-size:11px;color:var(--muted);word-break:break-word;">${date} · ${w.txId || ''}</div>
-          <div style="font-size:11px;color:${statusColor};text-transform:capitalize;">${status}</div>
-        </div>
-        <div style="font-size:14px;font-weight:800;color:var(--green-dark);white-space:nowrap;">$${Number(w.amount || 0).toFixed(2)}</div>
-      </div>
-    `;
-  }).join('');
-}
-
-async function setReferralLink() {
-  const input = document.getElementById('ref-link-input');
-  if (!input) return;
-
-  const uid = resolveUserId();
-  if (uid) {
-    input.value = `https://t.me/${BOT_USERNAME}?start=${encodeURIComponent(uid)}`;
-    input.placeholder = '';
-  } else {
-    input.value = '';
-    input.placeholder = 'Open from Telegram bot';
-  }
-}
-
-async function loadUserData() {
-  try {
-    const uid = resolveUserId();
-    if (!uid) return;
-
-    userId = uid;
-
-    const res = await fetch(`/user/${encodeURIComponent(uid)}`);
-    const data = await res.json();
-
-    balance = Number(data.balance || 0);
-    referralCount = Number(data.referralCount || 0);
-    referralEarnings = Number(data.referralEarnings || 0);
-    withdrawHistory = Array.isArray(data.withdrawHistory) ? data.withdrawHistory : [];
-    const claimedReferralVipRewards = Array.isArray(data.claimedReferralVipRewards) ? data.claimedReferralVipRewards : [];
-
-    updateBalance(0);
-    document.getElementById('ref-count').textContent = referralCount;
-    document.getElementById('ref-earnings').textContent = referralEarnings.toFixed(2);
-
-    const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-    const name = tgUser?.first_name || data.username || 'User';
-    document.getElementById('bal-greeting').textContent = `👋 Hi, ${name}!`;
-    document.getElementById('sb-name').textContent = name;
-
-    const vipStatus = document.getElementById('vip-status-text');
-    if (vipStatus) {
-      vipStatus.textContent = data.vip ? `Active: ${data.vipPlan}` : 'Not activated yet';
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      if (!toast) return;
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(() => toast.classList.remove('show'), 2400);
     }
 
-    renderHistory();
-  } catch (e) {
-    console.log('loadUserData error', e);
-  }
-}
+    function setBalance(value) {
+      currentBalance = Math.max(0, Number(value || 0));
+      const fmt = currentBalance.toFixed(2);
 
-async function loadUser() {
-  return loadUserData();
-}
+      document.getElementById('bal-main').textContent = fmt;
+      document.getElementById('tb-bal').textContent = fmt;
+      document.getElementById('sb-bal').textContent = `$${fmt}`;
+      document.getElementById('co-bal').textContent = `$${fmt}`;
+      document.getElementById('progress-text').textContent = `$${fmt} / $100.00`;
 
-function initAds() {
-  try {
-    if (window.Adsgram && typeof window.Adsgram.init === 'function' && ADSGRAM_BLOCKS.length) {
-      adInstance = window.Adsgram.init({ blockId: ADSGRAM_BLOCKS[0] });
-    }
-  } catch (e) {
-    console.log('Ads init failed', e);
-  }
-}
-
-async function showRewardedAd() {
-  if (window.Adsgram && typeof window.Adsgram.init === 'function' && ADSGRAM_BLOCKS.length) {
-    const blockId = getNextAdBlockId();
-    const instance = window.Adsgram.init({ blockId });
-    if (instance && typeof instance.show === 'function') {
-      return instance.show();
-    }
-  }
-
-  if (adInstance && typeof adInstance.show === 'function') {
-    return adInstance.show();
-  }
-
-  if (window.Adsgram && typeof window.Adsgram.show === 'function') {
-    return window.Adsgram.show();
-  }
-
-  if (typeof window.show_10760190 === 'function') {
-    return window.show_10760190('pop');
-  }
-
-  throw new Error('Ads not ready');
-}
-
-async function watchAd(btn) {
-  const uid = resolveUserId();
-  if (!uid) {
-    showToast('⚠️ Cannot identify user');
-    return;
-  }
-
-  try {
-    if (btn) {
-      btn.disabled = true;
-      btn.textContent = '⏳';
+      const pct = Math.min(100, (currentBalance / 100) * 100);
+      document.getElementById('prog-fill').style.width = `${pct}%`;
     }
 
-    await showRewardedAd();
+    function setMiniStats() {
+      document.getElementById('mini-tasks').textContent = String(currentTasks || 0);
+      document.getElementById('mini-refs').textContent = String(referralCount || 0);
+      document.getElementById('mini-vip').textContent = currentVip ? currentVipPlan : 'None';
 
-    showToast('⏳ Claiming reward...');
-
-    const res = await fetch('/api/reward', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        userId: uid,
-        adCompleted: true,
-        fingerprint: getFingerprint()
-      })
-    });
-
-    const data = await res.json();
-
-    if (res.ok && data.success) {
-      showToast(`✅ Reward Added Successfully! +$${Number(data.reward || 0).toFixed(4)}`);
-      await loadUserData();
-    } else {
-      showToast(data.message || '❌ Reward failed');
-    }
-  } catch (e) {
-    console.error(e);
-    const msg = String(e?.message || e || '').toLowerCase();
-
-    if (msg.includes('no ad') || msg.includes('ads not ready') || msg.includes('inventory')) {
-      showToast('No ad available right now. Try again later.');
-      return;
+      document.getElementById('ref-count').textContent = String(referralCount || 0);
+      document.getElementById('dash-ref-count').textContent = String(referralCount || 0);
+      document.getElementById('ref-earnings').textContent = Number(referralEarnings || 0).toFixed(2);
+      document.getElementById('dash-ref-earnings').textContent = Number(referralEarnings || 0).toFixed(2);
     }
 
-    showToast('❌ Connection error');
-  } finally {
-    if (btn) {
-      btn.disabled = false;
-      btn.textContent = 'Watch Ad';
-    }
-  }
-}
+    function setVipStatus() {
+      const badge = document.getElementById('vip-status-text');
+      if (!badge) return;
 
-function earnNow(btn) {
-  watchAd(btn);
-}
-
-async function claimBonus() {
-  const uid = resolveUserId();
-  if (!uid) {
-    showToast('⚠️ Cannot identify user');
-    return;
-  }
-
-  showToast('⏳ Claiming daily bonus...');
-
-  try {
-    const response = await fetch('/api/claim-daily-bonus', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: uid })
-    });
-
-    const data = await response.json();
-
-    if (data.success) {
-      balance = Number(data.newBalance || balance);
-      updateBalance(0);
-      showToast('🎁 +$0.25 Daily Bonus claimed!');
-      if (navigator.vibrate) navigator.vibrate([40, 20, 40]);
-    } else {
-      showToast(`❌ ${data.message || 'Already claimed today!'}`);
-    }
-  } catch (error) {
-    console.error(error);
-    showToast('⚠️ Network error. Please try again.');
-  }
-}
-
-async function submitWithdraw() {
-  const uid = resolveUserId();
-  if (!uid) {
-    showToast('⚠️ Cannot identify user');
-    return;
-  }
-
-  const amt = parseFloat(document.getElementById('withdraw-amount').value) || 0;
-
-  if (amt < 100) {
-    showToast('⚠️ Minimum $100');
-    return;
-  }
-
-  if (amt > balance) {
-    showToast('⚠️ Insufficient balance');
-    return;
-  }
-
-  const methodEl = document.querySelector('.method.sel');
-  const method = methodEl ? methodEl.dataset.method : 'PayPal';
-  const details = {};
-
-  if (method === 'PayPal') {
-    const email = document.getElementById('paypal-email').value.trim();
-    if (!email) { showToast('⚠️ Enter PayPal email'); return; }
-    details.paypalEmail = email;
-  } else if (method === 'Bitcoin') {
-    const wallet = document.getElementById('bitcoin-address').value.trim();
-    if (!wallet) { showToast('⚠️ Enter Bitcoin wallet address'); return; }
-    details.bitcoinAddress = wallet;
-  } else if (method === 'Crypto') {
-    const name = document.getElementById('crypto-name').value.trim();
-    const wallet = document.getElementById('crypto-wallet').value.trim();
-    if (!name || !wallet) { showToast('⚠️ Enter crypto name and wallet'); return; }
-    details.cryptoName = name;
-    details.cryptoWallet = wallet;
-  } else if (method === 'Paytm') {
-    const number = document.getElementById('paytm-number').value.trim();
-    if (!number) { showToast('⚠️ Enter Paytm number'); return; }
-    details.paytmNumber = number;
-  } else if (method === 'PhonePe') {
-    const number = document.getElementById('phonepe-number').value.trim();
-    if (!number) { showToast('⚠️ Enter PhonePe number'); return; }
-    details.phonepeNumber = number;
-  } else if (method === 'Bank') {
-    const account = document.getElementById('bank-account').value.trim();
-    const ifsc = document.getElementById('bank-ifsc').value.trim();
-    const bankName = document.getElementById('bank-name').value.trim();
-    if (!account || !ifsc || !bankName) { showToast('⚠️ Complete bank details'); return; }
-    details.bankAccount = account;
-    details.bankIFSC = ifsc;
-    details.bankName = bankName;
-  } else if (method === 'Telegram Wallet') {
-    const wallet = document.getElementById('telegram-wallet').value.trim();
-    if (!wallet) { showToast('⚠️ Enter Telegram wallet ID'); return; }
-    details.telegramWallet = wallet;
-  } else if (method === 'Telegram Stars') {
-    const stars = document.getElementById('telegram-stars').value.trim();
-    if (!stars) { showToast('⚠️ Enter Telegram Stars ID'); return; }
-    details.telegramStars = stars;
-  }
-
-  try {
-    const res = await fetch('/api/withdraw', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        userId: uid,
-        amount: amt,
-        method,
-        details
-      })
-    });
-
-    const data = await res.json();
-
-    if (data.success) {
-      showToast('✅ Withdraw requested');
-      document.getElementById('withdraw-amount').value = '';
-      await loadUserData();
-    } else {
-      showToast(data.message || 'Withdraw failed');
-    }
-  } catch (e) {
-    console.log(e);
-    showToast('Withdraw failed');
-  }
-}
-
-async function buyVipStars(plan) {
-  try {
-    const res = await fetch(`/api/vip-invoice?plan=${encodeURIComponent(plan)}`);
-    const data = await res.json();
-
-    if (!data.ok) {
-      showToast(data.error || 'Invoice error');
-      return;
+      if (currentVip && currentVipPlan) {
+        badge.textContent = `Active: ${currentVipPlan}`;
+      } else if (currentPendingVipPlan) {
+        badge.textContent = `Pending: ${currentPendingVipPlan}`;
+      } else {
+        badge.textContent = 'Not activated yet';
+      }
     }
 
-    if (window.Telegram?.WebApp?.openInvoice) {
-      window.Telegram.WebApp.openInvoice(data.invoiceUrl, async (status) => {
-        if (status === 'paid') {
-          showToast(`✅ ${plan} VIP activated!`);
-          await loadUserData();
-        } else if (status === 'cancelled') {
-          showToast('Payment cancelled');
+    function renderHistory() {
+      const el = document.getElementById('withdraw-history');
+      if (!el) return;
+
+      if (!Array.isArray(withdrawHistory) || !withdrawHistory.length) {
+        el.innerHTML = '<div class="muted" style="font-size:13px;">No withdrawals yet.</div>';
+        return;
+      }
+
+      el.innerHTML = withdrawHistory
+        .slice()
+        .reverse()
+        .map((w) => {
+          const date = w?.date ? new Date(w.date).toLocaleString() : 'Unknown';
+          const status = String(w?.status || 'pending');
+          const color =
+            status === 'approved' ? 'var(--green-dark)'
+            : status === 'rejected' ? 'var(--danger)'
+            : 'var(--warn)';
+
+          return `
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:12px 0;border-bottom:1px solid var(--border);">
+              <div style="min-width:0;">
+                <div style="font-size:13px;font-weight:800;">${escapeHtml(w?.method || 'Withdrawal')}</div>
+                <div style="font-size:11px;color:var(--muted);line-height:1.5;margin-top:3px;word-break:break-word;">
+                  ${escapeHtml(date)}${w?.txId ? ` · ${escapeHtml(w.txId)}` : ''}
+                </div>
+                <div style="font-size:11px;color:${color};font-weight:800;text-transform:capitalize;margin-top:4px;">
+                  ${escapeHtml(status)}
+                </div>
+              </div>
+              <div style="font-size:14px;font-weight:900;color:var(--green-dark);white-space:nowrap;">
+                $${Number(w?.amount || 0).toFixed(2)}
+              </div>
+            </div>
+          `;
+        })
+        .join('');
+    }
+
+    function applyClaimStates() {
+      const claimed = Array.isArray(claimedReferralVipRewards) ? claimedReferralVipRewards : [];
+      document.querySelectorAll('.vip-claim-btn').forEach((btn) => {
+        const plan = btn.dataset.plan;
+        if (!plan) return;
+
+        if (claimed.includes(plan)) {
+          btn.textContent = 'Claimed';
+          btn.disabled = true;
+          btn.classList.remove('btn-ghost');
+          btn.classList.add('btn-green');
+          return;
+        }
+
+        const needed = REFERRAL_VIP_REWARDS[plan] || 0;
+        if ((referralCount || 0) >= needed) {
+          btn.textContent = 'Claim';
+          btn.disabled = false;
+          btn.classList.remove('btn-green');
+          btn.classList.add('btn-ghost');
         } else {
-          showToast('Payment closed');
+          btn.textContent = `${needed}`;
+          btn.disabled = false;
+          btn.classList.remove('btn-green');
+          btn.classList.add('btn-ghost');
         }
       });
-    } else {
-      showToast('Open inside Telegram');
     }
-  } catch (e) {
-    console.log(e);
-    showToast('Payment failed');
-  }
-}
 
-function buyVipCrypto(plan) {
-  selectedVipPlan = plan;
-  document.getElementById('modal-plan-name').textContent = plan + ' VIP';
-  resetCryptoModal();
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
 
-  const modal = document.getElementById('crypto-modal');
-  modal.style.display = 'flex';
-  setTimeout(() => modal.classList.add('show'), 10);
-}
+    function setReferralLink() {
+      const uid = resolveUserId();
+      const input = document.getElementById('ref-link-input');
+      if (!input) return;
 
-function closeCryptoModal() {
-  const modal = document.getElementById('crypto-modal');
-  modal.classList.remove('show');
-  setTimeout(() => modal.style.display = 'none', 300);
-}
+      if (!uid) {
+        input.value = '';
+        input.placeholder = 'Open from Telegram bot';
+        return;
+      }
 
-function resetCryptoModal() {
-  document.getElementById('coin-selection').style.display = 'grid';
-  document.getElementById('crypto-details').style.display = 'none';
-  document.getElementById('modal-subtitle').textContent = 'Select your payment method';
-}
+      input.value = `https://t.me/${BOT_USERNAME}?start=${encodeURIComponent(uid)}`;
+    }
 
-function selectCoin(coin) {
-  const price = planPrices[selectedVipPlan][coin];
-  const walletData = cryptoWallets[coin];
+    async function loadUserData() {
+      try {
+        const uid = resolveUserId();
+        if (!uid) {
+          showToast('Open this page from your bot or include ?id=');
+          return;
+        }
 
-  document.getElementById('pay-amount').textContent = `${price} ${coin}`;
-  document.getElementById('pay-network').textContent = walletData.network;
-  document.getElementById('pay-address').textContent = walletData.address;
+        userId = uid;
 
-  document.getElementById('coin-selection').style.display = 'none';
-  document.getElementById('crypto-details').style.display = 'block';
-  document.getElementById('modal-subtitle').textContent = `Pay via ${coin} (${walletData.network})`;
-}
+        const res = await fetch(`/user/${encodeURIComponent(uid)}`, { cache: 'no-store' });
+        if (!res.ok) throw new Error('Failed to load user');
 
-function copyToClipboard(elementId) {
-  let text = document.getElementById(elementId).textContent;
-  if (elementId === 'pay-amount') {
-    text = text.split(' ')[0];
-  }
+        const data = await res.json();
 
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).then(() => showToast('📋 Copied!'));
-  } else {
-    const tempInput = document.createElement('input');
-    tempInput.value = text;
-    document.body.appendChild(tempInput);
-    tempInput.select();
-    document.execCommand('copy');
-    document.body.removeChild(tempInput);
-    showToast('📋 Copied!');
-  }
-}
+        currentBalance = Number(data?.balance || 0);
+        currentTasks = Number(data?.tasks || 0);
+        referralCount = Number(data?.referralCount || 0);
+        referralEarnings = Number(data?.referralEarnings || 0);
+        currentVip = Boolean(data?.vip);
+        currentVipPlan = data?.vipPlan || '';
+        currentPendingVipPlan = data?.pendingVipPlan || '';
+        claimedReferralVipRewards = Array.isArray(data?.claimedReferralVipRewards) ? data.claimedReferralVipRewards : [];
+        withdrawHistory = Array.isArray(data?.withdrawHistory) ? data.withdrawHistory : [];
 
-async function closeAppAndUpload() {
-  const uid = resolveUserId();
+        const tgUser = tg?.initDataUnsafe?.user;
+        const displayName = tgUser?.first_name || data?.username || 'User';
 
-  try {
-    if (uid) {
-      await fetch('/api/start-vip-proof', {
+        document.getElementById('bal-greeting').textContent = `👋 Hi, ${displayName}!`;
+        document.getElementById('sb-name').textContent = displayName;
+
+        setBalance(currentBalance);
+        setMiniStats();
+        setVipStatus();
+        setReferralLink();
+        renderHistory();
+        applyClaimStates();
+      } catch (err) {
+        console.error('loadUserData error', err);
+        showToast('Could not load account data');
+      }
+    }
+
+    function getNextAdBlockId() {
+      if (!ADSGRAM_BLOCKS.length) return '';
+      const blockId = ADSGRAM_BLOCKS[adBlockPointer % ADSGRAM_BLOCKS.length];
+      adBlockPointer += 1;
+      return blockId;
+    }
+
+    async function showRewardedAd() {
+      if (window.Adsgram && typeof window.Adsgram.init === 'function' && ADSGRAM_BLOCKS.length) {
+        const blockId = getNextAdBlockId();
+        const ad = window.Adsgram.init({ blockId });
+        if (ad && typeof ad.show === 'function') {
+          return ad.show();
+        }
+      }
+
+      throw new Error('No ad available right now');
+    }
+
+    async function claimReward(uid) {
+      const res = await fetch('/api/reward', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: uid })
+        body: JSON.stringify({
+          userId: uid,
+          adCompleted: true,
+          fingerprint: getFingerprint()
+        })
       });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) {
+        throw new Error(data?.message || 'Reward failed');
+      }
+      return data;
     }
 
-    if (window.Telegram?.WebApp) {
-      window.Telegram.WebApp.close();
-    } else {
-      closeCryptoModal();
-      showToast('Please upload your screenshot to the bot chat.');
+    async function watchAd(btn) {
+      const uid = resolveUserId();
+      if (!uid) {
+        showToast('Cannot identify user');
+        return;
+      }
+
+      const original = btn ? btn.textContent : '';
+      try {
+        if (btn) {
+          btn.disabled = true;
+          btn.textContent = '⏳';
+        }
+
+        await showRewardedAd();
+        showToast('Claiming reward...');
+
+        const data = await claimReward(uid);
+        showToast(`✅ +$${Number(data.reward || 0).toFixed(4)} added`);
+        await loadUserData();
+      } catch (err) {
+        console.error(err);
+        const msg = String(err?.message || '').toLowerCase();
+
+        if (msg.includes('wait 5 seconds')) {
+          showToast('Please wait 5 seconds');
+        } else if (msg.includes('no ad')) {
+          showToast('No ad available right now');
+        } else {
+          showToast(err?.message || 'Reward failed');
+        }
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = original || 'Watch';
+        }
+      }
     }
-  } catch (err) {
-    console.error('start-vip-proof error:', err);
-    showToast('Could not start screenshot flow');
-  }
-}
 
-function toggleFaq(el) {
-  const item = el.parentElement;
-  const isOpen = item.classList.contains('open');
-  document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
-  if (!isOpen) item.classList.add('open');
-}
-
-async function claimReferralVIP(plan) {
-  const uid = getTelegramUserId();
-  if (!uid) {
-    showToast('⚠️ Cannot identify user');
-    return;
-  }
-
-  try {
-    const res = await fetch('/api/claim-referral-vip', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: uid, plan })
-    });
-
-    const data = await res.json();
-
-    if (data.success) {
-      showToast(`✅ ${plan} VIP unlocked!`);
-      await loadUserData();
-    } else {
-      showToast(data.message || 'Claim failed');
+    function earnNow(btn) {
+      watchAd(btn);
     }
-  } catch (e) {
-    console.error(e);
-    showToast('Claim failed');
-  }
-}
 
-function createPlatformStats() {
-  const p = document.getElementById('stat-payout');
-  const u = document.getElementById('stat-users');
-  const a = document.getElementById('stat-ads');
-  const t = document.getElementById('stat-today');
-
-  if (p) p.textContent = '$48,312';
-  if (u) u.textContent = '12,847';
-  if (a) a.textContent = '3.2M';
-  if (t) t.textContent = '$2,190';
-}
-
-function initAds() {
-  try {
-    if (window.Adsgram && typeof window.Adsgram.init === 'function' && ADSGRAM_BLOCKS.length) {
-      adInstance = window.Adsgram.init({ blockId: ADSGRAM_BLOCKS[0] });
+    function showMonetagAd(btn) {
+      watchAd(btn);
     }
-  } catch (e) {
-    console.log('Ads init failed', e);
-  }
-}
 
-(function init() {
-  createPlatformStats();
-  initAds();
+    async function claimBonus() {
+      const uid = resolveUserId();
+      if (!uid) {
+        showToast('Cannot identify user');
+        return;
+      }
 
-  if (window.Telegram?.WebApp) {
-    const tg = window.Telegram.WebApp;
-    try { tg.ready(); } catch (e) {}
-    try { tg.expand(); } catch (e) {}
-    try { tg.setHeaderColor('#ffffff'); } catch (e) {}
-  }
+      showToast('Claiming daily bonus...');
+      try {
+        const res = await fetch('/api/claim-daily-bonus', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: uid })
+        });
 
-  userId = resolveUserId();
-  setReferralLink();
-  loadUserData();
-})();
+        const data = await res.json().catch(() => ({}));
+        if (data?.success) {
+          showToast('🎁 Daily bonus claimed');
+          await loadUserData();
+        } else {
+          showToast(data?.message || 'Already claimed today');
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('Bonus request failed');
+      }
+    }
 
-window.addEventListener('load', () => {
-  loadUserData();
+    function contactSupport() {
+      const url = `https://t.me/${SUPPORT_USERNAME}`;
+      if (tg?.openTelegramLink) {
+        tg.openTelegramLink(url);
+      } else {
+        window.open(url, '_blank', 'noopener');
+      }
+    }
 
-  if (window.Telegram?.WebApp) {
-    try { window.Telegram.WebApp.ready(); } catch (e) {}
-    try { window.Telegram.WebApp.expand(); } catch (e) {}
-  }
-});
+    function openExternalLink(url) {
+      if (!url) return;
+      if (tg?.openLink) tg.openLink(url);
+      else window.open(url, '_blank', 'noopener');
+    }
 
-</script>
+    function openCpagripOffer(index) {
+      const url = OFFER_URLS[index];
+      if (!url) {
+        showToast(`Set OFFER_URLS[${index}] in the script first`);
+        return;
+      }
+      openExternalLink(url);
+    }
 
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src='//libtl.com/sdk.js' data-zone='10760190' data-sdk='show_10760190'></script>
-<script type="text/javascript" src="https://optilinklock.com/script_include.php?id=1887514"></script>
-<script type="text/javascript" src="https://optilinklock.com/script_include.php?id=1887515"></script>
-<script type="text/javascript" src="https://optilinklock.com/script_include.php?id=1887516"></script>
+    async function copyText(text) {
+      if (!text) return false;
+      try {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } catch {
+        try {
+          const temp = document.createElement('textarea');
+          temp.value = text;
+          document.body.appendChild(temp);
+          temp.select();
+          document.execCommand('copy');
+          temp.remove();
+          return true;
+        } catch {
+          return false;
+        }
+      }
+    }
+
+    async function copyRef() {
+      const value = document.getElementById('ref-link-input').value;
+      if (!value) {
+        showToast('Referral link not ready');
+        return;
+      }
+      const ok = await copyText(value);
+      showToast(ok ? 'Referral link copied' : 'Copy failed');
+    }
+
+    async function share(platform) {
+      const link = document.getElementById('ref-link-input').value;
+      if (!link) {
+        showToast('Referral link not ready');
+        return;
+      }
+
+      const text = encodeURIComponent(`Join AdWallet and start earning:\n${link}`);
+      const encodedLink = encodeURIComponent(link);
+
+      if (platform === 'copy') {
+        const ok = await copyText(link);
+        showToast(ok ? 'Referral link copied' : 'Copy failed');
+        return;
+      }
+
+      const urls = {
+        telegram: `https://t.me/share/url?url=${encodedLink}&text=${text}`,
+        whatsapp: `https://wa.me/?text=${text}`,
+        twitter: `https://twitter.com/intent/tweet?text=${text}`,
+        facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedLink}`,
+        messenger: `fb-messenger://share/?link=${encodedLink}`
+      };
+
+      const url = urls[platform];
+      if (!url) return;
+
+      if (platform === 'telegram' && tg?.openTelegramLink) {
+        tg.openTelegramLink(url);
+      } else if (tg?.openLink) {
+        tg.openLink(url);
+      } else {
+        window.open(url, '_blank', 'noopener');
+      }
+    }
+
+    function selectMethod(el) {
+      document.querySelectorAll('.method').forEach((m) => m.classList.remove('sel'));
+      el.classList.add('sel');
+
+      const method = el.dataset.method;
+      document.querySelectorAll('.method-fields').forEach((f) => {
+        f.classList.remove('active');
+        f.style.display = 'none';
+      });
+
+      const id = 'method-fields-' + method.toLowerCase().replace(/\s+/g, '-');
+      const target = document.getElementById(id);
+      if (target) {
+        target.classList.add('active');
+        target.style.display = 'block';
+      }
+    }
+
+    function setAmount(value) {
+      document.getElementById('withdraw-amount').value = value;
+    }
+
+    function setAmountMax() {
+      document.getElementById('withdraw-amount').value = currentBalance.toFixed(2);
+    }
+
+    function buildWithdrawDetails(method) {
+      const details = {};
+
+      if (method === 'PayPal') {
+        const email = document.getElementById('paypal-email').value.trim();
+        if (!email) throw new Error('Enter PayPal email');
+        details.paypalEmail = email;
+      } else if (method === 'Bitcoin') {
+        const wallet = document.getElementById('bitcoin-address').value.trim();
+        if (!wallet) throw new Error('Enter Bitcoin wallet address');
+        details.bitcoinAddress = wallet;
+      } else if (method === 'Crypto') {
+        const name = document.getElementById('crypto-name').value.trim();
+        const wallet = document.getElementById('crypto-wallet').value.trim();
+        if (!name || !wallet) throw new Error('Enter crypto name and wallet');
+        details.cryptoName = name;
+        details.cryptoWallet = wallet;
+      } else if (method === 'Paytm') {
+        const number = document.getElementById('paytm-number').value.trim();
+        if (!number) throw new Error('Enter Paytm number');
+        details.paytmNumber = number;
+      } else if (method === 'PhonePe') {
+        const number = document.getElementById('phonepe-number').value.trim();
+        if (!number) throw new Error('Enter PhonePe number');
+        details.phonepeNumber = number;
+      } else if (method === 'Bank') {
+        const account = document.getElementById('bank-account').value.trim();
+        const ifsc = document.getElementById('bank-ifsc').value.trim();
+        const bankName = document.getElementById('bank-name').value.trim();
+        if (!account || !ifsc || !bankName) throw new Error('Complete bank details');
+        details.bankAccount = account;
+        details.bankIFSC = ifsc;
+        details.bankName = bankName;
+      } else if (method === 'Telegram Wallet') {
+        const wallet = document.getElementById('telegram-wallet').value.trim();
+        if (!wallet) throw new Error('Enter Telegram wallet ID');
+        details.telegramWallet = wallet;
+      } else if (method === 'Telegram Stars') {
+        const stars = document.getElementById('telegram-stars').value.trim();
+        if (!stars) throw new Error('Enter Telegram Stars account / ID');
+        details.telegramStars = stars;
+      }
+
+      return details;
+    }
+
+    async function submitWithdraw() {
+      const uid = resolveUserId();
+      if (!uid) {
+        showToast('Cannot identify user');
+        return;
+      }
+
+      try {
+        const amount = Number(document.getElementById('withdraw-amount').value || 0);
+        if (!amount || amount < 100) throw new Error('Minimum withdrawal is $100');
+        if (amount > currentBalance) throw new Error('Insufficient balance');
+
+        const methodEl = document.querySelector('.method.sel');
+        const method = methodEl?.dataset?.method || 'PayPal';
+        const details = buildWithdrawDetails(method);
+
+        const res = await fetch('/api/withdraw', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: uid,
+            amount,
+            method,
+            details
+          })
+        });
+
+        const data = await res.json().catch(() => ({}));
+        if (data?.success) {
+          document.getElementById('withdraw-amount').value = '';
+          showToast('Withdrawal requested');
+          await loadUserData();
+        } else {
+          showToast(data?.message || 'Withdraw failed');
+        }
+      } catch (err) {
+        console.error(err);
+        showToast(err?.message || 'Withdraw failed');
+      }
+    }
+
+    async function buyVipStars(plan) {
+      try {
+        const res = await fetch(`/api/vip-invoice?plan=${encodeURIComponent(plan)}`);
+        const data = await res.json().catch(() => ({}));
+
+        if (!data?.ok || !data?.invoiceUrl) {
+          showToast(data?.error || 'Could not create invoice');
+          return;
+        }
+
+        if (tg?.openInvoice) {
+          tg.openInvoice(data.invoiceUrl, async (status) => {
+            if (status === 'paid') {
+              showToast(`${plan} VIP activated`);
+              await loadUserData();
+            } else if (status === 'cancelled') {
+              showToast('Payment cancelled');
+            } else {
+              showToast('Invoice closed');
+            }
+          });
+        } else {
+          showToast('Open inside Telegram to pay invoice');
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('Invoice request failed');
+      }
+    }
+
+    function buyVipCrypto(plan) {
+      selectedVipPlan = plan;
+      document.getElementById('modal-plan-name').textContent = `${plan} VIP`;
+      resetCryptoModal();
+      const modal = document.getElementById('crypto-modal');
+      modal.style.display = 'flex';
+      requestAnimationFrame(() => modal.classList.add('show'));
+    }
+
+    function closeCryptoModal() {
+      const modal = document.getElementById('crypto-modal');
+      modal.classList.remove('show');
+      setTimeout(() => {
+        modal.style.display = 'none';
+      }, 220);
+    }
+
+    function resetCryptoModal() {
+      document.getElementById('coin-selection').style.display = 'grid';
+      document.getElementById('crypto-details').style.display = 'none';
+      document.getElementById('modal-subtitle').textContent = 'Select your crypto payment method';
+    }
+
+    function selectCoin(coin) {
+      if (!selectedVipPlan || !planPrices[selectedVipPlan] || !cryptoWallets[coin]) {
+        showToast('Missing plan or wallet config');
+        return;
+      }
+
+      const amount = planPrices[selectedVipPlan][coin];
+      const walletData = cryptoWallets[coin];
+
+      document.getElementById('pay-amount').textContent = `${amount} ${coin}`;
+      document.getElementById('pay-network').textContent = walletData.network;
+      document.getElementById('pay-address').textContent = walletData.address;
+      document.getElementById('coin-selection').style.display = 'none';
+      document.getElementById('crypto-details').style.display = 'block';
+      document.getElementById('modal-subtitle').textContent = `Pay via ${coin} (${walletData.network})`;
+    }
+
+    async function copyToClipboard(elementId) {
+      let text = document.getElementById(elementId)?.textContent || '';
+      if (elementId === 'pay-amount') {
+        text = text.split(' ')[0];
+      }
+      const ok = await copyText(text);
+      showToast(ok ? 'Copied' : 'Copy failed');
+    }
+
+    async function closeAppAndUpload() {
+      const uid = resolveUserId();
+      try {
+        if (uid) {
+          await fetch('/api/start-vip-proof', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId: uid,
+              plan: selectedVipPlan || ''
+            })
+          });
+        }
+
+        closeCryptoModal();
+
+        const botUrl = `https://t.me/${BOT_USERNAME}`;
+        if (tg?.openTelegramLink) {
+          tg.openTelegramLink(botUrl);
+        } else {
+          window.open(botUrl, '_blank', 'noopener');
+        }
+
+        showToast('Send your screenshot in the bot chat');
+      } catch (err) {
+        console.error(err);
+        showToast('Could not start proof flow');
+      }
+    }
+
+    async function claimReferralVIP(plan) {
+      const uid = resolveUserId();
+      if (!uid) {
+        showToast('Cannot identify user');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/claim-referral-vip', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: uid, plan })
+        });
+
+        const data = await res.json().catch(() => ({}));
+        if (data?.success) {
+          showToast(`${plan} VIP unlocked`);
+          await loadUserData();
+        } else {
+          showToast(data?.message || 'Claim failed');
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('Claim failed');
+      }
+    }
+
+    function scrollToVipList() {
+      const container = document.getElementById('main');
+      const target = document.getElementById('vip-plans-list');
+      if (!container || !target) return;
+      navigate('vip', 5);
+      setTimeout(() => {
+        container.scrollTo({
+          top: target.offsetTop - 72,
+          behavior: 'smooth'
+        });
+      }, 50);
+    }
+
+    function toggleFaq(el) {
+      const item = el.closest('.faq-item');
+      if (!item) return;
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach((i) => i.classList.remove('open'));
+      if (!isOpen) item.classList.add('open');
+    }
+
+    function createPlatformStats() {
+      document.getElementById('stat-payout').textContent = '$48,312';
+      document.getElementById('stat-users').textContent = '12,847';
+      document.getElementById('stat-ads').textContent = '3.2M';
+      document.getElementById('stat-today').textContent = '$2,190';
+    }
+
+    function initTelegram() {
+      if (!tg) return;
+      try { tg.ready(); } catch {}
+      try { tg.expand(); } catch {}
+      try { tg.setHeaderColor('#ffffff'); } catch {}
+      try { tg.setBackgroundColor('#f6fff8'); } catch {}
+    }
+
+    function initApp() {
+      initTelegram();
+      createPlatformStats();
+      userId = resolveUserId();
+      setReferralLink();
+      loadUserData();
+    }
+
+    window.addEventListener('load', initApp);
+  </script>
 </body>
 </html>
