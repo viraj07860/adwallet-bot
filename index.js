@@ -23,7 +23,7 @@ const ADMIN_ID = String(process.env.ADMIN_ID || '').trim();
 const MONGO_URL = String(process.env.MONGO_URL || '').trim();
 
 if (!BOT_TOKEN || !WEBAPP_URL || !MONGO_URL || !ADMIN_ID) {
-  console.error('❌ CRITICAL: BOT_TOKEN, WEBAPP_URL, MONGO_URL, or ADMIN_ID is missing');
+  console.error('CRITICAL: BOT_TOKEN, WEBAPP_URL, MONGO_URL, or ADMIN_ID is missing');
   process.exit(1);
 }
 
@@ -34,9 +34,9 @@ mongoose.set('strictQuery', true);
 
 mongoose
   .connect(MONGO_URL)
-  .then(() => console.log('✅ Connected to MongoDB - data will persist'))
+  .then(() => console.log('Connected to MongoDB - data will persist'))
   .catch((err) => {
-    console.error('❌ MongoDB Connection Error:', err);
+    console.error('MongoDB Connection Error:', err);
     process.exit(1);
   });
 
@@ -47,7 +47,7 @@ const withdrawSchema = new mongoose.Schema(
     amount: { type: Number, default: 0 },
     method: { type: String, default: '' },
     details: { type: String, default: '' },
-    status: { type: String, default: 'pending' }, // pending | approved | rejected
+    status: { type: String, default: 'pending' },
     date: { type: Date, default: Date.now },
     rejectedReason: { type: String, default: '' }
   },
@@ -187,14 +187,14 @@ async function createStarsInvoice(plan) {
     throw new Error('Invalid VIP plan');
   }
 
-  return bot.telegram.createInvoiceLink(
-    `${plan} VIP`,
-    `Purchase ${plan} VIP with Telegram Stars`,
-    `vip_${plan}`,
-    '',
-    'XTR',
-    [{ label: `${plan} VIP`, amount }]
-  );
+  return await bot.telegram.callApi('createInvoiceLink', {
+    title: `${plan} VIP`,
+    description: `Purchase ${plan} VIP with Telegram Stars`,
+    payload: `vip_${plan}`,
+    provider_token: '',
+    currency: 'XTR',
+    prices: [{ label: `${plan} VIP`, amount }]
+  });
 }
 
 async function handleReward(req, res, payload) {
@@ -300,7 +300,7 @@ app.get('/user/:id', async (req, res) => {
       user.balance += 5;
       user.welcomeBonusClaimed = true;
       await user.save();
-      console.log(`🎁 Welcome bonus given to ${user.userId}`);
+      console.log(`Welcome bonus given to ${user.userId}`);
     }
 
     return res.json({
@@ -355,7 +355,7 @@ app.post('/api/claim-daily-bonus', async (req, res) => {
     user.lastDailyBonus = today;
     await user.save();
 
-    console.log(`🎁 Daily bonus claimed by ${user.username}`);
+    console.log(`Daily bonus claimed by ${user.username}`);
 
     return res.json({
       success: true,
@@ -403,7 +403,7 @@ app.post('/api/withdraw', async (req, res) => {
     try {
       await bot.telegram.sendMessage(
         ADMIN_ID,
-        `💸 New Withdrawal Request\n\nUser: ${user.username}\nID: ${user.userId}\nAmount: $${amt}\nMethod: ${method || 'Unknown'}\nTX: ${txId}\nStatus: pending`
+        `New Withdrawal Request\n\nUser: ${user.username}\nID: ${user.userId}\nAmount: $${amt}\nMethod: ${method || 'Unknown'}\nTX: ${txId}\nStatus: pending`
       );
     } catch (notifyErr) {
       console.error('Failed to notify admin about withdrawal:', notifyErr);
@@ -544,7 +544,7 @@ app.post('/api/admin/approve-withdrawal', async (req, res) => {
       try {
         await bot.telegram.sendMessage(
           user.userId,
-          `❌ Your withdrawal of $${withdrawal.amount} was rejected.\nReason: Insufficient balance`
+          `Your withdrawal of $${withdrawal.amount} was rejected.\nReason: Insufficient balance`
         );
       } catch (_) {}
 
@@ -560,7 +560,7 @@ app.post('/api/admin/approve-withdrawal', async (req, res) => {
     try {
       await bot.telegram.sendMessage(
         user.userId,
-        `✅ Your withdrawal of $${withdrawal.amount} has been approved.`
+        `Your withdrawal of $${withdrawal.amount} has been approved.`
       );
     } catch (_) {}
 
@@ -601,7 +601,7 @@ app.post('/api/admin/reject-withdrawal', async (req, res) => {
     try {
       await bot.telegram.sendMessage(
         user.userId,
-        `❌ Your withdrawal of $${withdrawal.amount} has been rejected.\nReason: ${withdrawal.rejectedReason}`
+        `Your withdrawal of $${withdrawal.amount} has been rejected.\nReason: ${withdrawal.rejectedReason}`
       );
     } catch (_) {}
 
@@ -712,11 +712,11 @@ bot.start(async (ctx) => {
     const joined = await isUserJoined(ctx, userId);
 
     if (!joined) {
-      return ctx.reply(`🚫 Please join ${FORCE_CHANNEL} to use this bot.`, {
+      return ctx.reply(`Please join ${FORCE_CHANNEL} to use this bot.`, {
         reply_markup: {
           inline_keyboard: [
-            [{ text: '📢 Join Channel', url: `https://t.me/${FORCE_CHANNEL.replace('@', '')}` }],
-            [{ text: '✅ I Have Joined', callback_data: 'check_join' }]
+            [{ text: 'Join Channel', url: `https://t.me/${FORCE_CHANNEL.replace('@', '')}` }],
+            [{ text: 'I Have Joined', callback_data: 'check_join' }]
           ]
         }
       });
@@ -729,10 +729,10 @@ bot.start(async (ctx) => {
       await user.save();
     }
 
-    return ctx.reply('🚀 Welcome to AdWallet!\nEarn money by watching ads.', {
+    return ctx.reply('Welcome to AdWallet!\nEarn money by watching ads.', {
       reply_markup: {
         inline_keyboard: [[
-          { text: '💰 Open AdWallet', web_app: { url: `${WEBAPP_URL}/?id=${userId}` } }
+          { text: 'Open AdWallet', web_app: { url: `${WEBAPP_URL}/?id=${userId}` } }
         ]]
       }
     });
@@ -750,7 +750,7 @@ bot.command('activate', async (ctx) => {
 
       if (args.length !== 3) {
         return ctx.reply(
-          '⚠️ <b>Usage:</b> <code>/activate UserID Plan</code>\nExample: <code>/activate 123456789 Gold</code>',
+          '<b>Usage:</b> <code>/activate UserID Plan</code>\nExample: <code>/activate 123456789 Gold</code>',
           { parse_mode: 'HTML' }
         );
       }
@@ -759,7 +759,7 @@ bot.command('activate', async (ctx) => {
       const targetPlan = String(args[2]).trim();
 
       if (!Object.prototype.hasOwnProperty.call(VIP_PLANS, targetPlan)) {
-        return ctx.reply('❌ Invalid plan');
+        return ctx.reply('Invalid plan');
       }
 
       const targetUser = await ensureUser(targetUserId);
@@ -772,19 +772,19 @@ bot.command('activate', async (ctx) => {
       await targetUser.save();
 
       await ctx.reply(
-        `✅ User <code>${targetUserId}</code> upgraded to <b>${targetPlan} VIP</b>`,
+        `User <code>${targetUserId}</code> upgraded to <b>${targetPlan} VIP</b>`,
         { parse_mode: 'HTML' }
       );
 
       try {
         await bot.telegram.sendMessage(
           targetUserId,
-          `🎉 <b>Congratulations!</b>\nYour <b>${targetPlan} VIP</b> has been activated!`,
+          `Congratulations!\nYour <b>${targetPlan} VIP</b> has been activated!`,
           {
             parse_mode: 'HTML',
             reply_markup: {
               inline_keyboard: [[
-                { text: '🚀 Open App', web_app: { url: `${WEBAPP_URL}/?id=${targetUserId}` } }
+                { text: 'Open App', web_app: { url: `${WEBAPP_URL}/?id=${targetUserId}` } }
               ]]
             }
           }
@@ -798,7 +798,7 @@ bot.command('activate', async (ctx) => {
     user.isWaitingForProof = true;
     await user.save();
 
-    return ctx.reply('💎 <b>Manual VIP Activation</b>\n\nSend payment screenshot here.', {
+    return ctx.reply('Manual VIP Activation\n\nSend payment screenshot here.', {
       parse_mode: 'HTML'
     });
   } catch (err) {
@@ -809,7 +809,7 @@ bot.command('activate', async (ctx) => {
 bot.command('buyvip', async (ctx) => {
   try {
     const keyboard = Object.keys(VIP_PLANS).map((plan) => [
-      { text: `⭐ Buy ${plan} (${VIP_PLANS[plan]} Stars)`, callback_data: `vipplan_${plan}` }
+      { text: `Buy ${plan} (${VIP_PLANS[plan]} Stars)`, callback_data: `vipplan_${plan}` }
     ]);
 
     return ctx.reply('Choose a VIP plan:', {
@@ -856,7 +856,7 @@ bot.on('photo', async (ctx) => {
     const user = await ensureUser(userId);
 
     if (!user.isWaitingForProof) {
-      return ctx.reply('Please tap “I have paid, send screenshot” first.');
+      return ctx.reply('Please tap "I have paid, send screenshot" first.');
     }
 
     user.isWaitingForProof = false;
@@ -865,10 +865,10 @@ bot.on('photo', async (ctx) => {
     const photoId = ctx.message.photo[ctx.message.photo.length - 1].file_id;
     const planText = user.pendingVipPlan || 'Gold';
 
-    await ctx.reply('✅ Screenshot received! Admin will review it soon.');
+    await ctx.reply('Screenshot received! Admin will review it soon.');
 
     await bot.telegram.sendPhoto(String(ADMIN_ID), photoId, {
-      caption: `🔔 New VIP Proof\n\nUser: ${user.username}\nID: ${userId}\nPlan: ${planText}\n\nApprove with:\n/activate ${userId} ${planText}`
+      caption: `New VIP Proof\n\nUser: ${user.username}\nID: ${userId}\nPlan: ${planText}\n\nApprove with:\n/activate ${userId} ${planText}`
     });
 
     user.pendingVipPlan = null;
@@ -892,11 +892,12 @@ bot.on('message', async (ctx) => {
       user.vip = true;
       user.vipPlan = plan;
       user.pendingVipPlan = null;
+      user.isWaitingForProof = false;
       await user.save();
 
-      await ctx.reply(`✅ Your ${plan} VIP is now active!`);
+      await ctx.reply(`Your ${plan} VIP is now active!`);
     } else {
-      await ctx.reply('✅ Payment received, but VIP plan could not be identified.');
+      await ctx.reply('Payment received, but VIP plan could not be identified.');
     }
   } catch (err) {
     console.error('message handler error:', err);
@@ -909,10 +910,10 @@ bot.action('check_join', async (ctx) => {
 
     if (joined) {
       await ctx.answerCbQuery('Access granted!');
-      return ctx.reply('✅ Verified! Use /start to begin.');
+      return ctx.reply('Verified! Use /start to begin.');
     }
 
-    await ctx.answerCbQuery('❌ You must join the channel first!', { show_alert: true });
+    await ctx.answerCbQuery('You must join the channel first!', { show_alert: true });
   } catch (err) {
     console.error('check_join error:', err);
   }
@@ -920,12 +921,12 @@ bot.action('check_join', async (ctx) => {
 
 /* ---------------- START SERVER ---------------- */
 app.listen(PORT, async () => {
-  console.log(`✅ Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 
   try {
     await bot.telegram.deleteWebhook({ drop_pending_updates: true });
     await bot.launch({ dropPendingUpdates: true });
-    console.log('🤖 Bot started successfully');
+    console.log('Bot started successfully');
   } catch (err) {
     console.error('Bot launch error:', err);
   }
