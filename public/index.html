@@ -11,11 +11,6 @@
   <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-  <!-- CPAGrip / Offer Scripts -->
-  <script type="text/javascript" src="https://optilinklock.com/script_include.php?id=1887514"></script>
-  <script type="text/javascript" src="https://optilinklock.com/script_include.php?id=1887515"></script>
-  <script type="text/javascript" src="https://optilinklock.com/script_include.php?id=1887516"></script>
-
   <style>
     :root{
       --green:#22c55e;
@@ -1280,28 +1275,28 @@
     </div>
 
     <div class="sb-nav">
-      <div class="sb-item active" data-page="dashboard" onclick="navigate('dashboard',0,this)">
-        <span class="icon">🏠</span> Dashboard
-      </div>
-      <div class="sb-item" data-page="ads" onclick="navigate('ads',1,this)">
-        <span class="icon">🎬</span> Watch Ads
-      </div>
-      <div class="sb-item" data-page="offers" onclick="navigate('offers',2,this)">
-        <span class="icon">🎁</span> Offer Center
-      </div>
-      <div class="sb-item" data-page="invite" onclick="navigate('invite',3,this)">
-        <span class="icon">👥</span> Invite Friends
-      </div>
-      <div class="sb-item" data-page="cashout" onclick="navigate('cashout',null,this)">
-        <span class="icon">💸</span> Cashout
-      </div>
-      <div class="sb-item" data-page="vip" onclick="navigate('vip',4,this)">
-        <span class="icon">💎</span> VIP
-      </div>
-      <div class="sb-item" data-page="help" onclick="navigate('help',null,this)">
-        <span class="icon">❓</span> Help & FAQ
-      </div>
-    </div>
+  <div class="sb-item active" data-page="dashboard" onclick="navigate('dashboard',0,this)">
+    <span class="icon">🏠</span> Dashboard
+  </div>
+  <div class="sb-item" data-page="ads" onclick="navigate('ads',1,this)">
+    <span class="icon">🎬</span> Watch Ads
+  </div>
+  <div class="sb-item" data-page="offers" onclick="navigate('offers',2,this)">
+    <span class="icon">🎁</span> Offer Center
+  </div>
+  <div class="sb-item" data-page="invite" onclick="navigate('invite',3,this)">
+    <span class="icon">👥</span> Invite Friends
+  </div>
+  <div class="sb-item" data-page="cashout" onclick="navigate('cashout',4,this)">
+    <span class="icon">💸</span> Cashout
+  </div>
+  <div class="sb-item" data-page="vip" onclick="navigate('vip',4,this)">
+    <span class="icon">💎</span> VIP
+  </div>
+  <div class="sb-item" data-page="help" onclick="navigate('help',4,this)">
+    <span class="icon">❓</span> Help & FAQ
+  </div>
+</div>
 
     <div class="sb-footer">
       AdWallet Elite · Smooth Telegram WebApp UI
@@ -1333,7 +1328,7 @@
           <div class="progress-wrap">
             <div class="progress-top">
               <span>Withdrawal Progress</span>
-              <span id="progress-text">$0.00 / $100.00</span>
+              <span id="progress-text">$0.00 / $250.00</span>
             </div>
             <div class="progress-bar">
               <div class="progress-fill" id="prog-fill"></div>
@@ -1356,7 +1351,7 @@
           </div>
 
           <div class="bal-actions">
-            <button class="btn btn-white" onclick="navigate('cashout',null)">💸 Cashout</button>
+            <button class="btn btn-white" onclick="navigate('cashout',4)">💸 Cashout</button>
             <button class="btn btn-outline" onclick="claimBonus()">🎁 Daily Bonus</button>
           </div>
         </div>
@@ -1500,9 +1495,9 @@
         <div class="ad-card">
           <div class="ad-thumb">💰</div>
           <div class="ad-info">
-            <div class="ad-title">Monetag Reward Ad</div>
+            <div class="ad-title">Reward Slot</div>
             <div class="ad-reward">Bonus earning chance</div>
-            <div class="ad-dur">⏱ Rewarded interstitial</div>
+            <div class="ad-dur">⏱ Try the next available ad</div>
           </div>
           <div class="stack-actions">
             <button class="btn btn-blue" onclick="showMonetagAd(this)">Play</button>
@@ -1514,49 +1509,47 @@
     <section class="page" id="page-offers">
       <div class="sec-title">Offer Center</div>
       <div class="sec-sub">Complete CPA offers for much bigger rewards</div>
-
-      <div class="card">
-        <div class="sec-title" style="font-size:16px;margin-bottom:12px;">CPAGrip Offers</div>
-
-        <div class="ads-grid">
+        
+        <div class="card">
+         <div class="sec-title" style="font-size:16px;margin-bottom:12px;">CPAgrip Offers</div>
+        
+         <div class="ads-grid">
           <div class="ad-card">
-            <div class="ad-thumb" style="background:linear-gradient(135deg,#fef3c7,#fde68a);">📲</div>
-            <div class="ad-info">
-              <div class="ad-title">Install &amp; Open App</div>
-              <div class="ad-reward">+$1.20 to +$3.00</div>
-              <div class="ad-dur">⏱ 2–5 min</div>
-            </div>
-            <button class="btn btn-green ad-btn" onclick="openCpagripOffer(1)">Start</button>
+           <div class="ad-thumb"
+      style="background:linear-gradient(135deg,#fef3c7,#fde68a);">📲</div>
+           <div class="ad-info">
+            <div class="ad-title">Install &amp; Open App</div>
+            <div class="ad-reward">+$1.20 to +$3.00</div>
+            <div class="ad-dur">⏱ 2–5 min</div>
           </div>
+          <button class="btn btn-green ad-btn" onclick="openCpagripOffer(1)">Start</button>
+         </div>
 
-          <div class="ad-card">
-            <div class="ad-thumb" style="background:linear-gradient(135deg,#dbeafe,#93c5fd);">📝</div>
-            <div class="ad-info">
-              <div class="ad-title">Complete Survey</div>
-              <div class="ad-reward">+$0.50 to +$2.50</div>
-              <div class="ad-dur">⏱ 3–8 min</div>
-            </div>
-            <button class="btn btn-green ad-btn" onclick="openCpagripOffer(2)">Start</button>
-          </div>
-
-          <div class="ad-card">
-            <div class="ad-thumb" style="background:linear-gradient(135deg,#ede9fe,#c4b5fd);">🎮</div>
-            <div class="ad-info">
-              <div class="ad-title">Play Game Offer</div>
-              <div class="ad-reward">+$2.00 to +$10.00</div>
-              <div class="ad-dur">⏱ 10–30 min</div>
-            </div>
-            <button class="btn btn-green ad-btn" onclick="openCpagripOffer(3)">Start</button>
-          </div>
+         <div class="ad-card">
+          <div class="ad-thumb"
+     style="background:linear-gradient(135deg,#dbeafe,#93c5fd);">📝</div>
+          <div class="ad-info">
+          <div class="ad-title">Complete Survey</div>
+          <div class="ad-reward">+$0.50 to +$2.50</div>
+          <div class="ad-dur">⏱ 3–8 min</div>
+         </div>
+         <button class="btn btn-green ad-btn" onclick="openCpagripOffer(2)">Start</button>
         </div>
-      </div>
 
-      <div class="card">
-        <div class="info-note">
-          If your CPAGrip scripts create their own redirect pages automatically, the Start buttons will use them. If not, replace the fallback links inside the script section with your direct offer URLs.
+        <div class="ad-card">
+         <div class="ad-thumb"
+    style="background:linear-gradient(135deg,#ede9fe,#c4b5fd);">🎮</div>
+         <div class="ad-info">
+          <div class="ad-title">Play Game Offer</div>
+          <div class="ad-reward">+$2.00 to +$10.00</div>
+          <div class="ad-dur">⏱ 10–30 min</div>
         </div>
+        <button class="btn btn-green ad-btn" onclick="openCpagripOffer(3)">Start</button>
+       </div>
       </div>
+     </div>
     </section>
+
 
     <section class="page" id="page-invite">
       <div class="sec-title">Invite & Earn</div>
@@ -1729,11 +1722,10 @@
         <div class="sec-title" style="font-size:17px;">Withdrawal Amount</div>
         <input class="amount-input" id="withdraw-amount" type="number" min="0" step="0.01" placeholder="$0.00" />
         <div class="min-note">
-          Minimum withdrawal: <span>$100.00</span> · Your balance: <span id="co-bal">$0.00</span>
+          Minimum withdrawal: <span>$250.00</span> · Your balance: <span id="co-bal">$0.00</span>
         </div>
 
         <div class="quick-amounts">
-          <button class="tiny-btn" onclick="setAmount(100)">$100</button>
           <button class="tiny-btn" onclick="setAmount(250)">$250</button>
           <button class="tiny-btn" onclick="setAmount(500)">$500</button>
           <button class="tiny-btn" onclick="setAmountMax()">Max</button>
@@ -1898,7 +1890,7 @@
           <span class="faq-arrow">▾</span>
         </div>
         <div class="faq-a">
-          Earn by watching rewarded ads, claiming your daily bonus, referring friends, and completing offers.
+          Earn by watching rewarded ads, claiming your daily bonus, referring friends, and sending users to offer links you configure.
         </div>
       </div>
 
@@ -1908,7 +1900,7 @@
           <span class="faq-arrow">▾</span>
         </div>
         <div class="faq-a">
-          The minimum withdrawal is $100.00. Once you reach that amount, you can request a payout using one of the available cashout methods.
+          The minimum withdrawal is $250.00. Once you reach that amount, you can request a payout using one of the available cashout methods.
         </div>
       </div>
 
@@ -1954,27 +1946,27 @@
   </main>
 
   <nav id="bottom-nav">
-    <div class="nav-item active" id="nav-0" onclick="navigate('dashboard',0)">
-      <span class="nav-icon">🏠</span>
-      <span>Home</span>
-    </div>
-    <div class="nav-item" id="nav-1" onclick="navigate('ads',1)">
-      <span class="nav-icon">🎬</span>
-      <span>Earn</span>
-    </div>
-    <div class="nav-item" id="nav-2" onclick="navigate('offers',2)">
-      <span class="nav-icon">🎁</span>
-      <span>Offers</span>
-    </div>
-    <div class="nav-item" id="nav-3" onclick="navigate('invite',3)">
-      <span class="nav-icon">👥</span>
-      <span>Invite</span>
-    </div>
-    <div class="nav-item" id="nav-4" onclick="navigate('vip',4)">
-      <span class="nav-icon">💎</span>
-      <span>VIP</span>
-    </div>
-  </nav>
+  <div class="nav-item active" id="nav-0" onclick="navigate('dashboard',0)">
+    <span class="nav-icon">🏠</span>
+    <span>Home</span>
+  </div>
+  <div class="nav-item" id="nav-1" onclick="navigate('ads',1)">
+    <span class="nav-icon">🎬</span>
+    <span>Earn</span>
+  </div>
+  <div class="nav-item" id="nav-2" onclick="navigate('offers',2)">
+    <span class="nav-icon">🎁</span>
+    <span>Offers</span>
+  </div>
+  <div class="nav-item" id="nav-3" onclick="navigate('invite',3)">
+    <span class="nav-icon">👥</span>
+    <span>Invite</span>
+  </div>
+  <div class="nav-item" id="nav-4" onclick="navigate('vip',4)">
+    <span class="nav-icon">💎</span>
+    <span>VIP</span>
+  </div>
+</nav>
 
   <button id="fab" title="Earn Now" onclick="navigate('ads',1)">⚡</button>
   <div id="toast"></div>
@@ -2096,12 +2088,6 @@
       BTC:  { address: '1CZ1Z61vGh162pXGNU4q4vGN2hjWxom8rc', network: 'Bitcoin' }
     };
 
-    const OFFER_URLS = {
-      1: 'https://optilinklock.com/script_include.php?id=1887514',
-      2: 'https://optilinklock.com/script_include.php?id=1887515',
-      3: 'https://optilinklock.com/script_include.php?id=1887516'
-    };
-
     let sidebarOpen = false;
     let userId = '';
     let adBlockPointer = 0;
@@ -2165,32 +2151,29 @@
       }
     }
 
-    function navigate(page, idx = null, sbItem = null) {
-      toggleSidebar(false);
+    function navigate(page, idx, sbItem) {
+  toggleSidebar(false);
 
-      document.querySelectorAll('.page').forEach((p) => p.classList.remove('active'));
-      document.getElementById(`page-${page}`)?.classList.add('active');
+  document.querySelectorAll('.page').forEach((p) => p.classList.remove('active'));
+  document.getElementById(`page-${page}`)?.classList.add('active');
 
-      document.getElementById('main').scrollTop = 0;
+  document.getElementById('main').scrollTop = 0;
 
-      document.querySelectorAll('#bottom-nav .nav-item').forEach((item) => {
-        item.classList.remove('active');
-      });
+  document.querySelectorAll('#bottom-nav .nav-item').forEach((item, i) => {
+    item.classList.toggle('active', i === idx);
+  });
 
-      if (idx !== null) {
-        document.querySelector(`#nav-${idx}`)?.classList.add('active');
-      }
+  document.querySelectorAll('.sb-item').forEach((item) => item.classList.remove('active'));
 
-      document.querySelectorAll('.sb-item').forEach((item) => item.classList.remove('active'));
+  if (sbItem) {
+    sbItem.classList.add('active');
+  } else {
+    const targetSidebarItem = document.querySelector(`.sb-item[data-page="${page}"]`);
+    if (targetSidebarItem) targetSidebarItem.classList.add('active');
+  }
 
-      if (sbItem) {
-        sbItem.classList.add('active');
-      } else {
-        document.querySelector(`.sb-item[data-page="${page}"]`)?.classList.add('active');
-      }
-
-      if (navigator.vibrate) navigator.vibrate(18);
-    }
+  if (navigator.vibrate) navigator.vibrate(18);
+}
 
     function showToast(message) {
       const toast = document.getElementById('toast');
@@ -2209,9 +2192,9 @@
       document.getElementById('tb-bal').textContent = fmt;
       document.getElementById('sb-bal').textContent = `$${fmt}`;
       document.getElementById('co-bal').textContent = `$${fmt}`;
-      document.getElementById('progress-text').textContent = `$${fmt} / $100.00`;
+      document.getElementById('progress-text').textContent = `$${fmt} / $250.00`;
 
-      const pct = Math.min(100, (currentBalance / 100) * 100);
+      const pct = Math.min(250, (currentBalance / 250) * 250);
       document.getElementById('prog-fill').style.width = `${pct}%`;
     }
 
@@ -2411,28 +2394,6 @@
       return data;
     }
 
-    async function rewardMonetagUser() {
-      const uid = resolveUserId();
-      if (!uid) throw new Error('Cannot identify user');
-
-      const res = await fetch('/api/reward-monetag', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: uid,
-          adCompleted: true,
-          fingerprint: getFingerprint()
-        })
-      });
-
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || !data.success) {
-        throw new Error(data?.message || 'Reward failed');
-      }
-
-      return data;
-    }
-
     async function watchAd(btn) {
       const uid = resolveUserId();
       if (!uid) {
@@ -2476,33 +2437,8 @@
       watchAd(btn);
     }
 
-    async function showMonetagAd(btn) {
-      const original = btn ? btn.textContent : '';
-
-      try {
-        if (btn) {
-          btn.disabled = true;
-          btn.textContent = '⏳';
-        }
-
-        if (typeof show_10760190 !== 'function') {
-          throw new Error('Monetag is not loaded');
-        }
-
-        await show_10760190();
-        const data = await rewardMonetagUser();
-
-        showToast(`✅ +$${Number(data.reward || 0).toFixed(4)} added`);
-        await loadUserData();
-      } catch (err) {
-        console.error('Monetag error:', err);
-        showToast(err?.message || 'Monetag ad failed');
-      } finally {
-        if (btn) {
-          btn.disabled = false;
-          btn.textContent = original || 'Play';
-        }
-      }
+    function showMonetagAd(btn) {
+      watchAd(btn);
     }
 
     async function claimBonus() {
@@ -2549,31 +2485,12 @@
     }
 
     function openCpagripOffer(index) {
-      try {
-        const directUrl = OFFER_URLS?.[index];
-        if (directUrl) {
-          openExternalLink(directUrl);
-          return;
-        }
-
-        const globalCandidates = [
-          window[`show_offer_${index}`],
-          window[`open_offer_${index}`],
-          window[`cpagrip_offer_${index}`],
-          window[`offer_${index}`]
-        ];
-
-        const fn = globalCandidates.find((candidate) => typeof candidate === 'function');
-        if (fn) {
-          fn();
-          return;
-        }
-
-        showToast(`Offer ${index} URL is missing`);
-      } catch (err) {
-        console.error('CPAGrip offer error:', err);
-        showToast('Offer failed to open');
+      const url = OFFER_URLS[index];
+      if (!url) {
+        showToast(`Set OFFER_URLS[${index}] in the script first`);
+        return;
       }
+      openExternalLink(url);
     }
 
     async function copyText(text) {
@@ -2723,7 +2640,7 @@
 
       try {
         const amount = Number(document.getElementById('withdraw-amount').value || 0);
-        if (!amount || amount < 100) throw new Error('Minimum withdrawal is $100');
+        if (!amount || amount < 250) throw new Error('Minimum withdrawal is $250');
         if (amount > currentBalance) throw new Error('Insufficient balance');
 
         const methodEl = document.querySelector('.method.sel');
@@ -2895,7 +2812,7 @@
       const container = document.getElementById('main');
       const target = document.getElementById('vip-plans-list');
       if (!container || !target) return;
-      navigate('vip', 4);
+      navigate('vip', 5);
       setTimeout(() => {
         container.scrollTo({
           top: target.offsetTop - 72,

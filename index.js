@@ -378,8 +378,8 @@ app.post('/api/withdraw', async (req, res) => {
     const user = await ensureUser(userId);
     const amt = Number(amount);
 
-    if (!amt || amt < 100) {
-      return res.json({ success: false, message: 'Minimum withdrawal is $100' });
+    if (!amt || amt < 250) {
+      return res.json({ success: false, message: 'Minimum withdrawal is $250' });
     }
 
     if (amt > Number(user.balance || 0)) {
