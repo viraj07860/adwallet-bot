@@ -1328,7 +1328,7 @@
           <div class="progress-wrap">
             <div class="progress-top">
               <span>Withdrawal Progress</span>
-              <span id="progress-text">$0.00 / $250.00</span>
+              <span id="progress-text">$0.00 / $100.00</span>
             </div>
             <div class="progress-bar">
               <div class="progress-fill" id="prog-fill"></div>
@@ -1722,7 +1722,7 @@
         <div class="sec-title" style="font-size:17px;">Withdrawal Amount</div>
         <input class="amount-input" id="withdraw-amount" type="number" min="0" step="0.01" placeholder="$0.00" />
         <div class="min-note">
-          Minimum withdrawal: <span>$250.00</span> · Your balance: <span id="co-bal">$0.00</span>
+          Minimum withdrawal: <span>$100.00</span> · Your balance: <span id="co-bal">$0.00</span>
         </div>
 
         <div class="quick-amounts">
@@ -1900,7 +1900,7 @@
           <span class="faq-arrow">▾</span>
         </div>
         <div class="faq-a">
-          The minimum withdrawal is $250.00. Once you reach that amount, you can request a payout using one of the available cashout methods.
+          The minimum withdrawal is $100.00. Once you reach that amount, you can request a payout using one of the available cashout methods.
         </div>
       </div>
 
@@ -2210,9 +2210,9 @@
       document.getElementById('tb-bal').textContent = fmt;
       document.getElementById('sb-bal').textContent = `$${fmt}`;
       document.getElementById('co-bal').textContent = `$${fmt}`;
-      document.getElementById('progress-text').textContent = `$${fmt} / $250.00`;
+      document.getElementById('progress-text').textContent = `$${fmt} / $100.00`;
 
-      const pct = Math.min(250, (currentBalance / 250) * 250);
+      const pct = Math.min(100, (currentBalance / 100) * 100);
       document.getElementById('prog-fill').style.width = `${pct}%`;
     }
 
@@ -2666,7 +2666,7 @@
 
       try {
         const amount = Number(document.getElementById('withdraw-amount').value || 0);
-        if (!amount || amount < 250) throw new Error('Minimum withdrawal is $250');
+        if (!amount || amount < 100) throw new Error('Minimum withdrawal is $100');
         if (amount > currentBalance) throw new Error('Insufficient balance');
 
         const methodEl = document.querySelector('.method.sel');

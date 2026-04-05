@@ -13,19 +13,19 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-/* --- CONFIGURATION --- */
-const PORT = process.env.PORT || 8080;
+/* ---------------- CONFIGURATION ---------------- */
+const PORT = Number(process.env.PORT || 8080);
 const BOT_TOKEN = String(process.env.BOT_TOKEN || '').trim();
+const ADMIN_ID = 6259396688; // Replace with your actual Telegram User ID
 const REWARD_SECRET = String(process.env.REWARD_SECRET || 'adwallet7062').trim();
 const WEBAPP_URL = String(process.env.WEBAPP_URL || '').trim().replace(/\/+$/, '');
 const FORCE_CHANNEL = String(process.env.CHANNEL || '@AdWalletCommunity').trim();
 const ADMIN_ID = String(process.env.ADMIN_ID || '').trim();
 const MONGO_URL = String(process.env.MONGO_URL || '').trim();
 
-// FIX: Move the exit command INSIDE the brackets
 if (!BOT_TOKEN || !WEBAPP_URL || !MONGO_URL || !ADMIN_ID) {
-  console.error('❌ CRITICAL: Missing environment variables!');
-  process.exit(1); 
+  console.error('CRITICAL: BOT_TOKEN, WEBAPP_URL, MONGO_URL, or ADMIN_ID is missing');
+  process.exit(1);
 }
 
 const bot = new Telegraf(BOT_TOKEN);
@@ -322,7 +322,6 @@ app.get('/user/:id', async (req, res) => {
       isAdmin: Boolean(user.isAdmin),
       withdrawHistory: user.withdrawHistory || []
     });
-
   } catch (err) {
     console.error('GET /user/:id error:', err);
     return res.status(500).json({ error: 'Failed to load user' });
@@ -386,14 +385,14 @@ app.post('/api/withdraw', async (req, res) => {
 
     const user = await ensureUser(userId);
     const amt = Number(amount);
-const totalNeeded = amt + 5; // $5 fee included
 
-if (amt < 100) {
-  return res.json({ success: false, message: 'Minimum withdrawal is $100' });
-}
-if (user.balance < totalNeeded) {
-  return res.json({ success: false, message: `Insufficient balance. You need $${totalNeeded} ($${amt} + $5 fee).` });
-}
+    if (!amt || amt < 100) {
+      return res.json({ success: false, message: 'Minimum withdrawal is $100' });
+    }
+
+    if (amt > Number(user.balance || 0)) {
+      return res.json({ success: false, message: 'Insufficient balance' });
+    }
 
     const txId = `WD${Date.now()}${Math.floor(Math.random() * 1000)}`;
 
@@ -643,7 +642,7 @@ app.get('/api/fee-invoice', async (req, res) => {
       payload: 'withdrawal_fee_payment',
       provider_token: '', 
       currency: 'XTR',
-      prices: [{ label: 'Fee', amount: 250 }] 
+      prices: [{ label: 'Fee', amount: 100 }] 
     });
 
     res.json({ ok: true, invoiceUrl });
@@ -731,50 +730,49 @@ bot.catch((err, ctx) => {
   console.error(`Bot error for update ${ctx?.updateType || 'unknown'}:`, err);
 });
 
-// BROADCAST SYSTEM (PHOTO + TEXT + BUTTON)
-bot.on('photo', async (ctx) => {
-  // Only you can use this
-  if (ctx.from.id !== ADMIN_ID) return;
+// --- NEW BROADCAST COMMAND ---
+bot.command('broadcast', async (ctx) => {
+  const myId = String(ctx.from.id).trim();
+  const adminId = String(ADMIN_ID).trim();
 
-  const caption = ctx.message.caption || "";
-  if (!caption.startsWith('/broadcast')) return;
+  // DEBUG: Check if the IDs match
+  console.log(`📡 Broadcast requested by: ${myId} | Admin is: ${adminId}`);
 
-  // Split caption: /broadcast [Link] [Message]
-  const args = caption.replace('/broadcast', '').trim().split(' ');
-  const buttonLink = args[0] && args[0].startsWith('http') ? args.shift() : null;
-  const messageText = args.join(' ');
+  if (myId !== adminId) {
+    return ctx.reply(`❌ Access Denied!\nYour ID: ${myId}\nAdmin ID: ${adminId}\n(Please update the ADMIN_ID in Railway settings to match Your ID)`);
+  }
 
-  // Get the high-quality version of the photo
-  const photoId = ctx.message.photo[ctx.message.photo.length - 1].file_id;
+  // Extract the text after "/broadcast "
+  const broadcastText = ctx.message.text.replace('/broadcast ', '').trim();
+
+  // Prevent sending empty broadcasts
+  if (!broadcastText || broadcastText === '/broadcast') {
+    return ctx.reply('⚠️ Please include a message!\nExample: /broadcast Hello AdWallet users!');
+  }
 
   try {
-    const allUsers = await User.find({}); // Finding everyone in DB
-    ctx.reply(`📢 Sending broadcast to ${allUsers.length} users...`);
+    const users = await User.find({});
+    await ctx.reply(`🚀 Starting broadcast to ${users.length} users...\n(This will take about ${Math.ceil(users.length * 0.04)} seconds)`);
 
-    let count = 0;
-    for (const user of allUsers) {
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const u of users) {
       try {
-        const keyboard = buttonLink ? {
-          reply_markup: {
-            inline_keyboard: { text: "🔗 Open Link", url: buttonLink }
-          }
-        } : {};
-
-        await ctx.telegram.sendPhoto(user.telegramId, photoId, {
-          caption: messageText,
-          ...keyboard
-        });
-        count++;
-        
-        // Wait 50ms between messages to avoid Telegram flood limits
-        await new Promise(r => setTimeout(r, 50)); 
+        await ctx.telegram.sendMessage(u.userId, broadcastText);
+        successCount++;
+        // 40ms delay to respect Telegram's 30 msg/sec limit
+        await new Promise(resolve => setTimeout(resolve, 40)); 
       } catch (err) {
-        // Skip users who blocked the bot
+        failCount++; // User blocked the bot or deleted account
+        continue;
       }
     }
-    ctx.reply(`✅ Broadcast finished! Sent to ${count} active users.`);
-  } catch (e) {
-    ctx.reply("❌ Database error during broadcast.");
+
+    await ctx.reply(`✅ Broadcast Complete!\n\n📬 Successfully Sent: ${successCount}\n🚫 Blocked/Failed: ${failCount}`);
+  } catch (dbErr) {
+    console.error('Broadcast DB Error:', dbErr);
+    ctx.reply('❌ Error fetching user list from the database.');
   }
 });
 
