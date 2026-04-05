@@ -66,26 +66,6 @@
       display:none !important;
     }
 
-#loading-screen {
-  position: fixed;
-  inset: 0;
-  background: #f0fdf4;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: opacity 0.5s ease;
-}
-.spinner {
-  width: 50px;
-  height: 50px;
-  border: 5px solid #dcfce7;
-  border-top: 5px solid #22c55e;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-@keyframes spin { 100% { transform: rotate(360deg); } }
-
     #overlay{
       position:fixed;
       inset:0;
@@ -2352,28 +2332,14 @@
       input.value = `https://t.me/${BOT_USERNAME}?start=${encodeURIComponent(uid)}`;
     }
 
-      async function loadUserData() {
-  const uid = resolveUserId();
-  
-  // FAIL-SAFE: Hide loader after 5 seconds even if server is dead
-  const timer = setTimeout(hideLoadingScreen, 5000);
+    async function loadUserData() {
+      try {
+        const uid = resolveUserId();
+        if (!uid) {
+          showToast('Open this page from your bot or include ?id=');
+          return;
+        }
 
-  try {
-    const response = await fetch(`${API_URL}/user/${uid}`);
-    const data = await response.json();
-    
-    if (data.success) {
-      updateUI(data.user);
-      clearTimeout(timer); // Server responded, stop the timer
-      hideLoadingScreen();
-    }
-  } catch (err) {
-    console.error("Connection failed", err);
-    hideLoadingScreen(); // Hide on error so user isn't stuck
-  }
-}
-
-function hideLoadingScreen() {
         userId = uid;
 
         const res = await fetch(`/user/${encodeURIComponent(uid)}`, { cache: 'no-store' });
