@@ -1285,6 +1285,12 @@
   </style>
 </head>
 <body>
+<div id="loading-screen" style="position:fixed; inset:0; background:#f6fff8; z-index:10000; display:flex; flex-direction:column; align-items:center; justify-content:center; transition: opacity 0.6s;">
+  <div style="width:50px; height:50px; border:4px solid #dcfce7; border-top:4px solid #22c55e; border-radius:50%; animation: spin 1s linear infinite;"></div>
+  <h2 style="color:#16a34a; margin-top:15px; font-family:sans-serif;">AdWallet Elite</h2>
+</div>
+<style> @keyframes spin { to { transform: rotate(360deg); } } </style>
+
 <div id="loading-screen">
   <div class="loader-content">
     <div class="spinner"></div>
@@ -2368,11 +2374,17 @@
           return;
         }
 
-const loader = document.getElementById('loading-screen');
-if (loader) {
-  loader.style.opacity = '0';
-  setTimeout(() => loader.remove(), 500);
-}
+        const loader = document.getElementById('loading-screen');
+        if (loader) {
+        loader.style.opacity = '0';
+        setTimeout(() => loader.remove(), 600);
+        }
+
+        const loader = document.getElementById('loading-screen');
+        if (loader) {
+        loader.style.opacity = '0';
+        setTimeout(() => loader.remove(), 500);
+        }
 
         userId = uid;
 
