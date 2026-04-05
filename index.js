@@ -322,6 +322,7 @@ app.get('/user/:id', async (req, res) => {
       isAdmin: Boolean(user.isAdmin),
       withdrawHistory: user.withdrawHistory || []
     });
+
   } catch (err) {
     console.error('GET /user/:id error:', err);
     return res.status(500).json({ error: 'Failed to load user' });
