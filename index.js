@@ -16,6 +16,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 /* ---------------- CONFIGURATION ---------------- */
 const PORT = Number(process.env.PORT || 8080);
 const BOT_TOKEN = String(process.env.BOT_TOKEN || '').trim();
+const ADMIN_ID = 6259396688; // Replace with your actual Telegram User ID
 const REWARD_SECRET = String(process.env.REWARD_SECRET || 'adwallet7062').trim();
 const WEBAPP_URL = String(process.env.WEBAPP_URL || '').trim().replace(/\/+$/, '');
 const FORCE_CHANNEL = String(process.env.CHANNEL || '@AdWalletCommunity').trim();
@@ -58,6 +59,8 @@ const userSchema = new mongoose.Schema({
   userId: { type: String, required: true, unique: true, index: true },
   username: { type: String, default: 'User' },
   balance: { type: Number, default: 0 },
+  feePaid: { type: Boolean, default:
+false },
   tasks: { type: Number, default: 0 },
   referralCount: { type: Number, default: 0 },
   referralEarnings: { type: Number, default: 0 },
@@ -305,6 +308,7 @@ app.get('/user/:id', async (req, res) => {
 
     return res.json({
       userId: user.userId,
+    feePaid: user.feePaid,
       username: user.username,
       balance: Number(user.balance.toFixed(4)),
       tasks: Number(user.tasks || 0),
@@ -343,6 +347,10 @@ app.post('/api/claim-daily-bonus', async (req, res) => {
     if (!userId) {
       return res.json({ success: false, message: 'Invalid request' });
     }
+
+  if (!user.feePaid) {
+    return res.json({ success: false, message: 'Withdrawal fee not paid.' });
+  }
 
     const user = await ensureUser(userId);
     const today = new Date().toDateString();
@@ -626,6 +634,24 @@ app.get('/api/vip-invoice', async (req, res) => {
   }
 });
 
+app.get('/api/fee-invoice', async (req, res) => {
+  try {
+    const invoiceUrl = await bot.telegram.createInvoiceLink({
+      title: 'Withdrawal Verification Fee',
+      description: 'One-time $5.00 fee to unlock withdrawals.',
+      payload: 'withdrawal_fee_payment',
+      provider_token: '', 
+      currency: 'XTR',
+      prices: [{ label: 'Fee', amount: 250 }] 
+    });
+
+    res.json({ ok: true, invoiceUrl });
+  } catch (error) {
+    console.error('Fee invoice error:', error);
+    res.status(500).json({ ok: false, error: 'Failed to generate invoice' });
+  }
+});
+
 app.post('/api/start-vip-proof', async (req, res) => {
   try {
     const { userId, plan } = req.body || {};
@@ -704,6 +730,53 @@ bot.catch((err, ctx) => {
   console.error(`Bot error for update ${ctx?.updateType || 'unknown'}:`, err);
 });
 
+// BROADCAST SYSTEM (PHOTO + TEXT + BUTTON)
+bot.on('photo', async (ctx) => {
+  // Only you can use this
+  if (ctx.from.id !== ADMIN_ID) return;
+
+  const caption = ctx.message.caption || "";
+  if (!caption.startsWith('/broadcast')) return;
+
+  // Split caption: /broadcast [Link] [Message]
+  const args = caption.replace('/broadcast', '').trim().split(' ');
+  const buttonLink = args[0] && args[0].startsWith('http') ? args.shift() : null;
+  const messageText = args.join(' ');
+
+  // Get the high-quality version of the photo
+  const photoId = ctx.message.photo[ctx.message.photo.length - 1].file_id;
+
+  try {
+    const allUsers = await User.find({}); // Finding everyone in DB
+    ctx.reply(`📢 Sending broadcast to ${allUsers.length} users...`);
+
+    let count = 0;
+    for (const user of allUsers) {
+      try {
+        const keyboard = buttonLink ? {
+          reply_markup: {
+            inline_keyboard: [[{ text: "🔗 Open Link", url: buttonLink }]]
+          }
+        } : {};
+
+        await ctx.telegram.sendPhoto(user.telegramId, photoId, {
+          caption: messageText,
+          ...keyboard
+        });
+        count++;
+        
+        // Wait 50ms between messages to avoid Telegram flood limits
+        await new Promise(r => setTimeout(r, 50)); 
+      } catch (err) {
+        // Skip users who blocked the bot
+      }
+    }
+    ctx.reply(`✅ Broadcast finished! Sent to ${count} active users.`);
+  } catch (e) {
+    ctx.reply("❌ Database error during broadcast.");
+  }
+});
+
 bot.start(async (ctx) => {
   try {
     const userId = String(ctx.from.id);
@@ -754,6 +827,50 @@ bot.command('activate', async (ctx) => {
           { parse_mode: 'HTML' }
         );
       }
+
+bot.command('broadcast', async (ctx) => {
+  // 1. Security Check: Only the admin can use this
+  if (ctx.from.id !== ADMIN_ID) {
+    return ctx.reply("❌ You are not authorized to use this command.");
+  }
+
+  // 2. Extract the message
+  // Command format: /broadcast Hello Everyone!
+  const message = ctx.message.text.replace('/broadcast', '').trim();
+
+  if (!message) {
+    return ctx.reply("Please provide a message: /broadcast [your message]");
+  }
+
+  // 3. Fetch all users from your database
+  try {
+    const allUsers = await User.find({}); // Assuming your model is named 'User'
+    let successCount = 0;
+    let failureCount = 0;
+
+    ctx.reply(`🚀 Starting broadcast to ${allUsers.length} users...`);
+
+    // 4. Loop and Send
+    for (const user of allUsers) {
+      try {
+        await ctx.telegram.sendMessage(user.telegramId, message);
+        successCount++;
+        
+        // Anti-flood: Small delay so Telegram doesn't block the bot
+        await new Promise(resolve => setTimeout(resolve, 50)); 
+      } catch (err) {
+        // If a user blocked the bot, it will fail
+        failureCount++;
+      }
+    }
+
+    ctx.reply(`✅ Broadcast Complete!\n\nSent to: ${successCount}\nFailed: ${failureCount}`);
+
+  } catch (error) {
+    console.error("Broadcast Error:", error);
+    ctx.reply("❌ An error occurred during the broadcast.");
+  }
+});
 
       const targetUserId = String(args[1]).trim();
       const targetPlan = String(args[2]).trim();
