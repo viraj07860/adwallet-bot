@@ -20,7 +20,6 @@ const ADMIN_ID = 6259396688; // Replace with your actual Telegram User ID
 const REWARD_SECRET = String(process.env.REWARD_SECRET || 'adwallet7062').trim();
 const WEBAPP_URL = String(process.env.WEBAPP_URL || '').trim().replace(/\/+$/, '');
 const FORCE_CHANNEL = String(process.env.CHANNEL || '@AdWalletCommunity').trim();
-const ADMIN_ID = String(process.env.ADMIN_ID || '').trim();
 const MONGO_URL = String(process.env.MONGO_URL || '').trim();
 
 if (!BOT_TOKEN || !WEBAPP_URL || !MONGO_URL || !ADMIN_ID) {
