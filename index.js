@@ -13,8 +13,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-/* ---------------- CONFIGURATION ---------------- */
-const PORT = Number(process.env.PORT || 8080);
+/* --- CONFIGURATION --- */
+const PORT = process.env.PORT || 8080;
 const BOT_TOKEN = String(process.env.BOT_TOKEN || '').trim();
 const REWARD_SECRET = String(process.env.REWARD_SECRET || 'adwallet7062').trim();
 const WEBAPP_URL = String(process.env.WEBAPP_URL || '').trim().replace(/\/+$/, '');
@@ -22,9 +22,10 @@ const FORCE_CHANNEL = String(process.env.CHANNEL || '@AdWalletCommunity').trim()
 const ADMIN_ID = String(process.env.ADMIN_ID || '').trim();
 const MONGO_URL = String(process.env.MONGO_URL || '').trim();
 
+// FIX: Move the exit command INSIDE the brackets
 if (!BOT_TOKEN || !WEBAPP_URL || !MONGO_URL || !ADMIN_ID) {
-  console.error('X CRITICAL: Missing variables');
-  process.exit(1); // Now it only exits if something is actually missing
+  console.error('❌ CRITICAL: Missing environment variables!');
+  process.exit(1); 
 }
 
 const bot = new Telegraf(BOT_TOKEN);
