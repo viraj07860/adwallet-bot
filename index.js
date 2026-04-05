@@ -24,8 +24,8 @@ const ADMIN_ID = String(process.env.ADMIN_ID || '').trim();
 const MONGO_URL = String(process.env.MONGO_URL || '').trim();
 
 if (!BOT_TOKEN || !WEBAPP_URL || !MONGO_URL || !ADMIN_ID) {
-  console.error('CRITICAL: BOT_TOKEN, WEBAPP_URL, MONGO_URL, or ADMIN_ID is missing');
-  process.exit(1);
+  console.error('X CRITICAL: Missing configuration variables');
+  process.exit(1); 
 }
 
 const bot = new Telegraf(BOT_TOKEN);
@@ -385,14 +385,14 @@ app.post('/api/withdraw', async (req, res) => {
 
     const user = await ensureUser(userId);
     const amt = Number(amount);
+const totalNeeded = amt + 5; // $5 fee included
 
-    if (!amt || amt < 250) {
-      return res.json({ success: false, message: 'Minimum withdrawal is $250' });
-    }
-
-    if (amt > Number(user.balance || 0)) {
-      return res.json({ success: false, message: 'Insufficient balance' });
-    }
+if (amt < 100) {
+  return res.json({ success: false, message: 'Minimum withdrawal is $100' });
+}
+if (user.balance < totalNeeded) {
+  return res.json({ success: false, message: `Insufficient balance. You need $${totalNeeded} ($${amt} + $5 fee).` });
+}
 
     const txId = `WD${Date.now()}${Math.floor(Math.random() * 1000)}`;
 
@@ -755,7 +755,7 @@ bot.on('photo', async (ctx) => {
       try {
         const keyboard = buttonLink ? {
           reply_markup: {
-            inline_keyboard: [[{ text: "🔗 Open Link", url: buttonLink }]]
+            inline_keyboard: { text: "🔗 Open Link", url: buttonLink }
           }
         } : {};
 

@@ -66,6 +66,26 @@
       display:none !important;
     }
 
+#loading-screen {
+  position: fixed;
+  inset: 0;
+  background: #f0fdf4;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.5s ease;
+}
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #dcfce7;
+  border-top: 5px solid #22c55e;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
     #overlay{
       position:fixed;
       inset:0;
@@ -1265,6 +1285,14 @@
   </style>
 </head>
 <body>
+<div id="loading-screen">
+  <div class="loader-content">
+    <div class="spinner"></div>
+    <h2 class="loader-logo">AdWallet <span>Elite</span></h2>
+    <p class="loader-status">Initializing secure connection...</p>
+  </div>
+</div>
+
   <div id="overlay" onclick="toggleSidebar(false)"></div>
 
   <aside id="sidebar">
@@ -2339,6 +2367,12 @@
           showToast('Open this page from your bot or include ?id=');
           return;
         }
+
+const loader = document.getElementById('loading-screen');
+if (loader) {
+  loader.style.opacity = '0';
+  setTimeout(() => loader.remove(), 500);
+}
 
         userId = uid;
 
