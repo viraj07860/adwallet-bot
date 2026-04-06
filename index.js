@@ -16,10 +16,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 /* ---------------- CONFIGURATION ---------------- */
 const PORT = Number(process.env.PORT || 8080);
 const BOT_TOKEN = String(process.env.BOT_TOKEN || '').trim();
-const ADMIN_ID = 6259396688; // Replace with your actual Telegram User ID
 const REWARD_SECRET = String(process.env.REWARD_SECRET || 'adwallet7062').trim();
 const WEBAPP_URL = String(process.env.WEBAPP_URL || '').trim().replace(/\/+$/, '');
 const FORCE_CHANNEL = String(process.env.CHANNEL || '@AdWalletCommunity').trim();
+const ADMIN_ID = String(process.env.ADMIN_ID || '6259396688').trim();
 const MONGO_URL = String(process.env.MONGO_URL || '').trim();
 
 if (!BOT_TOKEN || !WEBAPP_URL || !MONGO_URL || !ADMIN_ID) {
@@ -816,15 +816,68 @@ bot.command('activate', async (ctx) => {
   try {
     const senderId = String(ctx.from.id);
 
+    // This checks if the person sending the command is the Admin
     if (senderId === ADMIN_ID) {
       const args = String(ctx.message?.text || '').trim().split(/\s+/);
-
+      
+      // Ensures you typed: /activate [UserID] [Plan]
       if (args.length !== 3) {
         return ctx.reply(
           '<b>Usage:</b> <code>/activate UserID Plan</code>\nExample: <code>/activate 123456789 Gold</code>',
           { parse_mode: 'HTML' }
         );
       }
+
+      const targetUserId = String(args[1]).trim();
+      const targetPlan = String(args[2]).trim();
+
+      // Checks if the VIP plan name is valid
+      if (!Object.prototype.hasOwnProperty.call(VIP_PLANS, targetPlan)) {
+        return ctx.reply('Invalid plan');
+      }
+
+      const targetUser = await ensureUser(targetUserId);
+      targetUser.vip = true;
+      targetUser.vipPlan = targetPlan;
+      targetUser.pendingVipPlan = null;
+      targetUser.isWaitingForProof = false;
+      await targetUser.save();
+
+      await ctx.reply(
+        `User <code>${targetUserId}</code> upgraded to <b>${targetPlan} VIP</b>`,
+        { parse_mode: 'HTML' }
+      );
+
+      // Sends a notification to the user
+      try {
+        await bot.telegram.sendMessage(
+          targetUserId,
+          `Congratulations!\nYour <b>${targetPlan} VIP</b> has been activated!`,
+          {
+            parse_mode: 'HTML',
+            reply_markup: {
+              inline_keyboard: [[
+                { text: 'Open App', web_app: { url: `${WEBAPP_URL}/?id=${targetUserId}` } }
+              ]]
+            }
+          }
+        );
+      } catch (_) {}
+      return; 
+    }
+
+    // If the sender is NOT the admin, the bot asks for a screenshot instead
+    const user = await ensureUser(senderId);
+    user.isWaitingForProof = true;
+    await user.save();
+
+    return ctx.reply('Manual VIP Activation\n\nSend payment screenshot here.', {
+      parse_mode: 'HTML'
+    });
+  } catch (err) {
+    console.error('bot.command activate error:', err);
+  }
+});
 
 bot.command('broadcast', async (ctx) => {
   // 1. Security Check: Only the admin can use this
