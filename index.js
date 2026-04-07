@@ -281,6 +281,7 @@ async function handleReward(req, res, payload) {
       reward,
       balance: Number(user.balance.toFixed(4))
     });
+
   } catch (err) {
     console.error('Reward error:', err);
     return req.method === 'GET'
