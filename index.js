@@ -760,16 +760,16 @@ bot.command('activate', async (ctx) => {
       return ctx.reply('❌ Access denied');
     }
 
-    const parts = String(ctx.message?.text || '').trim().split(/\s+/);
+    const args = String(ctx.message?.text || '').trim().split(/\s+/);
 
-    if (parts.length !== 3) {
+    if (args.length !== 3) {
       return ctx.reply(
         '⚠️ Usage: /activate UserID Plan\nExample: /activate 5550657196 Bronze'
       );
     }
 
-    const targetUserId = String(parts[1]).trim();
-    const targetPlan = String(parts[2]).trim();
+    const targetUserId = String(args[1]).trim();
+    const targetPlan = String(args[2]).trim();
 
     if (!Object.prototype.hasOwnProperty.call(VIP_PLANS, targetPlan)) {
       return ctx.reply('❌ Invalid plan');
@@ -791,52 +791,12 @@ bot.command('activate', async (ctx) => {
         targetUserId,
         `🎉 Congratulations!\nYour ${targetPlan} VIP has been activated!`
       );
-    } catch (_) {}
+    } catch (e) {
+      console.error('Failed to notify user:', e);
+    }
   } catch (err) {
     console.error('bot.command activate error:', err);
     return ctx.reply('❌ Activation failed');
-  }
-});
-
-      targetUser.vip = true;
-      targetUser.vipPlan = targetPlan;
-      targetUser.pendingVipPlan = null;
-      targetUser.isWaitingForProof = false;
-
-      await targetUser.save();
-
-      await ctx.reply(
-        `✅ User <code>${targetUserId}</code> upgraded to <b>${targetPlan} VIP</b>`,
-        { parse_mode: 'HTML' }
-      );
-
-      try {
-        await bot.telegram.sendMessage(
-          targetUserId,
-          `🎉 <b>Congratulations!</b>\nYour <b>${targetPlan} VIP</b> has been activated!`,
-          {
-            parse_mode: 'HTML',
-            reply_markup: {
-              inline_keyboard: [[
-                { text: '🚀 Open App', web_app: { url: `${WEBAPP_URL}/?id=${targetUserId}` } }
-              ]]
-            }
-          }
-        );
-      } catch (_) {}
-
-      return;
-    }
-
-    const user = await ensureUser(senderId);
-    user.isWaitingForProof = true;
-    await user.save();
-
-    return ctx.reply('💎 <b>Manual VIP Activation</b>\n\nSend payment screenshot here.', {
-      parse_mode: 'HTML'
-    });
-  } catch (err) {
-    console.error('bot.command activate error:', err);
   }
 });
 
