@@ -2864,13 +2864,36 @@
       if (!isOpen) item.classList.add('open');
     }
 
-    function createPlatformStats() {
-      document.getElementById('stat-payout').textContent = '$48,312';
-      document.getElementById('stat-users').textContent = '12,847';
-      document.getElementById('stat-ads').textContent = '3.2M';
-      document.getElementById('stat-today').textContent = '$2,190';
-    }
+const demoStats = {
+  totalPayouts: 483120,
+  activeUsers: 12847,
+  adsWatched: 3200000,
+  paidToday: 2190
+};
 
+function animateDemoStats() {
+  const bump = (value, min, max) => {
+    const change = Math.floor(Math.random() * (max - min + 1)) + min;
+    return value + change;
+  };
+
+  demoStats.totalPayouts = bump(demoStats.totalPayouts, 120, 900);
+  demoStats.activeUsers = bump(demoStats.activeUsers, 1, 8);
+  demoStats.adsWatched = bump(demoStats.adsWatched, 30, 180);
+  demoStats.paidToday = bump(demoStats.paidToday, 10, 120);
+
+  document.getElementById('stat-payout').textContent =
+    `$${demoStats.totalPayouts.toLocaleString()}`;
+  document.getElementById('stat-users').textContent =
+    demoStats.activeUsers.toLocaleString();
+  document.getElementById('stat-ads').textContent =
+    `${demoStats.adsWatched.toLocaleString()}`;
+  document.getElementById('stat-today').textContent =
+    `$${demoStats.paidToday.toLocaleString()}`;
+}
+
+animateDemoStats();
+setInterval(animateDemoStats, 1000);
     function initTelegram() {
       if (!tg) return;
       try { tg.ready(); } catch {}

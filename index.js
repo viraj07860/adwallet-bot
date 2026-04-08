@@ -800,6 +800,51 @@ bot.command('activate', async (ctx) => {
   }
 });
 
+bot.command('broadcast', async (ctx) => {
+  try {
+    const senderId = String(ctx.from.id).trim();
+
+    if (senderId !== String(ADMIN_ID).trim()) {
+      return ctx.reply('❌ Access denied');
+    }
+
+    const text = String(ctx.message?.text || '').replace('/broadcast', '').trim();
+
+    if (!text) {
+      return ctx.reply(
+        '⚠️ Usage:\n/broadcast Your message here'
+      );
+    }
+
+    const users = await User.find({}).select('userId');
+
+    let sent = 0;
+    let failed = 0;
+
+    await ctx.reply(`📢 Sending broadcast to ${users.length} users...`);
+
+    for (const user of users) {
+      try {
+        await bot.telegram.sendMessage(
+          String(user.userId),
+          `📢 Announcement\n\n${text}`
+        );
+        sent++;
+      } catch (err) {
+        failed++;
+        console.error(`Broadcast failed for ${user.userId}:`, err);
+      }
+    }
+
+    return ctx.reply(
+      `✅ Broadcast complete\n\nSent: ${sent}\nFailed: ${failed}`
+    );
+  } catch (err) {
+    console.error('broadcast error:', err);
+    return ctx.reply('❌ Broadcast failed');
+  }
+});
+
 bot.command('buyvip', async (ctx) => {
   try {
     const keyboard = Object.keys(VIP_PLANS).map((plan) => [
