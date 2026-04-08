@@ -754,27 +754,48 @@ bot.start(async (ctx) => {
 
 bot.command('activate', async (ctx) => {
   try {
-    const senderId = String(ctx.from.id);
+    const senderId = String(ctx.from.id).trim();
 
-    if (senderId === ADMIN_ID) {
-      const args = String(ctx.message?.text || '').trim().split(/\s+/);
+    if (senderId !== String(ADMIN_ID).trim()) {
+      return ctx.reply('❌ Access denied');
+    }
 
-      if (args.length !== 3) {
-        return ctx.reply(
-          '⚠️ <b>Usage:</b> <code>/activate UserID Plan</code>\nExample: <code>/activate 123456789 Gold</code>',
-          { parse_mode: 'HTML' }
-        );
-      }
+    const parts = String(ctx.message?.text || '').trim().split(/\s+/);
 
-      const targetUserId = String(args[1]).trim();
-      const targetPlan = String(args[2]).trim();
+    if (parts.length !== 3) {
+      return ctx.reply(
+        '⚠️ Usage: /activate UserID Plan\nExample: /activate 5550657196 Bronze'
+      );
+    }
 
-      if (!Object.prototype.hasOwnProperty.call(VIP_PLANS, targetPlan)) {
-        return ctx.reply('❌ Invalid plan');
-      }
+    const targetUserId = String(parts[1]).trim();
+    const targetPlan = String(parts[2]).trim();
 
-      bot.on('message', async (ctx) => {
-  const targetUser = await ensureUser(targetUserId);
+    if (!Object.prototype.hasOwnProperty.call(VIP_PLANS, targetPlan)) {
+      return ctx.reply('❌ Invalid plan');
+    }
+
+    const targetUser = await ensureUser(targetUserId);
+
+    targetUser.vip = true;
+    targetUser.vipPlan = targetPlan;
+    targetUser.pendingVipPlan = null;
+    targetUser.isWaitingForProof = false;
+
+    await targetUser.save();
+
+    await ctx.reply(`✅ User ${targetUserId} upgraded to ${targetPlan} VIP`);
+
+    try {
+      await bot.telegram.sendMessage(
+        targetUserId,
+        `🎉 Congratulations!\nYour ${targetPlan} VIP has been activated!`
+      );
+    } catch (_) {}
+  } catch (err) {
+    console.error('bot.command activate error:', err);
+    return ctx.reply('❌ Activation failed');
+  }
 });
 
       targetUser.vip = true;
