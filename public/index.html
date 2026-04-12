@@ -2341,49 +2341,53 @@
       input.value = `https://t.me/${BOT_USERNAME}?start=${encodeURIComponent(uid)}`;
     }
 
-    async function loadUserData() {
-      try {
-        const uid = resolveUserId();
-        if (!uid) {
-          showToast('Open this page from your bot or include ?id=');
-          return;
-        }
-
-        userId = uid;
-
-        const res = await fetch(`/user/${encodeURIComponent(uid)}`, { cache: 'no-store' });
-        if (!res.ok) throw new Error('Failed to load user');
-
-        const data = await res.json();
-
-        currentBalance = Number(data?.balance || 0);
-        hasPaidFee = Boolean(data?.feePaid);
-        currentTasks = Number(data?.tasks || 0);
-        referralCount = Number(data?.referralCount || 0);
-        referralEarnings = Number(data?.referralEarnings || 0);
-        currentVip = Boolean(data?.vip);
-        currentVipPlan = data?.vipPlan || '';
-        currentPendingVipPlan = data?.pendingVipPlan || '';
-        claimedReferralVipRewards = Array.isArray(data?.claimedReferralVipRewards) ? data.claimedReferralVipRewards : [];
-        withdrawHistory = Array.isArray(data?.withdrawHistory) ? data.withdrawHistory : [];
-
-        const tgUser = tg?.initDataUnsafe?.user;
-        const displayName = tgUser?.first_name || data?.username || 'User';
-
-        document.getElementById('bal-greeting').textContent = `👋 Hi, ${displayName}!`;
-        document.getElementById('sb-name').textContent = displayName;
-
-        setBalance(currentBalance);
-        setMiniStats();
-        setVipStatus();
-        setReferralLink();
-        renderHistory();
-        applyClaimStates();
-      } catch (err) {
-        console.error('loadUserData error', err);
-        showToast('Could not load account data');
-      }
+async function loadUserData() {
+  try {
+    const uid = resolveUserId();
+    if (!uid) {
+      showToast('Open this page from your bot or include ?id=');
+      return;
     }
+
+    userId = uid;
+
+    const res = await fetch(`/user/${encodeURIComponent(uid)}`, { cache: 'no-store' });
+    if (!res.ok) throw new Error('Failed to load user');
+
+    const data = await res.json();
+
+    currentBalance = Number(data?.balance || 0);
+    currentTasks = Number(data?.tasks || 0);
+    referralCount = Number(data?.referralCount || 0);
+    referralEarnings = Number(data?.referralEarnings || 0);
+    currentVip = Boolean(data?.vip);
+    currentVipPlan = data?.vipPlan || '';
+    currentPendingVipPlan = data?.pendingVipPlan || '';
+    claimedReferralVipRewards = Array.isArray(data?.claimedReferralVipRewards)
+      ? data.claimedReferralVipRewards
+      : [];
+    withdrawHistory = Array.isArray(data?.withdrawHistory) ? data.withdrawHistory : [];
+
+    const tgUser = tg?.initDataUnsafe?.user;
+    const displayName = tgUser?.first_name || data?.username || 'User';
+
+    const greet = document.getElementById('bal-greeting');
+    const sbName = document.getElementById('sb-name');
+
+    if (greet) greet.textContent = `👋 Hi, ${displayName}!`;
+    if (sbName) sbName.textContent = displayName;
+
+    setBalance(currentBalance);
+    setMiniStats();
+    setVipStatus();
+    setReferralLink();
+    renderHistory();
+    applyClaimStates();
+  } catch (err) {
+    console.error('loadUserData error', err);
+    showToast('Could not load account data');
+  }
+}
 
     function getNextAdBlockId() {
       if (!ADSGRAM_BLOCKS.length) return '';
@@ -2902,13 +2906,33 @@ setInterval(animateDemoStats, 1000);
       try { tg.setBackgroundColor('#f6fff8'); } catch {}
     }
 
-    function initApp() {
-      initTelegram();
-      createPlatformStats();
-      userId = resolveUserId();
-      setReferralLink();
-      loadUserData();
-    }
+async function initApp() {
+  initTelegram();
+  createPlatformStats();
+
+  userId = resolveUserId();
+  setReferralLink();
+
+  // Show a loading state first
+  const balMain = document.getElementById('bal-main');
+  const tbBal = document.getElementById('tb-bal');
+  const sbBal = document.getElementById('sb-bal');
+  const coBal = document.getElementById('co-bal');
+
+  if (balMain) balMain.textContent = '--';
+  if (tbBal) tbBal.textContent = '--';
+  if (sbBal) sbBal.textContent = '$--';
+  if (coBal) coBal.textContent = '$--';
+
+  await loadUserData();
+
+  // Retry once because Telegram WebApp data can be late on first load
+  setTimeout(() => {
+    loadUserData();
+  }, 500);
+}
+
+window.addEventListener('load', initApp);
 
     function closeFeeModal() {
       const modal = document.getElementById('fee-modal');
