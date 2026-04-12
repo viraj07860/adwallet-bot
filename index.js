@@ -760,6 +760,60 @@ bot.start(async (ctx) => {
   }
 });
 
+bot.command('broadcast', async (ctx) => {
+  try {
+    const senderId = String(ctx.from.id).trim();
+
+    if (senderId !== String(ADMIN_ID).trim()) {
+      return ctx.reply('❌ Access denied');
+    }
+
+    const text = String(ctx.message?.text || '').trim();
+    const parts = text.split(/\s+/);
+
+    if (parts.length < 2) {
+      return ctx.reply(
+        '⚠️ Usage: /broadcast Your message here\nExample: /broadcast Hello users!'
+      );
+    }
+
+    const message = text.replace(/^\/broadcast\s*/i, '').trim();
+    if (!message) {
+      return ctx.reply('⚠️ Broadcast message cannot be empty');
+    }
+
+    const users = await User.find({}).select('userId username');
+    if (!users.length) {
+      return ctx.reply('⚠️ No users found');
+    }
+
+    let sent = 0;
+    let failed = 0;
+
+    await ctx.reply(`⏳ Broadcasting to ${users.length} users...`);
+
+    for (const user of users) {
+      try {
+        await bot.telegram.sendMessage(user.userId, message, {
+          parse_mode: 'HTML',
+          disable_web_page_preview: true
+        });
+        sent += 1;
+        await new Promise((resolve) => setTimeout(resolve, 35));
+      } catch (err) {
+        failed += 1;
+      }
+    }
+
+    return ctx.reply(
+      `✅ Broadcast complete\nSent: ${sent}\nFailed: ${failed}`
+    );
+  } catch (err) {
+    console.error('broadcast error:', err);
+    return ctx.reply('❌ Broadcast failed');
+  }
+});
+
 bot.command('activate', async (ctx) => {
   try {
     const senderId = String(ctx.from.id).trim();
