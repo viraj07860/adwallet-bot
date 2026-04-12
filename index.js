@@ -8,6 +8,7 @@ const cors = require('cors');
 
 const app = express();
 
+app.set('trust proxy', true);
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -65,6 +66,7 @@ const userSchema = new mongoose.Schema({
   referredBy: { type: String, default: '' },
   referralCredited: { type: Boolean, default: false },
   lastReward: { type: Number, default: 0 },
+  lastRewardIp: { type: String, default: '' },
   lastDailyBonus: { type: String, default: '' },
   welcomeBonusClaimed: { type: Boolean, default: false },
   vip: { type: Boolean, default: false },
@@ -73,14 +75,12 @@ const userSchema = new mongoose.Schema({
   isWaitingForProof: { type: Boolean, default: false },
   isAdmin: { type: Boolean, default: false },
   deviceFingerprint: { type: String, default: '' },
-  lastRewardIp: { type: String, default: '' },
   withdrawHistory: { type: [withdrawSchema], default: [] }
 });
 
 const User = mongoose.model('User', userSchema);
 
 /* ---------------- ECONOMY SETTINGS ---------------- */
-
 const AD_REWARD_BASE = 0.05;
 const REF_REWARD = 0.075;
 const DAILY_BONUS = 0.25;
@@ -182,19 +182,34 @@ function getIp(req) {
   return String(req.socket?.remoteAddress || '');
 }
 
+function normalizePlanName(plan) {
+  const raw = String(plan || '').trim();
+  if (!raw) return '';
+  return raw.charAt(0).toUpperCase() + raw.slice(1).toLowerCase();
+}
+
+function parseVipPlanFromPayload(payload) {
+  const text = String(payload || '').trim();
+  if (!text.startsWith('vip_')) return '';
+  const plan = normalizePlanName(text.replace(/^vip_/, ''));
+  return Object.prototype.hasOwnProperty.call(VIP_PLANS, plan) ? plan : '';
+}
+
 async function createStarsInvoice(plan) {
-  const amount = VIP_PLANS[plan];
+  const cleanPlan = normalizePlanName(plan);
+  const amount = VIP_PLANS[cleanPlan];
+
   if (!amount) {
     throw new Error('Invalid VIP plan');
   }
 
   return bot.telegram.createInvoiceLink(
-    `${plan} VIP`,
-    `Purchase ${plan} VIP with Telegram Stars`,
-    `vip_${plan}`,
+    `${cleanPlan} VIP`,
+    `Purchase ${cleanPlan} VIP with Telegram Stars`,
+    `vip_${cleanPlan}`,
     '',
     'XTR',
-    [{ label: `${plan} VIP`, amount }]
+    [{ label: `${cleanPlan} VIP`, amount }]
   );
 }
 
@@ -346,13 +361,6 @@ app.post('/api/claim-daily-bonus', async (req, res) => {
     }
 
     const user = await ensureUser(userId);
-
-    if (!user.feePaid) {
-      return res.json({
-        success: false,
-        message: 'Withdrawal fee not paid.'
-      });
-    }
 
     const today = new Date().toDateString();
 
@@ -625,7 +633,7 @@ app.post('/api/admin/reject-withdrawal', async (req, res) => {
 
 app.get('/api/vip-invoice', async (req, res) => {
   try {
-    const plan = String(req.query.plan || '').trim();
+    const plan = normalizePlanName(req.query.plan);
     const invoiceUrl = await createStarsInvoice(plan);
     return res.json({ ok: true, invoiceUrl });
   } catch (err) {
@@ -769,7 +777,7 @@ bot.command('activate', async (ctx) => {
     }
 
     const targetUserId = String(args[1]).trim();
-    const targetPlan = String(args[2]).trim();
+    const targetPlan = normalizePlanName(args[2]);
 
     if (!Object.prototype.hasOwnProperty.call(VIP_PLANS, targetPlan)) {
       return ctx.reply('❌ Invalid plan');
@@ -800,51 +808,6 @@ bot.command('activate', async (ctx) => {
   }
 });
 
-bot.command('broadcast', async (ctx) => {
-  try {
-    const senderId = String(ctx.from.id).trim();
-
-    if (senderId !== String(ADMIN_ID).trim()) {
-      return ctx.reply('❌ Access denied');
-    }
-
-    const text = String(ctx.message?.text || '').replace('/broadcast', '').trim();
-
-    if (!text) {
-      return ctx.reply(
-        '⚠️ Usage:\n/broadcast Your message here'
-      );
-    }
-
-    const users = await User.find({}).select('userId');
-
-    let sent = 0;
-    let failed = 0;
-
-    await ctx.reply(`📢 Sending broadcast to ${users.length} users...`);
-
-    for (const user of users) {
-      try {
-        await bot.telegram.sendMessage(
-          String(user.userId),
-          `📢 Announcement\n\n${text}`
-        );
-        sent++;
-      } catch (err) {
-        failed++;
-        console.error(`Broadcast failed for ${user.userId}:`, err);
-      }
-    }
-
-    return ctx.reply(
-      `✅ Broadcast complete\n\nSent: ${sent}\nFailed: ${failed}`
-    );
-  } catch (err) {
-    console.error('broadcast error:', err);
-    return ctx.reply('❌ Broadcast failed');
-  }
-});
-
 bot.command('buyvip', async (ctx) => {
   try {
     const keyboard = Object.keys(VIP_PLANS).map((plan) => [
@@ -861,7 +824,7 @@ bot.command('buyvip', async (ctx) => {
 
 bot.action(/^vipplan_(.+)$/, async (ctx) => {
   try {
-    const plan = String(ctx.match?.[1] || '').trim();
+    const plan = normalizePlanName(ctx.match?.[1]);
     await ctx.answerCbQuery();
 
     const invoiceUrl = await createStarsInvoice(plan);
@@ -923,14 +886,15 @@ bot.on('message', async (ctx) => {
 
     const userId = String(ctx.from.id);
     const payload = String(ctx.message.successful_payment.invoice_payload || '');
-    const plan = payload.replace(/^vip_/, '');
+    const plan = parseVipPlanFromPayload(payload);
 
     const user = await ensureUser(userId);
 
-    if (Object.prototype.hasOwnProperty.call(VIP_PLANS, plan)) {
+    if (plan) {
       user.vip = true;
       user.vipPlan = plan;
       user.pendingVipPlan = null;
+      user.isWaitingForProof = false;
       await user.save();
 
       await ctx.reply(`✅ Your ${plan} VIP is now active!`);
