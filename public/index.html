@@ -2955,31 +2955,52 @@ setInterval(animateDemoStats, 1000);
       }
     }
 
-async function initApp() {
-  initTelegram();
-  createPlatformStats();
+function setReferralLinkPlaceholder() {
+      const input = document.getElementById('ref-link-input');
+      if (input && !resolveUserId()) {
+        input.placeholder = 'Open from Telegram bot';
+      }
+    }
 
-  userId = resolveUserId();
-  setReferralLink();
+    async function initApp() {
+      initTelegram();
+      createPlatformStats();
 
-  // Show a loading state first
-  const balMain = document.getElementById('bal-main');
-  const tbBal = document.getElementById('tb-bal');
-  const sbBal = document.getElementById('sb-bal');
-  const coBal = document.getElementById('co-bal');
+      // Loading state first
+      ['bal-main', 'tb-bal', 'sb-bal', 'co-bal'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.textContent = id === 'sb-bal' || id === 'co-bal' ? '$--' : '--';
+      });
 
-  if (balMain) balMain.textContent = '--';
-  if (tbBal) tbBal.textContent = '--';
-  if (sbBal) sbBal.textContent = '$--';
-  if (coBal) coBal.textContent = '$--';
+      setReferralLinkPlaceholder();
+      setReferralLink();
 
-  await loadUserData();
+      let tries = 0;
+      while (!resolveUserId() && tries < 10) {
+        await sleep(250);
+        tries += 1;
+      }
 
-  // Retry once because Telegram WebApp data can be late on first load
-  setTimeout(() => {
-    loadUserData();
-  }, 500);
-}
+      userId = resolveUserId();
+
+      if (!userId) {
+        showToast('Open this page from the Telegram bot');
+        return;
+      }
+
+      await loadUserData();
+
+      setTimeout(() => {
+        loadUserData();
+      }, 500);
+
+      setInterval(() => {
+        if (document.visibilityState === 'visible') {
+          loadUserData();
+        }
+      }, 15000);
+    }
 
     window.addEventListener('load', initApp);
   </script>
