@@ -203,14 +203,14 @@ async function createStarsInvoice(plan) {
     throw new Error('Invalid VIP plan');
   }
 
-  return bot.telegram.createInvoiceLink(
-    `${cleanPlan} VIP`,
-    `Purchase ${cleanPlan} VIP with Telegram Stars`,
-    `vip_${cleanPlan}`,
-    '',
-    'XTR',
-    [{ label: `${cleanPlan} VIP`, amount }]
-  );
+  return bot.telegram.createInvoiceLink({
+    title: `${cleanPlan} VIP`,
+    description: `Purchase ${cleanPlan} VIP with Telegram Stars`,
+    payload: `vip_${cleanPlan}`,
+    provider_token: '',
+    currency: 'XTR',
+    prices: [{ label: `${cleanPlan} VIP`, amount }]
+  });
 }
 
 async function handleReward(req, res, payload) {
