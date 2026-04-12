@@ -2906,34 +2906,6 @@ setInterval(animateDemoStats, 1000);
       try { tg.setBackgroundColor('#f6fff8'); } catch {}
     }
 
-async function initApp() {
-  initTelegram();
-  createPlatformStats();
-
-  userId = resolveUserId();
-  setReferralLink();
-
-  // Show a loading state first
-  const balMain = document.getElementById('bal-main');
-  const tbBal = document.getElementById('tb-bal');
-  const sbBal = document.getElementById('sb-bal');
-  const coBal = document.getElementById('co-bal');
-
-  if (balMain) balMain.textContent = '--';
-  if (tbBal) tbBal.textContent = '--';
-  if (sbBal) sbBal.textContent = '$--';
-  if (coBal) coBal.textContent = '$--';
-
-  await loadUserData();
-
-  // Retry once because Telegram WebApp data can be late on first load
-  setTimeout(() => {
-    loadUserData();
-  }, 500);
-}
-
-window.addEventListener('load', initApp);
-
     function closeFeeModal() {
       const modal = document.getElementById('fee-modal');
       modal.style.opacity = '0';
@@ -2982,6 +2954,32 @@ window.addEventListener('load', initApp);
         showToast('Invoice request failed');
       }
     }
+
+async function initApp() {
+  initTelegram();
+  createPlatformStats();
+
+  userId = resolveUserId();
+  setReferralLink();
+
+  // Show a loading state first
+  const balMain = document.getElementById('bal-main');
+  const tbBal = document.getElementById('tb-bal');
+  const sbBal = document.getElementById('sb-bal');
+  const coBal = document.getElementById('co-bal');
+
+  if (balMain) balMain.textContent = '--';
+  if (tbBal) tbBal.textContent = '--';
+  if (sbBal) sbBal.textContent = '$--';
+  if (coBal) coBal.textContent = '$--';
+
+  await loadUserData();
+
+  // Retry once because Telegram WebApp data can be late on first load
+  setTimeout(() => {
+    loadUserData();
+  }, 500);
+}
 
     window.addEventListener('load', initApp);
   </script>
