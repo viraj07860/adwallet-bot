@@ -768,18 +768,13 @@ bot.command('broadcast', async (ctx) => {
       return ctx.reply('❌ Access denied');
     }
 
-    const text = String(ctx.message?.text || '').trim();
-    const parts = text.split(/\s+/);
+    const rawText = String(ctx.message?.text || '').trim();
+    const message = rawText.replace(/^\/broadcast(@\w+)?\s*/i, '').trim();
 
-    if (parts.length < 2) {
+    if (!message) {
       return ctx.reply(
         '⚠️ Usage: /broadcast Your message here\nExample: /broadcast Hello users!'
       );
-    }
-
-    const message = text.replace(/^\/broadcast\s*/i, '').trim();
-    if (!message) {
-      return ctx.reply('⚠️ Broadcast message cannot be empty');
     }
 
     const users = await User.find({}).select('userId username');
@@ -799,15 +794,15 @@ bot.command('broadcast', async (ctx) => {
           disable_web_page_preview: true
         });
         sent += 1;
+
+        // Small delay to reduce Telegram rate-limit issues
         await new Promise((resolve) => setTimeout(resolve, 35));
       } catch (err) {
         failed += 1;
       }
     }
 
-    return ctx.reply(
-      `✅ Broadcast complete\nSent: ${sent}\nFailed: ${failed}`
-    );
+    return ctx.reply(`✅ Broadcast complete\nSent: ${sent}\nFailed: ${failed}`);
   } catch (err) {
     console.error('broadcast error:', err);
     return ctx.reply('❌ Broadcast failed');
