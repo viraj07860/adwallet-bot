@@ -8,8 +8,13 @@
   />
   <title>AdWallet Elite</title>
 
-  <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+
+  <!-- Optional CPAGrip / offer scripts -->
+  <script type="text/javascript" src="https://optilinklock.com/script_include.php?id=1887514"></script>
+  <script type="text/javascript" src="https://optilinklock.com/script_include.php?id=1887515"></script>
+  <script type="text/javascript" src="https://optilinklock.com/script_include.php?id=1887516"></script>
 
   <style>
     :root{
@@ -27,8 +32,6 @@
       --radius:22px;
       --nav-h:74px;
       --sidebar-w:290px;
-      --danger:#ef4444;
-      --warn:#f59e0b;
       --blue:#3b82f6;
       --dark:#0f172a;
     }
@@ -62,9 +65,7 @@
       text-decoration:none;
     }
 
-    .hidden{
-      display:none !important;
-    }
+    .hidden{ display:none !important; }
 
     #overlay{
       position:fixed;
@@ -100,9 +101,7 @@
       overflow:hidden;
     }
 
-    #sidebar.open{
-      transform:translateX(0);
-    }
+    #sidebar.open{ transform:translateX(0); }
 
     .sb-header{
       padding:28px 22px 24px;
@@ -157,10 +156,7 @@
       font-weight:600;
     }
 
-    .sb-item:hover{
-      background:var(--green-soft);
-    }
-
+    .sb-item:hover{ background:var(--green-soft); }
     .sb-item.active{
       color:#fff;
       background:linear-gradient(135deg, var(--green-dark), var(--green));
@@ -234,9 +230,7 @@
       color:var(--green-dark);
     }
 
-    .logo span{
-      color:var(--green);
-    }
+    .logo span{ color:var(--green); }
 
     .pill-badge{
       height:38px;
@@ -250,6 +244,7 @@
       font-size:13px;
       font-weight:800;
       box-shadow:0 10px 18px var(--green-glow);
+      gap:6px;
     }
 
     .tb-action{
@@ -280,9 +275,7 @@
       padding:16px 16px 8px;
     }
 
-    .page.active{
-      display:block;
-    }
+    .page.active{ display:block; }
 
     .sec-title{
       font-size:22px;
@@ -394,9 +387,7 @@
       font-weight:800;
     }
 
-    .progress-wrap{
-      margin-top:18px;
-    }
+    .progress-wrap{ margin-top:18px; }
 
     .progress-top{
       display:flex;
@@ -405,6 +396,7 @@
       font-size:12px;
       opacity:.95;
       margin-bottom:6px;
+      gap:10px;
     }
 
     .progress-bar{
@@ -446,14 +438,8 @@
       text-align:center;
     }
 
-    .btn:active{
-      transform:scale(.98);
-    }
-
-    .btn:disabled{
-      opacity:.6;
-      cursor:not-allowed;
-    }
+    .btn:active{ transform:scale(.98); }
+    .btn:disabled{ opacity:.6; cursor:not-allowed; }
 
     .btn-green{
       color:#fff;
@@ -461,10 +447,7 @@
       box-shadow:0 10px 20px var(--green-glow);
     }
 
-    .btn-white{
-      background:#fff;
-      color:var(--green-dark);
-    }
+    .btn-white{ background:#fff; color:var(--green-dark); }
 
     .btn-outline{
       color:#fff;
@@ -482,12 +465,6 @@
       color:#fff;
       background:linear-gradient(135deg, #3b82f6, #2563eb);
       box-shadow:0 10px 20px rgba(59,130,246,.22);
-    }
-
-    .btn-warn{
-      color:#fff;
-      background:linear-gradient(135deg, #f59e0b, #d97706);
-      box-shadow:0 10px 20px rgba(245,158,11,.22);
     }
 
     .grid-2{
@@ -557,44 +534,13 @@
       font-size:11px;
     }
 
-    .live-chip{
-      display:inline-flex;
-      align-items:center;
-      gap:7px;
-      padding:8px 12px;
-      border-radius:999px;
-      background:#f4fff6;
-      border:1px solid #dcf5e2;
-      color:#166534;
-      font-size:12px;
-      font-weight:700;
-      margin-bottom:14px;
-    }
-
-    .live-dot{
-      width:8px;
-      height:8px;
-      border-radius:50%;
-      background:#22c55e;
-      box-shadow:0 0 0 0 rgba(34,197,94,.6);
-      animation:pulse 1.6s infinite;
-    }
-
-    @keyframes pulse{
-      0%{ box-shadow:0 0 0 0 rgba(34,197,94,.55); }
-      70%{ box-shadow:0 0 0 10px rgba(34,197,94,0); }
-      100%{ box-shadow:0 0 0 0 rgba(34,197,94,0); }
-    }
-
     .ads-grid{
       display:flex;
       flex-direction:column;
       gap:12px;
     }
 
-    .ad-card,
-    .offer-card,
-    .vip-card{
+    .ad-card,.offer-card,.vip-card{
       display:flex;
       gap:14px;
       align-items:center;
@@ -605,9 +551,7 @@
       box-shadow:var(--shadow);
     }
 
-    .ad-thumb,
-    .offer-thumb,
-    .vip-thumb{
+    .ad-thumb,.offer-thumb,.vip-thumb{
       width:62px;
       height:62px;
       border-radius:18px;
@@ -618,45 +562,29 @@
       font-size:28px;
     }
 
-    .ad-thumb{
-      background:linear-gradient(135deg,#dcfce7,#bbf7d0);
-    }
+    .ad-thumb{ background:linear-gradient(135deg,#dcfce7,#bbf7d0); }
+    .offer-thumb{ background:linear-gradient(135deg,#dbeafe,#bfdbfe); }
+    .vip-thumb{ background:linear-gradient(135deg,#fef3c7,#fde68a); }
 
-    .offer-thumb{
-      background:linear-gradient(135deg,#dbeafe,#bfdbfe);
-    }
-
-    .vip-thumb{
-      background:linear-gradient(135deg,#fef3c7,#fde68a);
-    }
-
-    .ad-info,
-    .offer-info,
-    .vip-info{
+    .ad-info,.offer-info,.vip-info{
       flex:1;
       min-width:0;
     }
 
-    .ad-title,
-    .offer-title,
-    .vip-title{
+    .ad-title,.offer-title,.vip-title{
       font-size:14px;
       font-weight:800;
       line-height:1.3;
     }
 
-    .ad-reward,
-    .offer-reward,
-    .vip-reward{
+    .ad-reward,.offer-reward,.vip-reward{
       font-size:13px;
       font-weight:700;
       margin-top:4px;
       color:var(--green-dark);
     }
 
-    .ad-dur,
-    .offer-desc,
-    .vip-desc{
+    .ad-dur,.offer-desc,.vip-desc{
       font-size:11px;
       color:var(--muted);
       margin-top:4px;
@@ -787,9 +715,7 @@
       transition:all .15s ease;
     }
 
-    .method:hover{
-      border-color:#ccefd5;
-    }
+    .method:hover{ border-color:#ccefd5; }
 
     .method.sel{
       border-color:var(--green);
@@ -813,12 +739,9 @@
       margin-top:10px;
     }
 
-    .method-fields.active{
-      display:block;
-    }
+    .method-fields.active{ display:block; }
 
-    .field,
-    .amount-input{
+    .field,.amount-input{
       width:100%;
       border:1.5px solid var(--border);
       background:#fbfffc;
@@ -829,8 +752,7 @@
       transition:border-color .15s ease, box-shadow .15s ease;
     }
 
-    .field:focus,
-    .amount-input:focus{
+    .field:focus,.amount-input:focus{
       border-color:var(--green);
       box-shadow:0 0 0 4px rgba(34,197,94,.10);
     }
@@ -1100,9 +1022,7 @@
       padding:18px;
     }
 
-    #crypto-modal.show{
-      opacity:1;
-    }
+    #crypto-modal.show{ opacity:1; }
 
     .crypto-card{
       width:min(100%, 390px);
@@ -1234,33 +1154,17 @@
       margin-bottom:14px;
     }
 
-    .muted{
-      color:var(--muted);
-    }
+    .muted{ color:var(--muted); }
 
     @media (max-width:380px){
-      .stack-actions{
-        min-width:108px;
-      }
-
-      .vip-card,
-      .offer-card,
-      .ad-card{
+      .stack-actions{ min-width:108px; }
+      .vip-card,.offer-card,.ad-card{
         padding:14px;
         gap:12px;
       }
-
-      .bal-amount{
-        font-size:40px;
-      }
-
-      .share-row{
-        grid-template-columns:repeat(2,1fr);
-      }
-
-      .mini-row{
-        grid-template-columns:1fr;
-      }
+      .bal-amount{ font-size:40px; }
+      .share-row{ grid-template-columns:repeat(2,1fr); }
+      .mini-row{ grid-template-columns:1fr; }
     }
   </style>
 </head>
@@ -1275,31 +1179,31 @@
     </div>
 
     <div class="sb-nav">
-  <div class="sb-item active" data-page="dashboard" onclick="navigate('dashboard',0,this)">
-    <span class="icon">🏠</span> Dashboard
-  </div>
-  <div class="sb-item" data-page="ads" onclick="navigate('ads',1,this)">
-    <span class="icon">🎬</span> Watch Ads
-  </div>
-  <div class="sb-item" data-page="offers" onclick="navigate('offers',2,this)">
-    <span class="icon">🎁</span> Offer Center
-  </div>
-  <div class="sb-item" data-page="invite" onclick="navigate('invite',3,this)">
-    <span class="icon">👥</span> Invite Friends
-  </div>
-  <div class="sb-item" data-page="cashout" onclick="navigate('cashout',4,this)">
-    <span class="icon">💸</span> Cashout
-  </div>
-  <div class="sb-item" data-page="vip" onclick="navigate('vip',4,this)">
-    <span class="icon">💎</span> VIP
-  </div>
-  <div class="sb-item" data-page="help" onclick="navigate('help',4,this)">
-    <span class="icon">❓</span> Help & FAQ
-  </div>
-</div>
+      <div class="sb-item active" data-page="dashboard" onclick="navigate('dashboard',0,this)">
+        <span class="icon">🏠</span> Dashboard
+      </div>
+      <div class="sb-item" data-page="ads" onclick="navigate('ads',1,this)">
+        <span class="icon">🎬</span> Watch Ads
+      </div>
+      <div class="sb-item" data-page="offers" onclick="navigate('offers',2,this)">
+        <span class="icon">🎁</span> Offer Center
+      </div>
+      <div class="sb-item" data-page="invite" onclick="navigate('invite',3,this)">
+        <span class="icon">👥</span> Invite Friends
+      </div>
+      <div class="sb-item" data-page="cashout" onclick="navigate('cashout',null,this)">
+        <span class="icon">💸</span> Cashout
+      </div>
+      <div class="sb-item" data-page="vip" onclick="navigate('vip',4,this)">
+        <span class="icon">💎</span> VIP
+      </div>
+      <div class="sb-item" data-page="help" onclick="navigate('help',null,this)">
+        <span class="icon">❓</span> Help & FAQ
+      </div>
+    </div>
 
     <div class="sb-footer">
-      AdWallet Elite · Smooth Telegram WebApp UI
+      AdWallet Elite · Telegram WebApp UI
     </div>
   </aside>
 
@@ -1351,7 +1255,7 @@
           </div>
 
           <div class="bal-actions">
-            <button class="btn btn-white" onclick="navigate('cashout',4)">💸 Cashout</button>
+            <button class="btn btn-white" onclick="navigate('cashout',null)">💸 Cashout</button>
             <button class="btn btn-outline" onclick="claimBonus()">🎁 Daily Bonus</button>
           </div>
         </div>
@@ -1390,11 +1294,7 @@
       </div>
 
       <div class="card">
-        <div class="live-chip">
-          <span class="live-dot"></span>
-          Live platform highlights
-        </div>
-
+        <div class="sec-title" style="font-size:17px;">Platform highlights</div>
         <div class="stats-grid">
           <div class="stat-item">
             <div class="stat-num" id="stat-payout">$48,312</div>
@@ -1469,35 +1369,11 @@
         </div>
 
         <div class="ad-card">
-          <div class="ad-thumb">🛒</div>
-          <div class="ad-info">
-            <div class="ad-title">Shopping Sponsor</div>
-            <div class="ad-reward">Boost your earnings</div>
-            <div class="ad-dur">⏱ Rewarded video slot</div>
-          </div>
-          <div class="stack-actions">
-            <button class="btn btn-green" onclick="watchAd(this)">Watch</button>
-          </div>
-        </div>
-
-        <div class="ad-card">
-          <div class="ad-thumb">🎮</div>
-          <div class="ad-info">
-            <div class="ad-title">Game Partner Ad</div>
-            <div class="ad-reward">Instant credit after completion</div>
-            <div class="ad-dur">⏱ Short video</div>
-          </div>
-          <div class="stack-actions">
-            <button class="btn btn-green" onclick="watchAd(this)">Watch</button>
-          </div>
-        </div>
-
-        <div class="ad-card">
           <div class="ad-thumb">💰</div>
           <div class="ad-info">
-            <div class="ad-title">Reward Slot</div>
+            <div class="ad-title">Monetag Reward Ad</div>
             <div class="ad-reward">Bonus earning chance</div>
-            <div class="ad-dur">⏱ Try the next available ad</div>
+            <div class="ad-dur">⏱ Rewarded interstitial</div>
           </div>
           <div class="stack-actions">
             <button class="btn btn-blue" onclick="showMonetagAd(this)">Play</button>
@@ -1508,51 +1384,50 @@
 
     <section class="page" id="page-offers">
       <div class="sec-title">Offer Center</div>
-      <div class="sec-sub">Complete CPA offers for much bigger rewards</div>
-        
-        <div class="card">
-         <div class="sec-title" style="font-size:16px;margin-bottom:12px;">CPAgrip Offers</div>
-        
-         <div class="ads-grid">
+      <div class="sec-sub">Complete CPA offers for much bigger rewards.</div>
+
+      <div class="card">
+        <div class="sec-title" style="font-size:16px;margin-bottom:12px;">CPAGrip Offers</div>
+
+        <div class="ads-grid">
           <div class="ad-card">
-           <div class="ad-thumb"
-      style="background:linear-gradient(135deg,#fef3c7,#fde68a);">📲</div>
-           <div class="ad-info">
-            <div class="ad-title">Install &amp; Open App
-                                   (referral
-                                    code=
-                                   16710035)</div>
-            <div class="ad-reward">+$1.20 to +$3.00</div>
-            <div class="ad-dur">⏱ 2–5 min</div>
+            <div class="ad-thumb" style="background:linear-gradient(135deg,#fef3c7,#fde68a);">📲</div>
+            <div class="ad-info">
+              <div class="ad-title">Install &amp; Open App</div>
+              <div class="ad-reward">+$1.20 to +$3.00</div>
+              <div class="ad-dur">⏱ 2–5 min</div>
+            </div>
+            <button class="btn btn-green ad-btn" onclick="openCpagripOffer(1)">Start</button>
           </div>
-          <button class="btn btn-green ad-btn" onclick="openCpagripOffer(1)">Start</button>
-         </div>
 
-         <div class="ad-card">
-          <div class="ad-thumb"
-     style="background:linear-gradient(135deg,#dbeafe,#93c5fd);">📝</div>
-          <div class="ad-info">
-          <div class="ad-title">Complete Survey</div>
-          <div class="ad-reward">+$0.50 to +$2.50</div>
-          <div class="ad-dur">⏱ 3–8 min</div>
-         </div>
-         <button class="btn btn-green ad-btn" onclick="openCpagripOffer(2)">Start</button>
-        </div>
+          <div class="ad-card">
+            <div class="ad-thumb" style="background:linear-gradient(135deg,#dbeafe,#93c5fd);">📝</div>
+            <div class="ad-info">
+              <div class="ad-title">Complete Survey</div>
+              <div class="ad-reward">+$0.50 to +$2.50</div>
+              <div class="ad-dur">⏱ 3–8 min</div>
+            </div>
+            <button class="btn btn-green ad-btn" onclick="openCpagripOffer(2)">Start</button>
+          </div>
 
-        <div class="ad-card">
-         <div class="ad-thumb"
-    style="background:linear-gradient(135deg,#ede9fe,#c4b5fd);">🎮</div>
-         <div class="ad-info">
-          <div class="ad-title">Play Game Offer</div>
-          <div class="ad-reward">+$2.00 to +$10.00</div>
-          <div class="ad-dur">⏱ 10–30 min</div>
+          <div class="ad-card">
+            <div class="ad-thumb" style="background:linear-gradient(135deg,#ede9fe,#c4b5fd);">🎮</div>
+            <div class="ad-info">
+              <div class="ad-title">Play Game Offer</div>
+              <div class="ad-reward">+$2.00 to +$10.00</div>
+              <div class="ad-dur">⏱ 10–30 min</div>
+            </div>
+            <button class="btn btn-green ad-btn" onclick="openCpagripOffer(3)">Start</button>
+          </div>
         </div>
-        <button class="btn btn-green ad-btn" onclick="openCpagripOffer(3)">Start</button>
-       </div>
       </div>
-     </div>
-    </section>
 
+      <div class="card">
+        <div class="info-note">
+          If your CPAGrip scripts create their own redirect pages automatically, the Start buttons will use them. If not, replace the fallback links inside the script section with your direct offer URLs.
+        </div>
+      </div>
+    </section>
 
     <section class="page" id="page-invite">
       <div class="sec-title">Invite & Earn</div>
@@ -1729,6 +1604,7 @@
         </div>
 
         <div class="quick-amounts">
+          <button class="tiny-btn" onclick="setAmount(100)">$100</button>
           <button class="tiny-btn" onclick="setAmount(250)">$250</button>
           <button class="tiny-btn" onclick="setAmount(500)">$500</button>
           <button class="tiny-btn" onclick="setAmountMax()">Max</button>
@@ -1893,7 +1769,7 @@
           <span class="faq-arrow">▾</span>
         </div>
         <div class="faq-a">
-          Earn by watching rewarded ads, claiming your daily bonus, referring friends, and sending users to offer links you configure.
+          Earn by watching rewarded ads, claiming your daily bonus, referring friends, and completing offers.
         </div>
       </div>
 
@@ -1949,27 +1825,27 @@
   </main>
 
   <nav id="bottom-nav">
-  <div class="nav-item active" id="nav-0" onclick="navigate('dashboard',0)">
-    <span class="nav-icon">🏠</span>
-    <span>Home</span>
-  </div>
-  <div class="nav-item" id="nav-1" onclick="navigate('ads',1)">
-    <span class="nav-icon">🎬</span>
-    <span>Earn</span>
-  </div>
-  <div class="nav-item" id="nav-2" onclick="navigate('offers',2)">
-    <span class="nav-icon">🎁</span>
-    <span>Offers</span>
-  </div>
-  <div class="nav-item" id="nav-3" onclick="navigate('invite',3)">
-    <span class="nav-icon">👥</span>
-    <span>Invite</span>
-  </div>
-  <div class="nav-item" id="nav-4" onclick="navigate('vip',4)">
-    <span class="nav-icon">💎</span>
-    <span>VIP</span>
-  </div>
-</nav>
+    <div class="nav-item active" id="nav-0" onclick="navigate('dashboard',0)">
+      <span class="nav-icon">🏠</span>
+      <span>Home</span>
+    </div>
+    <div class="nav-item" id="nav-1" onclick="navigate('ads',1)">
+      <span class="nav-icon">🎬</span>
+      <span>Earn</span>
+    </div>
+    <div class="nav-item" id="nav-2" onclick="navigate('offers',2)">
+      <span class="nav-icon">🎁</span>
+      <span>Offers</span>
+    </div>
+    <div class="nav-item" id="nav-3" onclick="navigate('invite',3)">
+      <span class="nav-icon">👥</span>
+      <span>Invite</span>
+    </div>
+    <div class="nav-item" id="nav-4" onclick="navigate('vip',4)">
+      <span class="nav-icon">💎</span>
+      <span>VIP</span>
+    </div>
+  </nav>
 
   <button id="fab" title="Earn Now" onclick="navigate('ads',1)">⚡</button>
   <div id="toast"></div>
@@ -1981,104 +1857,105 @@
       <div style="font-size:20px;font-weight:900;text-align:center;">
         Buy <span id="modal-plan-name" style="color:#4ade80;">VIP</span>
       </div>
-      <div id="modal-subtitle" style="font-size:13px;color:#94a3b8;text-align:center;margin-top:5px;">
+      <div id="modal-subtitle" class="small-note" style="text-align:center;margin-top:10px;">
         Select your crypto payment method
       </div>
 
-      <div class="coin-grid" id="coin-selection">
-        <button class="coin-btn" onclick="selectCoin('USDT')">
-          <span class="coin-icon">💵</span>
-          <span class="coin-name">USDT</span>
-          <span class="coin-net">BEP20</span>
-        </button>
-        <button class="coin-btn" onclick="selectCoin('BNB')">
-          <span class="coin-icon">🟡</span>
-          <span class="coin-name">BNB</span>
-          <span class="coin-net">BEP20</span>
-        </button>
-        <button class="coin-btn" onclick="selectCoin('TRX')">
-          <span class="coin-icon">🔴</span>
-          <span class="coin-name">TRX</span>
-          <span class="coin-net">TRON</span>
-        </button>
-        <button class="coin-btn" onclick="selectCoin('TON')">
-          <span class="coin-icon">💎</span>
-          <span class="coin-name">TON</span>
-          <span class="coin-net">TON</span>
-        </button>
-        <button class="coin-btn" onclick="selectCoin('SOL')">
-          <span class="coin-icon">🟣</span>
-          <span class="coin-name">SOL</span>
-          <span class="coin-net">Solana</span>
-        </button>
-        <button class="coin-btn" onclick="selectCoin('BTC')">
-          <span class="coin-icon">₿</span>
-          <span class="coin-name">BTC</span>
-          <span class="coin-net">Bitcoin</span>
-        </button>
+      <div id="coin-selection">
+        <div class="coin-grid">
+          <button class="coin-btn" onclick="selectCoin('USDT')">
+            <span class="coin-icon">🟢</span>
+            <span class="coin-name">USDT</span>
+            <span class="coin-net">TRC20 / ERC20</span>
+          </button>
+          <button class="coin-btn" onclick="selectCoin('BTC')">
+            <span class="coin-icon">🟠</span>
+            <span class="coin-name">BTC</span>
+            <span class="coin-net">Bitcoin</span>
+          </button>
+          <button class="coin-btn" onclick="selectCoin('ETH')">
+            <span class="coin-icon">🟣</span>
+            <span class="coin-name">ETH</span>
+            <span class="coin-net">Ethereum</span>
+          </button>
+          <button class="coin-btn" onclick="selectCoin('TON')">
+            <span class="coin-icon">🔵</span>
+            <span class="coin-name">TON</span>
+            <span class="coin-net">TON Network</span>
+          </button>
+        </div>
       </div>
 
       <div id="crypto-details">
-        <button
-          class="btn btn-ghost"
-          style="padding:10px 12px;width:auto;margin-bottom:12px;background:rgba(255,255,255,.05);color:#fff;border-color:rgba(255,255,255,.12);"
-          onclick="resetCryptoModal()"
-        >
-          ← Back
-        </button>
-
         <div class="copy-box">
           <div class="copy-info">
-            <div class="copy-label">Amount to send</div>
-            <div class="copy-value" id="pay-amount">0.00</div>
+            <div class="copy-label">Amount to pay</div>
+            <div class="copy-value" id="pay-amount">$0</div>
           </div>
           <button class="copy-action" onclick="copyToClipboard('pay-amount')">Copy</button>
         </div>
 
         <div class="copy-box">
           <div class="copy-info">
-            <div class="copy-label">Wallet Address (<span id="pay-network">Network</span>)</div>
+            <div class="copy-label">Network</div>
+            <div class="copy-value" id="pay-network">-</div>
+          </div>
+          <button class="copy-action" onclick="copyToClipboard('pay-network')">Copy</button>
+        </div>
+
+        <div class="copy-box">
+          <div class="copy-info">
+            <div class="copy-label">Wallet address</div>
             <div class="copy-value" id="pay-address">-</div>
           </div>
           <button class="copy-action" onclick="copyToClipboard('pay-address')">Copy</button>
         </div>
 
         <div class="small-note">
-          1. Send the exact amount.<br>
-          2. Then tap the screenshot button below.<br>
-          3. Upload proof in the bot chat for manual VIP activation.
+          After payment, tap the button below and send your screenshot in the Telegram bot chat. The admin will verify and activate your VIP plan.
         </div>
 
         <button class="btn btn-green" style="width:100%;" onclick="closeAppAndUpload()">
-          📸 I Have Paid, Send Screenshot
+          📷 I have paid, send screenshot
         </button>
       </div>
     </div>
   </div>
 
-  <div id="fee-modal" style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,6,23,.62);backdrop-filter:blur(7px);z-index:2200;opacity:0;transition:opacity .25s ease;padding:18px;">
-    <div class="crypto-card">
-      <button class="crypto-close" onclick="closeFeeModal()">✕</button>
-      <div style="font-size:20px;font-weight:900;text-align:center;margin-bottom:10px;">
-        Withdrawal <span style="color:#4ade80;">Fee</span>
-      </div>
-      <div style="font-size:13px;color:#94a3b8;text-align:center;margin-bottom:20px;line-height:1.5;">
-        A one-time $5.00 verification fee is required to process your first withdrawal.
-      </div>
-      <div class="stack-actions" style="gap:12px;">
-        <button class="btn btn-green" style="width:100%;padding:14px;" onclick="payFeeStars()">⭐ Pay with Stars</button>
-        <button class="btn btn-blue" style="width:100%;padding:14px;" onclick="payFeeCrypto()">🔷 Pay with Crypto</button>
-      </div>
-    </div>
-  </div>
-
   <script>
+let feePaid = false;
     const tg = window.Telegram?.WebApp || null;
 
-    const BOT_USERNAME = 'AdzwalletBot';
-    const SUPPORT_USERNAME = 'adwalletagent';
+    const BOT_USERNAME = 'YOUR_BOT_USERNAME';
+    const SUPPORT_USERNAME = 'YOUR_SUPPORT_USERNAME';
 
-    const ADSGRAM_BLOCKS = ['26225'];
+    const OFFER_URLS = {
+      1: '',
+      2: '',
+      3: ''
+    };
+
+    const ADSGRAM_BLOCKS = [
+      '',
+      '',
+      ''
+    ];
+
+    const cryptoWallets = {
+      USDT: { network: 'TRC20 / ERC20', address: 'YOUR_USDT_WALLET_ADDRESS' },
+      BTC: { network: 'Bitcoin', address: 'YOUR_BTC_WALLET_ADDRESS' },
+      ETH: { network: 'Ethereum', address: 'YOUR_ETH_WALLET_ADDRESS' },
+      TON: { network: 'TON Network', address: 'YOUR_TON_WALLET_ADDRESS' }
+    };
+
+    const planPrices = {
+      Bronze: { USDT: '5.00', BTC: '0.00008', ETH: '0.003', TON: '2.5' },
+      Silver: { USDT: '10.00', BTC: '0.00015', ETH: '0.006', TON: '5' },
+      Gold: { USDT: '15.00', BTC: '0.00022', ETH: '0.009', TON: '7.5' },
+      Platinum: { USDT: '25.00', BTC: '0.00037', ETH: '0.015', TON: '12.5' },
+      Diamond: { USDT: '40.00', BTC: '0.0006', ETH: '0.025', TON: '20' },
+      Elite: { USDT: '60.00', BTC: '0.0009', ETH: '0.04', TON: '30' }
+    };
 
     const REFERRAL_VIP_REWARDS = {
       Bronze: 60,
@@ -2089,34 +1966,7 @@
       Elite: 1200
     };
 
-    const planPrices = {
-      Fee: { USDT: 5.00, BNB: 0.016, TRX: 38.75, TON: 5.25, SOL: 0.035, BTC: 0.00008 },
-      Bronze: { USDT: 10.00, BNB: 0.033, TRX: 77.50, TON: 10.50, SOL: 0.071, BTC: 0.00016 },
-      Silver: { USDT: 20.00, BNB: 0.066, TRX: 155.00, TON: 21.00, SOL: 0.142, BTC: 0.00032 },
-      Gold: { USDT: 30.00, BNB: 0.099, TRX: 232.50, TON: 31.50, SOL: 0.213, BTC: 0.00048 },
-      Platinum: { USDT: 50.00, BNB: 0.165, TRX: 387.50, TON: 52.50, SOL: 0.355, BTC: 0.00080 },
-      Diamond: { USDT: 75.00, BNB: 0.248, TRX: 581.25, TON: 78.75, SOL: 0.533, BTC: 0.00120 },
-      Elite: { USDT: 100.00, BNB: 0.330, TRX: 775.00, TON: 105.00, SOL: 0.710, BTC: 0.00160 }
-    };
-
-    const cryptoWallets = {
-      USDT: { address: '0x3e5989c2e42fa96397a1c9c743da6939b13b58b0', network: 'BEP20' },
-      BNB:  { address: '0x3e5989c2e42fa96397a1c9c743da6939b13b58b0', network: 'BEP20' },
-      TRX:  { address: 'THd6rZRzPKBwn5e2LhmiHPkNTXdLYsxFkj', network: 'TRON' },
-      TON:  { address: 'UQBR-ZYfWLu0qu6SHZev7y8PnKSjMBn4eh9KoC7obr7rucew', network: 'TON' },
-      SOL:  { address: 'GfB21zL1yqM7SzSh1gEyKPJZgA3CAGo5PxSKmmsxTE6Q', network: 'Solana' },
-      BTC:  { address: '1CZ1Z61vGh162pXGNU4q4vGN2hjWxom8rc', network: 'Bitcoin' }
-    };
-
-    const OFFER_URLS = {
-      1: 'https://plxnetwork.com?ref=16710035',
-      2: 'https://optilinklock.com/script_include.php?id=1887515',
-      3: 'https://optilinklock.com/script_include.php?id=1887516'
-    };
-
-    let sidebarOpen = false;
     let userId = '';
-    let adBlockPointer = 0;
     let currentBalance = 0;
     let currentTasks = 0;
     let referralCount = 0;
@@ -2126,167 +1976,163 @@
     let currentPendingVipPlan = '';
     let claimedReferralVipRewards = [];
     let withdrawHistory = [];
-    let hasPaidFee = false;
     let selectedVipPlan = '';
+    let adBlockPointer = 0;
+
+    function sleep(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      if (!toast) return;
+
+      toast.textContent = String(msg || '');
+      toast.classList.add('show');
+
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2400);
+    }
+
+    function toggleSidebar(force) {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('overlay');
+      if (!sidebar || !overlay) return;
+
+      const open = typeof force === 'boolean' ? force : !sidebar.classList.contains('open');
+      sidebar.classList.toggle('open', open);
+      overlay.classList.toggle('show', open);
+    }
+
+    function navigate(page, navIndex, sourceEl) {
+      document.querySelectorAll('.page').forEach((p) => p.classList.remove('active'));
+      const pageEl = document.getElementById(`page-${page}`);
+      if (pageEl) pageEl.classList.add('active');
+
+      document.querySelectorAll('.nav-item').forEach((n) => n.classList.remove('active'));
+      const navEl = typeof navIndex === 'number' ? document.getElementById(`nav-${navIndex}`) : null;
+      if (navEl) navEl.classList.add('active');
+
+      document.querySelectorAll('.sb-item').forEach((item) => item.classList.remove('active'));
+      if (sourceEl) sourceEl.classList.add('active');
+
+      const main = document.getElementById('main');
+      if (main) main.scrollTo({ top: 0, behavior: 'smooth' });
+      toggleSidebar(false);
+    }
 
     function resolveUserId() {
       if (userId) return String(userId);
+
       const urlId = new URLSearchParams(window.location.search).get('id');
       if (urlId) return String(urlId);
+
       const tgUser = tg?.initDataUnsafe?.user;
       if (tgUser?.id) return String(tgUser.id);
+
       return '';
     }
 
     function getFingerprint() {
       const parts = [
-        navigator.userAgent || 'ua',
-        screen.width || 0,
-        screen.height || 0,
-        Intl.DateTimeFormat().resolvedOptions().timeZone || 'tz',
-        navigator.language || 'lang'
+        navigator.userAgent,
+        navigator.language,
+        screen.width,
+        screen.height,
+        screen.colorDepth,
+        Intl.DateTimeFormat().resolvedOptions().timeZone || '',
+        navigator.platform || ''
       ];
-      return parts.join('|');
-    }
-
-    function toggleSidebar(force) {
-      if (typeof force === 'boolean') {
-        sidebarOpen = force;
-      } else {
-        sidebarOpen = !sidebarOpen;
-      }
-
-      const sidebar = document.getElementById('sidebar');
-      const overlay = document.getElementById('overlay');
-      const ham = document.getElementById('ham');
-      const spans = ham ? ham.querySelectorAll('span') : [];
-
-      sidebar?.classList.toggle('open', sidebarOpen);
-      overlay?.classList.toggle('show', sidebarOpen);
-
-      if (spans.length === 3) {
-        if (sidebarOpen) {
-          spans[0].style.transform = 'rotate(45deg) translate(4px,5px)';
-          spans[1].style.opacity = '0';
-          spans[2].style.transform = 'rotate(-45deg) translate(5px,-6px)';
-        } else {
-          spans.forEach((s) => {
-            s.style.transform = '';
-            s.style.opacity = '';
-          });
-        }
-      }
-    }
-
-    function navigate(page, idx, sbItem) {
-  toggleSidebar(false);
-
-  document.querySelectorAll('.page').forEach((p) => p.classList.remove('active'));
-  document.getElementById(`page-${page}`)?.classList.add('active');
-
-  document.getElementById('main').scrollTop = 0;
-
-  document.querySelectorAll('#bottom-nav .nav-item').forEach((item, i) => {
-    item.classList.toggle('active', i === idx);
-  });
-
-  document.querySelectorAll('.sb-item').forEach((item) => item.classList.remove('active'));
-
-  if (sbItem) {
-    sbItem.classList.add('active');
-  } else {
-    const targetSidebarItem = document.querySelector(`.sb-item[data-page="${page}"]`);
-    if (targetSidebarItem) targetSidebarItem.classList.add('active');
-  }
-
-  if (navigator.vibrate) navigator.vibrate(18);
-}
-
-    function showToast(message) {
-      const toast = document.getElementById('toast');
-      if (!toast) return;
-      toast.textContent = message;
-      toast.classList.add('show');
-      clearTimeout(showToast._t);
-      showToast._t = setTimeout(() => toast.classList.remove('show'), 2400);
+      return btoa(parts.join('|')).replace(/=+$/g, '');
     }
 
     function setBalance(value) {
       currentBalance = Math.max(0, Number(value || 0));
       const fmt = currentBalance.toFixed(2);
 
-      document.getElementById('bal-main').textContent = fmt;
-      document.getElementById('tb-bal').textContent = fmt;
-      document.getElementById('sb-bal').textContent = `$${fmt}`;
-      document.getElementById('co-bal').textContent = `$${fmt}`;
-      document.getElementById('progress-text').textContent = `$${fmt} / $100.00`;
+      const mainBal = document.getElementById('bal-main');
+      const topBal = document.getElementById('tb-bal');
+      const sideBal = document.getElementById('sb-bal');
+      const cashBal = document.getElementById('co-bal');
+      const progText = document.getElementById('progress-text');
+      const progFill = document.getElementById('prog-fill');
 
-      const pct = Math.min(100, (currentBalance / 100) * 100);
-      document.getElementById('prog-fill').style.width = `${pct}%`;
+      if (mainBal) mainBal.textContent = fmt;
+      if (topBal) topBal.textContent = fmt;
+      if (sideBal) sideBal.textContent = `$${fmt}`;
+      if (cashBal) cashBal.textContent = `$${fmt}`;
+      if (progText) progText.textContent = `$${fmt} / $100.00`;
+      if (progFill) progFill.style.width = `${Math.min(100, (currentBalance / 100) * 100)}%`;
     }
 
     function setMiniStats() {
-      document.getElementById('mini-tasks').textContent = String(currentTasks || 0);
-      document.getElementById('mini-refs').textContent = String(referralCount || 0);
-      document.getElementById('mini-vip').textContent = currentVip ? currentVipPlan : 'None';
+      const tasks = document.getElementById('mini-tasks');
+      const refs = document.getElementById('mini-refs');
+      const vip = document.getElementById('mini-vip');
+      const dashRefs = document.getElementById('dash-ref-count');
+      const dashRefEarnings = document.getElementById('dash-ref-earnings');
+      const refCount = document.getElementById('ref-count');
+      const refEarn = document.getElementById('ref-earnings');
 
-      document.getElementById('ref-count').textContent = String(referralCount || 0);
-      document.getElementById('dash-ref-count').textContent = String(referralCount || 0);
-      document.getElementById('ref-earnings').textContent = Number(referralEarnings || 0).toFixed(2);
-      document.getElementById('dash-ref-earnings').textContent = Number(referralEarnings || 0).toFixed(2);
+      if (tasks) tasks.textContent = String(currentTasks || 0);
+      if (refs) refs.textContent = String(referralCount || 0);
+      if (vip) vip.textContent = currentVipPlan || 'None';
+      if (dashRefs) dashRefs.textContent = String(referralCount || 0);
+      if (dashRefEarnings) dashRefEarnings.textContent = Number(referralEarnings || 0).toFixed(2);
+      if (refCount) refCount.textContent = String(referralCount || 0);
+      if (refEarn) refEarn.textContent = Number(referralEarnings || 0).toFixed(2);
     }
 
     function setVipStatus() {
       const badge = document.getElementById('vip-status-text');
-      if (!badge) return;
+      const mini = document.getElementById('mini-vip');
 
-      if (currentVip && currentVipPlan) {
-        badge.textContent = `Active: ${currentVipPlan}`;
-      } else if (currentPendingVipPlan) {
-        badge.textContent = `Pending: ${currentPendingVipPlan}`;
-      } else {
-        badge.textContent = 'Not activated yet';
+      if (badge) {
+        if (currentVip && currentVipPlan) {
+          badge.textContent = `Active: ${currentVipPlan}`;
+        } else if (currentPendingVipPlan) {
+          badge.textContent = `Pending: ${currentPendingVipPlan}`;
+        } else {
+          badge.textContent = 'Not activated yet';
+        }
+      }
+
+      if (mini) {
+        mini.textContent = currentVipPlan || 'None';
       }
     }
 
     function renderHistory() {
-      const el = document.getElementById('withdraw-history');
-      if (!el) return;
+      const wrap = document.getElementById('withdraw-history');
+      if (!wrap) return;
 
-      if (!Array.isArray(withdrawHistory) || !withdrawHistory.length) {
-        el.innerHTML = '<div class="muted" style="font-size:13px;">No withdrawals yet.</div>';
+      const items = Array.isArray(withdrawHistory) ? [...withdrawHistory].reverse() : [];
+      if (!items.length) {
+        wrap.innerHTML = '<div class="muted" style="font-size:13px;padding:8px 0;">No withdrawals yet.</div>';
         return;
       }
 
-      el.innerHTML = withdrawHistory
-        .slice()
-        .reverse()
-        .map((w) => {
-          const date = w?.date ? new Date(w.date).toLocaleString() : 'Unknown';
-          const status = String(w?.status || 'pending');
-          const color =
-            status === 'approved' ? 'var(--green-dark)'
-            : status === 'rejected' ? 'var(--danger)'
-            : 'var(--warn)';
-
-          return `
-            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:12px 0;border-bottom:1px solid var(--border);">
-              <div style="min-width:0;">
-                <div style="font-size:13px;font-weight:800;">${escapeHtml(w?.method || 'Withdrawal')}</div>
-                <div style="font-size:11px;color:var(--muted);line-height:1.5;margin-top:3px;word-break:break-word;">
-                  ${escapeHtml(date)}${w?.txId ? ` · ${escapeHtml(w.txId)}` : ''}
-                </div>
-                <div style="font-size:11px;color:${color};font-weight:800;text-transform:capitalize;margin-top:4px;">
-                  ${escapeHtml(status)}
-                </div>
+      wrap.innerHTML = items.map((w) => {
+        const status = String(w?.status || 'pending');
+        const color = status === 'approved' ? '#16a34a' : status === 'rejected' ? '#ef4444' : '#f59e0b';
+        const date = w?.date ? new Date(w.date).toLocaleString() : '';
+        return `
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);">
+            <div style="min-width:0;">
+              <div style="font-size:13px;font-weight:800;">${escapeHtml(w?.method || 'Unknown')}</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:3px;word-break:break-word;">
+                ${escapeHtml(date)}${w?.txId ? ` · ${escapeHtml(w.txId)}` : ''}
               </div>
-              <div style="font-size:14px;font-weight:900;color:var(--green-dark);white-space:nowrap;">
-                $${Number(w?.amount || 0).toFixed(2)}
-              </div>
+              <div style="font-size:11px;color:${color};font-weight:800;text-transform:capitalize;margin-top:4px;">${escapeHtml(status)}</div>
             </div>
-          `;
-        })
-        .join('');
+            <div style="font-size:14px;font-weight:900;color:var(--green-dark);white-space:nowrap;">
+              $${Number(w?.amount || 0).toFixed(2)}
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
     function applyClaimStates() {
@@ -2294,6 +2140,8 @@
       document.querySelectorAll('.vip-claim-btn').forEach((btn) => {
         const plan = btn.dataset.plan;
         if (!plan) return;
+
+        const needed = Number(REFERRAL_VIP_REWARDS[plan] || 0);
 
         if (claimed.includes(plan)) {
           btn.textContent = 'Claimed';
@@ -2303,7 +2151,6 @@
           return;
         }
 
-        const needed = REFERRAL_VIP_REWARDS[plan] || 0;
         if ((referralCount || 0) >= needed) {
           btn.textContent = 'Claim';
           btn.disabled = false;
@@ -2327,6 +2174,25 @@
         .replaceAll("'", '&#39;');
     }
 
+    function initTelegram() {
+      if (!tg) return;
+      try { tg.ready(); } catch {}
+      try { tg.expand(); } catch {}
+      try { tg.setHeaderColor('#ffffff'); } catch {}
+      try { tg.setBackgroundColor('#f6fff8'); } catch {}
+    }
+
+    function createPlatformStats() {
+      const a = document.getElementById('stat-payout');
+      const b = document.getElementById('stat-users');
+      const c = document.getElementById('stat-ads');
+      const d = document.getElementById('stat-today');
+      if (a) a.textContent = '$48,312';
+      if (b) b.textContent = '12,847';
+      if (c) c.textContent = '3.2M';
+      if (d) d.textContent = '$2,190';
+    }
+
     function setReferralLink() {
       const uid = resolveUserId();
       const input = document.getElementById('ref-link-input');
@@ -2334,60 +2200,66 @@
 
       if (!uid) {
         input.value = '';
-        input.placeholder = 'Open from Telegram bot';
+        input.placeholder = 'Referral link will appear after login';
+        return;
+      }
+
+      if (!BOT_USERNAME || BOT_USERNAME === 'YOUR_BOT_USERNAME') {
+        input.value = '';
+        input.placeholder = 'Set BOT_USERNAME first';
         return;
       }
 
       input.value = `https://t.me/${BOT_USERNAME}?start=${encodeURIComponent(uid)}`;
     }
 
-async function loadUserData() {
-  try {
-    const uid = resolveUserId();
-    if (!uid) {
-      showToast('Open this page from your bot or include ?id=');
-      return;
+    async function loadUserData() {
+      try {
+        const uid = resolveUserId();
+        if (!uid) {
+          showToast('Open this page from your bot or include ?id=');
+          return;
+        }
+
+        userId = uid;
+
+        const res = await fetch(`/user/${encodeURIComponent(uid)}`, { cache: 'no-store' });
+        if (!res.ok) throw new Error('Failed to load user');
+
+        const data = await res.json();
+feePaid = Boolean(data?.feePaid); 
+
+        currentBalance = Number(data?.balance || 0);
+        currentTasks = Number(data?.tasks || 0);
+        referralCount = Number(data?.referralCount || 0);
+        referralEarnings = Number(data?.referralEarnings || 0);
+        currentVip = Boolean(data?.vip);
+        currentVipPlan = data?.vipPlan || '';
+        currentPendingVipPlan = data?.pendingVipPlan || '';
+        claimedReferralVipRewards = Array.isArray(data?.claimedReferralVipRewards)
+          ? data.claimedReferralVipRewards
+          : [];
+        withdrawHistory = Array.isArray(data?.withdrawHistory) ? data.withdrawHistory : [];
+
+        const tgUser = tg?.initDataUnsafe?.user;
+        const displayName = tgUser?.first_name || data?.username || 'User';
+
+        const greet = document.getElementById('bal-greeting');
+        const sbName = document.getElementById('sb-name');
+        if (greet) greet.textContent = `👋 Hi, ${displayName}!`;
+        if (sbName) sbName.textContent = displayName;
+
+        setBalance(currentBalance);
+        setMiniStats();
+        setVipStatus();
+        setReferralLink();
+        renderHistory();
+        applyClaimStates();
+      } catch (err) {
+        console.error('loadUserData error', err);
+        showToast('Could not load account data');
+      }
     }
-
-    userId = uid;
-
-    const res = await fetch(`/user/${encodeURIComponent(uid)}`, { cache: 'no-store' });
-    if (!res.ok) throw new Error('Failed to load user');
-
-    const data = await res.json();
-
-    currentBalance = Number(data?.balance || 0);
-    currentTasks = Number(data?.tasks || 0);
-    referralCount = Number(data?.referralCount || 0);
-    referralEarnings = Number(data?.referralEarnings || 0);
-    currentVip = Boolean(data?.vip);
-    currentVipPlan = data?.vipPlan || '';
-    currentPendingVipPlan = data?.pendingVipPlan || '';
-    claimedReferralVipRewards = Array.isArray(data?.claimedReferralVipRewards)
-      ? data.claimedReferralVipRewards
-      : [];
-    withdrawHistory = Array.isArray(data?.withdrawHistory) ? data.withdrawHistory : [];
-
-    const tgUser = tg?.initDataUnsafe?.user;
-    const displayName = tgUser?.first_name || data?.username || 'User';
-
-    const greet = document.getElementById('bal-greeting');
-    const sbName = document.getElementById('sb-name');
-
-    if (greet) greet.textContent = `👋 Hi, ${displayName}!`;
-    if (sbName) sbName.textContent = displayName;
-
-    setBalance(currentBalance);
-    setMiniStats();
-    setVipStatus();
-    setReferralLink();
-    renderHistory();
-    applyClaimStates();
-  } catch (err) {
-    console.error('loadUserData error', err);
-    showToast('Could not load account data');
-  }
-}
 
     function getNextAdBlockId() {
       if (!ADSGRAM_BLOCKS.length) return '';
@@ -2399,9 +2271,11 @@ async function loadUserData() {
     async function showRewardedAd() {
       if (window.Adsgram && typeof window.Adsgram.init === 'function' && ADSGRAM_BLOCKS.length) {
         const blockId = getNextAdBlockId();
-        const ad = window.Adsgram.init({ blockId });
-        if (ad && typeof ad.show === 'function') {
-          return ad.show();
+        if (blockId) {
+          const ad = window.Adsgram.init({ blockId });
+          if (ad && typeof ad.show === 'function') {
+            return ad.show();
+          }
         }
       }
 
@@ -2423,6 +2297,28 @@ async function loadUserData() {
       if (!res.ok || !data.success) {
         throw new Error(data?.message || 'Reward failed');
       }
+      return data;
+    }
+
+    async function rewardMonetagUser() {
+      const uid = resolveUserId();
+      if (!uid) throw new Error('Cannot identify user');
+
+      const res = await fetch('/api/reward-monetag', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: uid,
+          adCompleted: true,
+          fingerprint: getFingerprint()
+        })
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) {
+        throw new Error(data?.message || 'Reward failed');
+      }
+
       return data;
     }
 
@@ -2469,8 +2365,33 @@ async function loadUserData() {
       watchAd(btn);
     }
 
-    function showMonetagAd(btn) {
-      watchAd(btn);
+    async function showMonetagAd(btn) {
+      const original = btn ? btn.textContent : '';
+
+      try {
+        if (btn) {
+          btn.disabled = true;
+          btn.textContent = '⏳';
+        }
+
+        if (typeof window.show_10760190 !== 'function') {
+          throw new Error('Monetag is not loaded');
+        }
+
+        await window.show_10760190();
+        const data = await rewardMonetagUser();
+
+        showToast(`✅ +$${Number(data.reward || 0).toFixed(4)} added`);
+        await loadUserData();
+      } catch (err) {
+        console.error('Monetag error:', err);
+        showToast(err?.message || 'Monetag ad failed');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = original || 'Play';
+        }
+      }
     }
 
     async function claimBonus() {
@@ -2502,6 +2423,11 @@ async function loadUserData() {
     }
 
     function contactSupport() {
+      if (!SUPPORT_USERNAME || SUPPORT_USERNAME === 'YOUR_SUPPORT_USERNAME') {
+        showToast('Set SUPPORT_USERNAME first');
+        return;
+      }
+
       const url = `https://t.me/${SUPPORT_USERNAME}`;
       if (tg?.openTelegramLink) {
         tg.openTelegramLink(url);
@@ -2517,12 +2443,31 @@ async function loadUserData() {
     }
 
     function openCpagripOffer(index) {
-      const url = OFFER_URLS[index];
-      if (!url) {
-        showToast(`Set OFFER_URLS[${index}] in the script first`);
-        return;
+      try {
+        const directUrl = OFFER_URLS?.[index];
+        if (directUrl) {
+          openExternalLink(directUrl);
+          return;
+        }
+
+        const globalCandidates = [
+          window[`show_offer_${index}`],
+          window[`open_offer_${index}`],
+          window[`cpagrip_offer_${index}`],
+          window[`offer_${index}`]
+        ];
+
+        const fn = globalCandidates.find((candidate) => typeof candidate === 'function');
+        if (fn) {
+          fn();
+          return;
+        }
+
+        showToast(`Offer ${index} URL is missing`);
+      } catch (err) {
+        console.error('CPAGrip offer error:', err);
+        showToast('Offer failed to open');
       }
-      openExternalLink(url);
     }
 
     async function copyText(text) {
@@ -2546,7 +2491,7 @@ async function loadUserData() {
     }
 
     async function copyRef() {
-      const value = document.getElementById('ref-link-input').value;
+      const value = document.getElementById('ref-link-input')?.value || '';
       if (!value) {
         showToast('Referral link not ready');
         return;
@@ -2556,7 +2501,7 @@ async function loadUserData() {
     }
 
     async function share(platform) {
-      const link = document.getElementById('ref-link-input').value;
+      const link = document.getElementById('ref-link-input')?.value || '';
       if (!link) {
         showToast('Referral link not ready');
         return;
@@ -2582,9 +2527,7 @@ async function loadUserData() {
       const url = urls[platform];
       if (!url) return;
 
-      if (platform === 'telegram' && tg?.openTelegramLink) {
-        tg.openTelegramLink(url);
-      } else if (tg?.openLink) {
+      if (tg?.openLink) {
         tg.openLink(url);
       } else {
         window.open(url, '_blank', 'noopener');
@@ -2609,12 +2552,16 @@ async function loadUserData() {
       }
     }
 
-    function setAmount(value) {
-      document.getElementById('withdraw-amount').value = value;
+    function setAmount(v) {
+      const input = document.getElementById('withdraw-amount');
+      if (!input) return;
+      input.value = Number(v || 0).toFixed(2);
     }
 
     function setAmountMax() {
-      document.getElementById('withdraw-amount').value = currentBalance.toFixed(2);
+      const input = document.getElementById('withdraw-amount');
+      if (!input) return;
+      input.value = Number(currentBalance || 0).toFixed(2);
     }
 
     function buildWithdrawDetails(method) {
@@ -2663,17 +2610,15 @@ async function loadUserData() {
       return details;
     }
 
+if (!feePaid) {
+  openFeePopup();
+  return;
+}
+
     async function submitWithdraw() {
       const uid = resolveUserId();
       if (!uid) {
         showToast('Cannot identify user');
-        return;
-      }
-
-      if (!hasPaidFee) {
-        const feeModal = document.getElementById('fee-modal');
-        feeModal.style.display = 'flex';
-        requestAnimationFrame(() => feeModal.style.opacity = '1');
         return;
       }
 
@@ -2741,27 +2686,33 @@ async function loadUserData() {
       }
     }
 
-    function buyVipCrypto(plan) {
-      selectedVipPlan = plan;
-      document.getElementById('modal-plan-name').textContent = `${plan} VIP`;
-      resetCryptoModal();
-      const modal = document.getElementById('crypto-modal');
-      modal.style.display = 'flex';
-      requestAnimationFrame(() => modal.classList.add('show'));
+    function resetCryptoModal() {
+      const selection = document.getElementById('coin-selection');
+      const details = document.getElementById('crypto-details');
+      const subtitle = document.getElementById('modal-subtitle');
+      if (selection) selection.style.display = 'grid';
+      if (details) details.style.display = 'none';
+      if (subtitle) subtitle.textContent = 'Select your crypto payment method';
     }
 
     function closeCryptoModal() {
       const modal = document.getElementById('crypto-modal');
+      if (!modal) return;
       modal.classList.remove('show');
       setTimeout(() => {
         modal.style.display = 'none';
       }, 220);
     }
 
-    function resetCryptoModal() {
-      document.getElementById('coin-selection').style.display = 'grid';
-      document.getElementById('crypto-details').style.display = 'none';
-      document.getElementById('modal-subtitle').textContent = 'Select your crypto payment method';
+    function buyVipCrypto(plan) {
+      selectedVipPlan = plan;
+      const modalPlan = document.getElementById('modal-plan-name');
+      if (modalPlan) modalPlan.textContent = `${plan} VIP`;
+      resetCryptoModal();
+      const modal = document.getElementById('crypto-modal');
+      if (!modal) return;
+      modal.style.display = 'flex';
+      requestAnimationFrame(() => modal.classList.add('show'));
     }
 
     function selectCoin(coin) {
@@ -2805,6 +2756,11 @@ async function loadUserData() {
         }
 
         closeCryptoModal();
+
+        if (!BOT_USERNAME || BOT_USERNAME === 'YOUR_BOT_USERNAME') {
+          showToast('Set BOT_USERNAME first');
+          return;
+        }
 
         const botUrl = `https://t.me/${BOT_USERNAME}`;
         if (tg?.openTelegramLink) {
@@ -2851,7 +2807,7 @@ async function loadUserData() {
       const container = document.getElementById('main');
       const target = document.getElementById('vip-plans-list');
       if (!container || !target) return;
-      navigate('vip', 5);
+      navigate('vip', 4);
       setTimeout(() => {
         container.scrollTo({
           top: target.offsetTop - 72,
@@ -2868,118 +2824,81 @@ async function loadUserData() {
       if (!isOpen) item.classList.add('open');
     }
 
-const demoStats = {
-  totalPayouts: 483120,
-  activeUsers: 12847,
-  adsWatched: 3200000,
-  paidToday: 2190
-};
-
-function animateDemoStats() {
-  const bump = (value, min, max) => {
-    const change = Math.floor(Math.random() * (max - min + 1)) + min;
-    return value + change;
-  };
-
-  demoStats.totalPayouts = bump(demoStats.totalPayouts, 120, 900);
-  demoStats.activeUsers = bump(demoStats.activeUsers, 1, 8);
-  demoStats.adsWatched = bump(demoStats.adsWatched, 30, 180);
-  demoStats.paidToday = bump(demoStats.paidToday, 10, 120);
-
-  document.getElementById('stat-payout').textContent =
-    `$${demoStats.totalPayouts.toLocaleString()}`;
-  document.getElementById('stat-users').textContent =
-    demoStats.activeUsers.toLocaleString();
-  document.getElementById('stat-ads').textContent =
-    `${demoStats.adsWatched.toLocaleString()}`;
-  document.getElementById('stat-today').textContent =
-    `$${demoStats.paidToday.toLocaleString()}`;
-}
-
-animateDemoStats();
-setInterval(animateDemoStats, 1000);
-    function initTelegram() {
-      if (!tg) return;
-      try { tg.ready(); } catch {}
-      try { tg.expand(); } catch {}
-      try { tg.setHeaderColor('#ffffff'); } catch {}
-      try { tg.setBackgroundColor('#f6fff8'); } catch {}
+    function openExternalLink(url) {
+      if (!url) return;
+      if (tg?.openLink) tg.openLink(url);
+      else window.open(url, '_blank', 'noopener');
     }
 
-    function closeFeeModal() {
-      const modal = document.getElementById('fee-modal');
-      modal.style.opacity = '0';
-      setTimeout(() => {
-        modal.style.display = 'none';
-      }, 220);
-    }
-
-    function payFeeCrypto() {
-      closeFeeModal();
-      selectedVipPlan = 'Fee'; 
-      document.getElementById('modal-plan-name').textContent = `Withdrawal Fee`;
-      resetCryptoModal();
-      const modal = document.getElementById('crypto-modal');
-      modal.style.display = 'flex';
-      requestAnimationFrame(() => modal.classList.add('show'));
-    }
-
-function payFeeCrypto() {
-      closeFeeModal();
-      selectedVipPlan = 'Fee'; 
-      document.getElementById('modal-plan-name').textContent = `Withdrawal Fee`;
-      resetCryptoModal();
-      const modal = document.getElementById('crypto-modal');
-      modal.style.display = 'flex';
-      requestAnimationFrame(() => modal.classList.add('show'));
-    }
-
-    async function payFeeStars() {
+    function openCpagripOffer(index) {
       try {
-        const res = await fetch(`/api/fee-invoice`);
-        const data = await res.json().catch(() => ({}));
-
-        if (!data?.ok || !data?.invoiceUrl) {
-          showToast(data?.error || 'Could not create invoice');
+        const directUrl = OFFER_URLS?.[index];
+        if (directUrl) {
+          openExternalLink(directUrl);
           return;
         }
 
-        if (tg?.openInvoice) {
-          tg.openInvoice(data.invoiceUrl, async (status) => {
-            if (status === 'paid') {
-              showToast(`Fee paid successfully!`);
-              closeFeeModal();
-              await loadUserData(); 
-            } else if (status === 'cancelled') {
-              showToast('Payment cancelled');
-            } else {
-              showToast('Invoice closed');
-            }
-          });
-        } else {
-          showToast('Open inside Telegram to pay invoice');
+        const globalCandidates = [
+          window[`show_offer_${index}`],
+          window[`open_offer_${index}`],
+          window[`cpagrip_offer_${index}`],
+          window[`offer_${index}`]
+        ];
+
+        const fn = globalCandidates.find((candidate) => typeof candidate === 'function');
+        if (fn) {
+          fn();
+          return;
         }
+
+        showToast(`Offer ${index} URL is missing`);
       } catch (err) {
-        console.error(err);
-        showToast('Invoice request failed');
+        console.error('CPAGrip offer error:', err);
+        showToast('Offer failed to open');
       }
     }
 
-function initApp() {
-  initTelegram();
+    async function initApp() {
+      initTelegram();
+      createPlatformStats();
 
-  userId = resolveUserId();
+      ['bal-main', 'tb-bal', 'sb-bal', 'co-bal'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.textContent = id === 'sb-bal' || id === 'co-bal' ? '$--' : '--';
+      });
 
-  if (!userId) {
-    console.error('User ID not found');
-    return;
-  }
+      let tries = 0;
+      while (!resolveUserId() && tries < 10) {
+        await sleep(250);
+        tries += 1;
+      }
 
-  // Load data immediately when app opens
-  loadUserData();
-}
+      userId = resolveUserId();
+      setReferralLink();
+
+      if (!userId) {
+        showToast('Open this page from the Telegram bot');
+        return;
+      }
+
+      await loadUserData();
+
+      setTimeout(() => {
+        loadUserData();
+        setReferralLink();
+      }, 500);
+
+      setInterval(() => {
+        if (document.visibilityState === 'visible') {
+          loadUserData();
+          setReferralLink();
+        }
+      }, 15000);
+    }
 
     window.addEventListener('load', initApp);
   </script>
 </body>
 </html>
+

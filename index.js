@@ -332,34 +332,33 @@ app.get('/user/:id', async (req, res) => {
   try {
     const user = await ensureUser(req.params.id);
 
-    // Keep the starter bonus behavior from the existing app.
     if (!user.welcomeBonusClaimed) {
       user.balance += 5;
       user.welcomeBonusClaimed = true;
       await user.save();
-      console.log(`🎁 Welcome bonus given to ${user.userId}`);
     }
 
     return res.json({
       userId: user.userId,
       username: user.username,
       balance: Number(user.balance.toFixed(4)),
-      tasks: Number(user.tasks || 0),
-      vip: Boolean(user.vip),
+      tasks: user.tasks || 0,
+      referralCount: user.referralCount || 0,
+      referralEarnings: user.referralEarnings || 0,
+      vip: user.vip,
       vipPlan: user.vipPlan,
-      pendingVipPlan: user.pendingVipPlan || null,
-      referralCount: Number(user.referralCount || 0),
-      referralEarnings: Number(Number(user.referralEarnings || 0).toFixed(4)),
+      pendingVipPlan: user.pendingVipPlan || '',
       claimedReferralVipRewards: user.claimedReferralVipRewards || [],
-      welcomeBonusClaimed: Boolean(user.welcomeBonusClaimed),
-      isAdmin: Boolean(user.isAdmin),
-      feePaid: Boolean(user.feePaid),
-      feeProofPending: Boolean(user.feeProofPending),
-      withdrawHistory: user.withdrawHistory || []
+      withdrawHistory: user.withdrawHistory || [],
+
+      // ✅ IMPORTANT
+      feePaid: user.feePaid || false,
+      feeProofPending: user.feeProofPending || false
     });
+
   } catch (err) {
-    console.error('GET /user/:id error:', err);
-    return res.status(500).json({ error: 'Failed to load user' });
+    console.error(err);
+    res.status(500).json({ error: 'Failed' });
   }
 });
 
