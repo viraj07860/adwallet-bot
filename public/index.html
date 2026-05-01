@@ -2965,6 +2965,20 @@ function payFeeCrypto() {
       }
     }
 
+function initApp() {
+  initTelegram();
+
+  userId = resolveUserId();
+
+  if (!userId) {
+    console.error('User ID not found');
+    return;
+  }
+
+  // Load data immediately when app opens
+  loadUserData();
+}
+
     window.addEventListener('load', initApp);
   </script>
 </body>
