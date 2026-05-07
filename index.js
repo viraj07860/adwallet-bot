@@ -804,11 +804,13 @@ bot.start(async (ctx) => {
 bot.command('activate', async (ctx) => {
   try {
     const senderId = String(ctx.from.id);
+
     if (senderId !== ADMIN_ID) {
       return ctx.reply('❌ Admin only');
     }
 
     const args = String(ctx.message?.text || '').trim().split(/\s+/);
+
     if (args.length < 3) {
       return ctx.reply('Usage: /activate <userId> <plan>');
     }
@@ -827,9 +829,10 @@ bot.command('activate', async (ctx) => {
     targetUser.isWaitingForProof = false;
     await targetUser.save();
 
-    await ctx.reply(`✅ User <code>${targetUserId}</code> upgraded to <b>${targetPlan} VIP</b>`, {
-      parse_mode: 'HTML'
-    });
+    await ctx.reply(
+      `✅ User <code>${targetUserId}</code> upgraded to <b>${targetPlan} VIP</b>`,
+      { parse_mode: 'HTML' }
+    );
 
     try {
       await bot.telegram.sendMessage(
@@ -839,14 +842,24 @@ bot.command('activate', async (ctx) => {
           parse_mode: 'HTML',
           reply_markup: {
             inline_keyboard: [[
-              { text: '🚀 Open App', web_app: { url: `${WEBAPP_URL}/?id=${targetUserId}` } }
+              {
+                text: '🚀 Open App',
+                web_app: { url: `${WEBAPP_URL}/?id=${targetUserId}` }
+              }
             ]]
           }
         }
       );
-    } catch {}
+    } catch (err) {
+      console.error('Failed to DM upgraded user:', err);
+      await ctx.reply(
+        `✅ VIP activated for <code>${targetUserId}</code>, but I could not DM the user.`,
+        { parse_mode: 'HTML' }
+      );
+    }
   } catch (err) {
     console.error('bot.command activate error:', err);
+    return ctx.reply('❌ Error activating VIP.');
   }
 });
 
