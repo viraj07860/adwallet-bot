@@ -51,25 +51,34 @@ const withdrawSchema = new mongoose.Schema(
 const userSchema = new mongoose.Schema({
   userId: { type: String, required: true, unique: true, index: true },
   username: { type: String, default: 'User' },
+
   balance: { type: Number, default: 0 },
   tasks: { type: Number, default: 0 },
+
   referralCount: { type: Number, default: 0 },
   referralEarnings: { type: Number, default: 0 },
   claimedReferralVipRewards: { type: [String], default: [] },
+
   referredBy: { type: String, default: '' },
   referralCredited: { type: Boolean, default: false },
+
   lastReward: { type: Number, default: 0 },
   lastDailyBonus: { type: String, default: '' },
   welcomeBonusClaimed: { type: Boolean, default: false },
+
   vip: { type: Boolean, default: false },
   vipPlan: { type: String, default: null },
   pendingVipPlan: { type: String, default: null },
+
   isWaitingForProof: { type: Boolean, default: false },
   isAdmin: { type: Boolean, default: false },
+
   feePaid: { type: Boolean, default: false },
   feeProofPending: { type: Boolean, default: false },
+
   deviceFingerprint: { type: String, default: '' },
   lastRewardIp: { type: String, default: '' },
+
   withdrawHistory: { type: [withdrawSchema], default: [] }
 });
 
@@ -167,7 +176,9 @@ async function isUserJoined(ctx, userId) {
 }
 
 function normalizeDetails(details) {
-  if (!details || typeof details !== 'object') return '';
+  if (!details) return '';
+  if (typeof details === 'string') return details.trim();
+  if (typeof details !== 'object') return '';
   return Object.entries(details)
     .filter(([, value]) => typeof value === 'string' && value.trim())
     .map(([key, value]) => `${key}: ${value.trim()}`)
@@ -336,29 +347,29 @@ app.get('/user/:id', async (req, res) => {
       user.balance += 5;
       user.welcomeBonusClaimed = true;
       await user.save();
+      console.log(`🎁 Welcome bonus given to ${user.userId}`);
     }
 
     return res.json({
       userId: user.userId,
       username: user.username,
       balance: Number(user.balance.toFixed(4)),
-      tasks: user.tasks || 0,
-      referralCount: user.referralCount || 0,
-      referralEarnings: user.referralEarnings || 0,
-      vip: user.vip,
+      tasks: Number(user.tasks || 0),
+      vip: Boolean(user.vip),
       vipPlan: user.vipPlan,
-      pendingVipPlan: user.pendingVipPlan || '',
+      pendingVipPlan: user.pendingVipPlan || null,
+      referralCount: Number(user.referralCount || 0),
+      referralEarnings: Number(Number(user.referralEarnings || 0).toFixed(4)),
       claimedReferralVipRewards: user.claimedReferralVipRewards || [],
-      withdrawHistory: user.withdrawHistory || [],
-
-      // ✅ IMPORTANT
-      feePaid: user.feePaid || false,
-      feeProofPending: user.feeProofPending || false
+      welcomeBonusClaimed: Boolean(user.welcomeBonusClaimed),
+      isAdmin: Boolean(user.isAdmin),
+      feePaid: Boolean(user.feePaid),
+      feeProofPending: Boolean(user.feeProofPending),
+      withdrawHistory: user.withdrawHistory || []
     });
-
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed' });
+    console.error('GET /user/:id error:', err);
+    return res.status(500).json({ error: 'Failed to load user' });
   }
 });
 
@@ -759,7 +770,7 @@ app.post('/api/admin/reject-withdrawal', async (req, res) => {
   }
 });
 
-// -------------------- Bot Commands & Events --------------------
+// -------------------- Bot Logic --------------------
 bot.catch((err, ctx) => {
   console.error(`Bot error for update ${ctx?.updateType || 'unknown'}:`, err);
 });
@@ -804,13 +815,11 @@ bot.start(async (ctx) => {
 bot.command('activate', async (ctx) => {
   try {
     const senderId = String(ctx.from.id);
-
     if (senderId !== ADMIN_ID) {
       return ctx.reply('❌ Admin only');
     }
 
     const args = String(ctx.message?.text || '').trim().split(/\s+/);
-
     if (args.length < 3) {
       return ctx.reply('Usage: /activate <userId> <plan>');
     }
@@ -829,10 +838,9 @@ bot.command('activate', async (ctx) => {
     targetUser.isWaitingForProof = false;
     await targetUser.save();
 
-    await ctx.reply(
-      `✅ User <code>${targetUserId}</code> upgraded to <b>${targetPlan} VIP</b>`,
-      { parse_mode: 'HTML' }
-    );
+    await ctx.reply(`✅ User <code>${targetUserId}</code> upgraded to <b>${targetPlan} VIP</b>`, {
+      parse_mode: 'HTML'
+    });
 
     try {
       await bot.telegram.sendMessage(
@@ -842,24 +850,14 @@ bot.command('activate', async (ctx) => {
           parse_mode: 'HTML',
           reply_markup: {
             inline_keyboard: [[
-              {
-                text: '🚀 Open App',
-                web_app: { url: `${WEBAPP_URL}/?id=${targetUserId}` }
-              }
+              { text: '🚀 Open App', web_app: { url: `${WEBAPP_URL}/?id=${targetUserId}` } }
             ]]
           }
         }
       );
-    } catch (err) {
-      console.error('Failed to DM upgraded user:', err);
-      await ctx.reply(
-        `✅ VIP activated for <code>${targetUserId}</code>, but I could not DM the user.`,
-        { parse_mode: 'HTML' }
-      );
-    }
+    } catch {}
   } catch (err) {
     console.error('bot.command activate error:', err);
-    return ctx.reply('❌ Error activating VIP.');
   }
 });
 
@@ -1021,7 +1019,6 @@ bot.on('photo', async (ctx) => {
   try {
     const userId = String(ctx.from.id);
     const user = await ensureUser(userId);
-
     const photoId = ctx.message.photo[ctx.message.photo.length - 1].file_id;
 
     // Withdrawal fee proof flow.
